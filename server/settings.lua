@@ -22,7 +22,7 @@ local function presetPayload(preset)
  return {mode=preset.mode,trafficLevel=preset.trafficLevel,npcLevel=preset.npcLevel,features=features}
 end
 local function defaults()
- return {mode=Config.Adjustor.mode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,features=defaultFeatures(),presets={}}
+ return {mode=Config.Adjustor.mode,profile='normal_traffic',trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,features=defaultFeatures(),presets={}}
 end
 local function load()
  local raw=LoadResourceFile(resourceName,'data/settings.json')
@@ -32,7 +32,7 @@ local function load()
  local d=defaults()
  value.features=type(value.features)=='table' and value.features or d.features
  value.presets=type(value.presets)=='table' and value.presets or {}
- value.mode=value.mode=='manual' and 'manual' or 'auto'
+ value.mode=value.mode=='manual' and 'manual' or 'auto';value.profile=type(value.profile)=='string' and value.profile or d.profile
  value.trafficLevel=math.max(0,math.min(100,tonumber(value.trafficLevel) or d.trafficLevel))
  value.npcLevel=math.max(0,math.min(100,tonumber(value.npcLevel) or d.npcLevel))
  for k,v in pairs(d.features) do if value.features[k]==nil then value.features[k]=v end end
@@ -64,6 +64,7 @@ RegisterNetEvent('traffic:server:applyPreset',function(id)
  if not chosen and TrafficSettings.presets[id] then chosen=TrafficSettings.presets[id] end
  if not chosen then return end
  TrafficSettings.mode=chosen.mode
+ TrafficSettings.profile=id
  TrafficSettings.trafficLevel=math.max(0,math.min(100,tonumber(chosen.trafficLevel) or 70))
  TrafficSettings.npcLevel=math.max(0,math.min(100,tonumber(chosen.npcLevel) or 70))
  TrafficSettings.features=chosen.features or defaultFeatures()
@@ -88,6 +89,7 @@ RegisterNetEvent('traffic:server:updateSettings',function(payload)
  if not TrafficPermissions.isAdmin(source) or type(payload)~='table' then return end
  local d=defaults();TrafficSettings=TrafficSettings or load()
  if payload.mode=='auto' or payload.mode=='manual' then TrafficSettings.mode=payload.mode end
+ TrafficSettings.profile='custom'
  if payload.trafficLevel~=nil then TrafficSettings.trafficLevel=math.max(0,math.min(100,tonumber(payload.trafficLevel) or TrafficSettings.trafficLevel)) end
  if payload.npcLevel~=nil then TrafficSettings.npcLevel=math.max(0,math.min(100,tonumber(payload.npcLevel) or TrafficSettings.npcLevel)) end
  if type(payload.features)=='table' then for k,v in pairs(d.features) do if payload.features[k]~=nil then TrafficSettings.features[k]=payload.features[k]==true end end end
