@@ -6,51 +6,117 @@ local function allowedReport(src)
  reportRate[src]=now
  return true
 end
+local function num(v,default)
+ v=tonumber(v);if not v or v~=v or math.abs(v)>10000000 then return default end
+ return v
+end
+local function sanitizePoint(p)
+ if type(p)~='table' then return nil end
+ if not p.x or not p.y or not p.z then return nil end
+ return {x=num(p.x,0),y=num(p.y,0),z=num(p.z,0),heading=num(p.heading,0),dx=num(p.dx,nil),dy=num(p.dy,nil)}
+end
+local function sanitizeRoute(route)
+ if type(route)~='table' then return nil end
+ local points={}
+ for _,p in ipairs(route.points or {}) do
+  local q=sanitizePoint(p);if q then points[#points+1]=q end
+  if #points>=Config.Learning.maxPointsPerRoute then break end
+ end
+ if #points<2 then return nil end
+ route.points=points;route.name=tostring(route.name or 'Learned Route'):sub(1,80)
+ route.loop=route.loop==true
+ route.confidence=num(route.confidence,0);route.successes=math.max(0,math.floor(num(route.successes,0)))
+ route.failures=math.max(0,math.floor(num(route.failures,0)))
+ return route
+end
+local function classifyObstacle(hit)
+ if not Config.MLOIntelligence.enabled then return 'unknown' end
+ local ok,node=GetClosestVehicleNode(hit.x,hit.y,hit.z,1,Config.MLOIntelligence.roadProbeRadius,0)
+ if not ok then return 'dead_end' end
+ local dx=(node.x or hit.x)-hit.x;local dy=(node.y or hit.y)-hit.y
+ local dist=math.sqrt(dx*dx+dy*dy)
+ if dist>Config.MLOIntelligence.roadProbeRadius*0.75 then return 'blocked_road' end
+ local h=math.abs(tonumber(hit.hits or 1))
+ if h>=Config.MLOIntelligence.minimumHits then return 'building_entrance' end
+ return 'unknown'
+end
 RegisterNetEvent('traffic:server:addRoute',function(route)
- if not TrafficPermissions.canLearn(source) or type(route)~='table' then return end
+ if not TrafficPermissions.canLearn(source) then return end
+ route=sanitizeRoute(route);if not route then return end
  route.id=route.id or ('route_%s_%s'):format(os.time(),math.random(1000,9999))
- route.createdBy=GetPlayerName(source) or 'console';route.createdAt=os.time();route.points=route.points or {}
- while #route.points>Config.Learning.maxPointsPerRoute do table.remove(route.points) end
+ route.createdBy=GetPlayerName(source) or 'console';route.createdAt=os.time()
  TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast()
+end)
+RegisterNetEvent('traffic:server:discoverRoute',function(route)
+ if not Config.AutoDiscovery.enabled or type(route)~='table' then return end
+ if not allowedReport(source) then return end
+ route=sanitizeRoute(route);if not route then return end
+ local merged=nil
+ for id,r in pairs(TrafficRoutes) do
+  if r.autoDiscovered and r.points and r.points[1] and route.points[1] and Traffic.distance(r.points[1],route.points[1])<Config.RouteSnapDistance then merged=id;break end
+ end
+ if merged then
+  local r=TrafficRoutes[merged];r.successes=(r.successes or 0)+1;r.confidence=math.min(100,(r.confidence or 0)+Config.AutoDiscovery.confidenceGain)
+  if #r.points<#route.points then r.points=route.points end
+ else
+  local count=0;for _,r in pairs(TrafficRoutes) do if r.autoDiscovered then count=count+1 end end
+  if count<Config.AutoDiscovery.maxCandidates then
+   route.id=('auto_%s_%s'):format(os.time(),math.random(1000,9999));route.name='Auto-discovered route';route.autoDiscovered=true
+   route.createdBy='Traffic Intelligence';route.createdAt=os.time();route.successes=1;route.confidence=Config.AutoDiscovery.confidenceStart
+   TrafficRoutes[route.id]=route
+  end
+ end
+ TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:updateRoute',function(route)
  if not TrafficPermissions.isAdmin(source) or type(route)~='table' or not route.id or not TrafficRoutes[route.id] then return end
- route.updatedAt=os.time();route.updatedBy=GetPlayerName(source) or 'console';route.points=route.points or {}
- while #route.points>Config.Learning.maxPointsPerRoute do table.remove(route.points) end
+ route=sanitizeRoute(route);if not route then return end
+ route.id=route.id;route.updatedAt=os.time();route.updatedBy=GetPlayerName(source) or 'console'
  TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteRoute',function(id)
- if not TrafficPermissions.isAdmin(source) then return end
+ if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
  TrafficRoutes[id]=nil;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:addZone',function(zone)
  if not TrafficPermissions.isAdmin(source) or type(zone)~='table' then return end
  zone.id=zone.id or ('zone_%s_%s'):format(os.time(),math.random(1000,9999))
  zone.type=Config.ZoneTypes[zone.type] and zone.type or 'normal'
- zone.radius=tonumber(zone.radius) or Config.ZoneTypes[zone.type].radius
+ zone.radius=math.max(10,math.min(500,num(zone.radius,Config.ZoneTypes[zone.type].radius)))
+ zone.x=num(zone.x,0);zone.y=num(zone.y,0);zone.z=num(zone.z,0);zone.heading=num(zone.heading,0)
+ zone.name=tostring(zone.name or zone.type):sub(1,80)
  TrafficZones[zone.id]=zone;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteZone',function(id)
- if not TrafficPermissions.isAdmin(source) then return end
+ if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
  TrafficZones[id]=nil;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:reportObstacle',function(hit)
- if not allowedReport(source) then return end
- if type(hit)~='table' or not hit.x or not hit.y or not hit.z then return end
+ if not allowedReport(source) or type(hit)~='table' then return end
+ hit.x=num(hit.x,nil);hit.y=num(hit.y,nil);hit.z=num(hit.z,nil)
+ if not hit.x or not hit.y or not hit.z then return end
  local best,dist
  for id,o in pairs(TrafficObstacles) do
   local d=Traffic.distance({x=hit.x,y=hit.y,z=hit.z},{x=o.x,y=o.y,z=o.z})
   if d<12.0 and (not dist or d<dist) then best,dist=id,d end
  end
  if best then
-  local o=TrafficObstacles[best];o.hits=(o.hits or 0)+1;o.lastSeen=os.time();o.heading=hit.heading or o.heading
+  local o=TrafficObstacles[best];o.hits=(o.hits or 0)+1;o.lastSeen=os.time();o.heading=hit.heading or o.heading;o.category=classifyObstacle(o)
+  o.reason=hit.reason or o.reason
  else
   local id=('obstacle_%s_%s'):format(os.time(),math.random(1000,9999))
-  TrafficObstacles[id]={id=id,x=hit.x,y=hit.y,z=hit.z,hits=1,firstSeen=os.time(),lastSeen=os.time(),heading=hit.heading or 0}
+  TrafficObstacles[id]={id=id,x=hit.x,y=hit.y,z=hit.z,hits=1,firstSeen=os.time(),lastSeen=os.time(),heading=num(hit.heading,0),category=classifyObstacle(hit),reason=tostring(hit.reason or 'blocked'):sub(1,40)}
  end
  TrafficPersistence_save();broadcast()
 end)
+RegisterNetEvent('traffic:server:routeFailure',function(data)
+ if not allowedReport(source) or type(data)~='table' or not data.routeId then return end
+ local r=TrafficRoutes[data.routeId]
+ if r then r.failures=(r.failures or 0)+1;r.confidence=math.max(-100,(r.confidence or 0)-Config.AutoDiscovery.confidenceLoss) end
+ TrafficPersistence_save();broadcast()
+end)
 RegisterNetEvent('traffic:server:deleteObstacle',function(id)
- if not TrafficPermissions.isAdmin(source) then return end
+ if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
  TrafficObstacles[id]=nil;TrafficPersistence_save();broadcast()
 end)
+AddEventHandler('playerDropped',function() reportRate[source]=nil end)
