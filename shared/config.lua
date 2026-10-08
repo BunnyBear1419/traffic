@@ -27,6 +27,7 @@ Config.NPCManager = {enabled=true,maxSpawnPoints=100,maxManaged=250,respawn=true
 Config.Performance = {enabled=true,minScanInterval=350,maxScanInterval=2000,minTasks=25,maxTasks=100,highPopulation=160,criticalPopulation=260}
 Config.ZoneTypes = {normal={radius=80.0},light={radius=80.0},heavy={radius=80.0},stop={radius=50.0},oneway={radius=60.0},closure={radius=60.0},emergency={radius=80.0},race={radius=100.0}}
 Config.ZoneBehavior = {baseSpeed=22.0,lightSpeed=24.0,heavySpeed=16.0,raceSpeed=30.0,emergencySpeed=34.0,yieldSpeed=7.0,closureExitBuffer=35.0,rerouteCooldown=2500}
+Config.VehiclePopulation = {emergencyVehicles=true,militaryVehicles=true,parkedVehicleLevel=70,cleanupDisabled=true,modelSuppression=true,emergencyModels={'police','police2','police3','police4','policeb','policeold1','policeold2','policet','sheriff','sheriff2','fbi','fbi2','ambulance','firetruk','riot','riot2','pbus','pranger','polmav'},militaryModels={'rhino','barracks','barracks2','barracks3','crusader','halftrack','insurgent','insurgent2','technical','technical2','technical3','apc','khanjali','chernobog','scarab','scarab2','scarab3'}}
 Config.NativeSafety = {enabled=true,speedControl=true,vehicleTasks=true,shapeTests=false,populationCleanup=true,poolScanning=false,monitorScanning=false,npcManager=false,roadNodes=false,trafficThread=true,trafficCleanupThread=false,debug=false,cleanupRadius=110.0,cleanupBatch=12,cleanupInterval=250,crashIsolation=true}
 Config.Framework = 'standalone'
 Config.FrameworkAdapters = {enabled=false}
