@@ -7,7 +7,7 @@ function TrafficMonitor.snapshot()
    npc=npc+1;if TrafficOwnership.isLocal(v) then owned=owned+1 end
   end
  end
- local a=exports[GetCurrentResourceName()]:GetNPCAppearanceStats() or {}
+ local a={};local ok,v=pcall(function() return exports[GetCurrentResourceName()]:GetNPCAppearanceStats() end);if ok and type(v)=='table' then a=v end
  TrafficMonitor.stats.npcVehicles=npc
  TrafficMonitor.stats.ownedVehicles=owned
  TrafficMonitor.stats.managedNPCs=a.managed or 0
