@@ -9,7 +9,7 @@ version '2.0.0'
 shared_scripts {'shared/config.lua','shared/utils.lua'}
 client_scripts {
  'client/appearance.lua','client/ownership.lua','client/adjustor.lua','client/zones.lua','client/traffic_policy.lua','client/population.lua',
- 'client/detection.lua','client/routing.lua','client/recovery.lua','client/zones.lua','client/traffic.lua',
+ 'client/detection.lua','client/routing.lua','client/recovery.lua','client/traffic.lua',
  'client/learning.lua','client/intelligence.lua','client/discovery.lua','client/npc_manager.lua','client/monitor.lua',
  'client/ui.lua'
 }
