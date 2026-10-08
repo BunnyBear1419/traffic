@@ -31,7 +31,7 @@ local function softRepair(ped,entry)
  return true
 end
 function TrafficAppearance.register(ped,definition)
- if not Config.AppearanceGuard.enabled or not DoesEntityExist(ped) or not IsEntityAPed(ped) or IsPedAPlayer(ped) then return false end
+ if not TrafficAdjustor.isFeatureEnabled('appearance') or not Config.AppearanceGuard.enabled or not DoesEntityExist(ped) or not IsEntityAPed(ped) or IsPedAPlayer(ped) then return false end
  local count=0;for _ in pairs(managed) do count=count+1 end
  if not managed[ped] and count>=Config.AppearanceGuard.maxManagedNPCs then return false end
  definition=definition or {}
@@ -58,7 +58,7 @@ RegisterNetEvent('traffic:appearance:unregister',function(ped) TrafficAppearance
 local function needsRepair(ped,entry) return Config.AppearanceGuard.repairInvisible and (not IsEntityVisible(ped) or GetEntityAlpha(ped)<250 or variationMismatch(ped,entry.appearance)) end
 CreateThread(function()
  while true do
-  if Config.AppearanceGuard.enabled then
+  if TrafficAdjustor.isFeatureEnabled('appearance') and Config.AppearanceGuard.enabled then
    local t=now()
    for ped,entry in pairs(managed) do
     if not DoesEntityExist(ped) then managed[ped]=nil;repairs[ped]=nil;attempts[ped]=nil
