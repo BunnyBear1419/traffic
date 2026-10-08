@@ -9,6 +9,22 @@ Config.RouteSampleDistance = 6.0
 Config.RouteSnapDistance = 18.0
 Config.ObstacleProbeDistance = 22.0
 Config.RecoveryTimeout = 7000
+
+-- Runtime-adjustable admin controls. These are safe defaults and can be changed live
+-- from the Traffic Director control center without editing files or restarting.
+Config.FeatureToggles = {
+ traffic=true,population=true,routing=true,recovery=true,learning=true,
+ intelligence=true,discovery=true,npcManager=true,appearance=true,
+ performance=true,oneSync=true
+}
+Config.Adjustor = {
+ enabled=true,mode='auto',trafficLevel=70,npcLevel=70,
+ minLevel=0,maxLevel=100,updateInterval=3000,
+ lowPopulation=60,highPopulation=160,criticalPopulation=260,
+ lowPlayerCount=8,highPlayerCount=32,
+ minTrafficScale=0.15,maxTrafficScale=1.35,
+ minNPCScale=0.25,maxNPCScale=1.25
+}
 Config.Learning = {enabled=true,minSpeed=2.0,sampleInterval=350,maxPointsPerRoute=500}
 Config.DefaultMode = 'normal'
 Config.Modes = {
