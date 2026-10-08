@@ -1,6 +1,7 @@
 TrafficDeployables = TrafficDeployables or {}
 local sceneCounter=0
 local audit={}
+local lastAction={}
 local function logAction(src,action,detail)
  local entry={time=os.time(),source=tonumber(src) or 0,name=(src and tonumber(src) and GetPlayerName(src)) or 'Console',action=action,detail=tostring(detail or '')}
  audit[#audit+1]=entry
@@ -37,7 +38,7 @@ local function counts(src)
 end
 local function createProp(src,kind,pos,heading,scene)
  if not Config.Deployables or not Config.Deployables.enabled then return false,'Deployables are disabled.' end
- local model=Config.Deployables.models[kind]; if not model then return false,'Unknown prop type.' end
+ local model=Config.Deployables.models[kind]; if not model or (Config.Deployables.enabledProps and Config.Deployables.enabledProps[kind]==false) then return false,'This prop is disabled or unavailable.' end
  local player=playerCoords(src); if not player then return false,'Player position unavailable.' end
  if not pos or not pos.x or not pos.y or not pos.z or distance(player,pos)>(Config.Deployables.placementDistance or 3.0)+8.0 then return false,'Placement is too far away.' end
  local mine,total=counts(src)
@@ -55,6 +56,7 @@ local function createProp(src,kind,pos,heading,scene)
 end
 RegisterNetEvent('traffic:server:deployProp',function(kind,coords,heading,scene)
  local src=source
+ local now=GetGameTimer();if lastAction[src] and now-lastAction[src]<300 then return end;lastAction[src]=now
  if not authorized(src) then TriggerClientEvent('traffic:client:deployNotice',src,'Your job is not authorized to deploy Traffic Director props.');return end
  if type(kind)~='string' or type(coords)~='table' then return end
  local pos={x=tonumber(coords.x),y=tonumber(coords.y),z=tonumber(coords.z)}
@@ -66,6 +68,7 @@ RegisterNetEvent('traffic:server:deployProp',function(kind,coords,heading,scene)
 end)
 RegisterNetEvent('traffic:server:deployKit',function(kit,origin,heading)
  local src=source
+ local now=GetGameTimer();if lastAction[src] and now-lastAction[src]<1500 then return end;lastAction[src]=now
  if not authorized(src) then TriggerClientEvent('traffic:client:deployNotice',src,'Your job is not authorized to deploy Traffic Director props.');return end
  if type(kit)~='string' or type(origin)~='table' then return end
  local layout=Config.Deployables and Config.Deployables.kits and Config.Deployables.kits[kit]
@@ -83,6 +86,7 @@ RegisterNetEvent('traffic:server:deployKit',function(kit,origin,heading)
 end)
 RegisterNetEvent('traffic:server:removeProp',function(coords)
  local src=source
+ local now=GetGameTimer();if lastAction[src] and now-lastAction[src]<250 then return end;lastAction[src]=now
  if not authorized(src) then TriggerClientEvent('traffic:client:deployNotice',src,'Your job is not authorized to remove Traffic Director props.');return end
  if type(coords)~='table' then return end
  local pos={x=tonumber(coords.x),y=tonumber(coords.y),z=tonumber(coords.z)}
@@ -125,7 +129,7 @@ RegisterNetEvent('traffic:server:requestDeployAudit',function()
  TriggerClientEvent('traffic:client:deployAudit',src,audit)
 end)
 AddEventHandler('playerDropped',function()
- local src=source
+ local src=source;lastAction[src]=nil
  for id,p in pairs(TrafficDeployables) do if p.owner==src then if p.entity and DoesEntityExist(p.entity) then DeleteEntity(p.entity) end;TrafficDeployables[id]=nil end end
  publish()
 end)
