@@ -1,11 +1,14 @@
 TrafficOwnership={}
 local attempts={}
 function TrafficOwnership.owner(entity)
- if not DoesEntityExist(entity) or not NetworkGetEntityIsNetworked(entity) then return PlayerId() end
+ if not entity or not DoesEntityExist(entity) then return PlayerId() end
+ if not NetworkGetEntityIsNetworked(entity) then return PlayerId() end
  return NetworkGetEntityOwner(entity)
 end
 function TrafficOwnership.isLocal(entity)
- return not DoesEntityExist(entity) or not NetworkGetEntityIsNetworked(entity) or NetworkHasControlOfEntity(entity)
+ if not entity or not DoesEntityExist(entity) then return true end
+ if not NetworkGetEntityIsNetworked(entity) then return true end
+ return NetworkHasControlOfEntity(entity)
 end
 function TrafficOwnership.ensure(entity)
  if not TrafficAdjustor.isFeatureEnabled('oneSync') or not Config.OneSync.enabled or not DoesEntityExist(entity) then return true end
