@@ -1,5 +1,6 @@
-TrafficRoutes = {}
-TrafficZones = {}
+TrafficRoutes={}
+TrafficZones={}
+TrafficObstacles={}
 local resourceName=GetCurrentResourceName()
 local function loadJson(name,fallback)
  local raw=LoadResourceFile(resourceName,'data/'..name..'.json')
@@ -9,11 +10,19 @@ local function loadJson(name,fallback)
  return fallback
 end
 local function saveJson(name,value) SaveResourceFile(resourceName,'data/'..name..'.json',json.encode(value),-1) end
-CreateThread(function() TrafficRoutes=loadJson('routes',{}); TrafficZones=loadJson('zones',{}) end)
-function TrafficPersistence_save() saveJson('routes',TrafficRoutes); saveJson('zones',TrafficZones) end
+CreateThread(function()
+ TrafficRoutes=loadJson('routes',{})
+ TrafficZones=loadJson('zones',{})
+ TrafficObstacles=loadJson('obstacles',{})
+end)
+function TrafficPersistence_save()
+ saveJson('routes',TrafficRoutes);saveJson('zones',TrafficZones);saveJson('obstacles',TrafficObstacles)
+end
 RegisterNetEvent('traffic:server:save',function(routes,zones)
  if not TrafficPermissions.isAdmin(source) then return end
- TrafficRoutes=routes or TrafficRoutes; TrafficZones=zones or TrafficZones; TrafficPersistence_save()
+ TrafficRoutes=routes or TrafficRoutes;TrafficZones=zones or TrafficZones;TrafficPersistence_save()
 end)
-RegisterNetEvent('traffic:server:requestData',function() TriggerClientEvent('traffic:client:data',source,TrafficRoutes,TrafficZones) end)
+RegisterNetEvent('traffic:server:requestData',function()
+ TriggerClientEvent('traffic:client:data',source,TrafficRoutes,TrafficZones,TrafficObstacles)
+end)
 AddEventHandler('onResourceStop',function(res) if res==resourceName then TrafficPersistence_save() end end)
