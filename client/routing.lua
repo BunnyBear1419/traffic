@@ -129,7 +129,7 @@ function TrafficRouting.driveRoute(vehicle,route)
  if not target then return false end
  local now=GetGameTimer()
  if not lastTask[vehicle] or now-lastTask[vehicle]>1500 then
-  if not TrafficOwnership.ensure(vehicle) then return false end
+  if not TrafficOwnership.ensure(vehicle) or not Traffic.nativeSafetyEnabled('vehicleTasks') then return false end
   local mode=Config.Modes[TrafficClientMode] or Config.Modes.normal
   TaskVehicleDriveToCoordLongrange(vehicle,target.x,target.y,target.z,14.0*mode.speed,786603,4.0)
   lastTask[vehicle]=now
@@ -140,7 +140,7 @@ function TrafficRouting.redirectToRoad(vehicle)
  if not TrafficAdjustor.isFeatureEnabled('routing') then return false end
  if not TrafficOwnership.ensure(vehicle) then return false end
  local p=GetEntityCoords(vehicle);local node=TrafficDetection.findRoadPoint(p,GetEntityHeading(vehicle))
- if node then TaskVehicleDriveToCoordLongrange(vehicle,node.x,node.y,node.z,13.0,786603,5.0);return true end
+ if node and Traffic.nativeSafetyEnabled('vehicleTasks') and Traffic.nativeProbe('Routing','TaskVehicleDriveToCoordLongrange',true) then TaskVehicleDriveToCoordLongrange(vehicle,node.x,node.y,node.z,13.0,786603,5.0);return true end
  return false
 end
 function TrafficRouting.reset(vehicle)
