@@ -64,10 +64,11 @@ Config.NativeSafety = {
  enabled=true,
  speedControl=false,      -- disables SetVehicleMaxSpeed/SetVehicleForwardSpeed while isolating native crashes
  vehicleTasks=true,       -- TaskVehicleDriveToCoordLongrange
- shapeTests=true,         -- StartShapeTestRay/GetShapeTestResult
+ shapeTests=false,         -- StartShapeTestRay/GetShapeTestResult
  populationCleanup=false, -- DeleteEntity/mission-entity cleanup path
  poolScanning=true,       -- GetGamePool vehicle/ped enumeration
- monitorScanning=true,    -- monitor vehicle-pool enumeration
+ monitorScanning=true,
+ roadNodes=false,    -- monitor vehicle-pool enumeration
  debug=false
 }
 
