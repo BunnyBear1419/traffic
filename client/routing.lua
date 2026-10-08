@@ -16,27 +16,37 @@ local function routeScore(route,coords)
  local confidence=tonumber(route.confidence) or 0
  local failures=tonumber(route.failures) or 0
  local successes=tonumber(route.successes) or 0
- return d+(failures*Config.AdaptiveRouting.failurePenalty)-(successes*Config.AdaptiveRouting.confidenceBonus)-confidence-hotspotPenalty(first or coords)
+ local hotspot=hotspotPenalty(first or coords)
+ return d+(failures*Config.AdaptiveRouting.failurePenalty)-(successes*Config.AdaptiveRouting.confidenceBonus)-confidence+hotspot
 end
 local function nearestRoute(coords,radius)
- local best,bd,bestIndex,bestScore
+ local candidates={}
  for _,route in pairs(TrafficRoutes or {}) do
-  for i,p in ipairs(route.points or {}) do
-   local d=Traffic.distance(coords,p)
-   if d<=radius then
-    local score=d+(route.failures or 0)*Config.AdaptiveRouting.failurePenalty-(route.successes or 0)*Config.AdaptiveRouting.confidenceBonus-(route.confidence or 0)+hotspotPenalty(p)
-    if not bestScore or score<bestScore then best,bd,bestIndex,bestScore=route,d,i,score end
+  if route.points and #route.points>=2 then
+   local bestDist,bestIndex=99999,nil
+   for i,p in ipairs(route.points) do
+    local d=Traffic.distance(coords,p)
+    if d<=radius and d<bestDist then bestDist,bestIndex=d,i end
+   end
+   if bestIndex then
+    candidates[#candidates+1]={route=route,distance=bestDist,index=bestIndex,score=routeScore(route,coords)}
    end
   end
  end
- return best,bestIndex
+ table.sort(candidates,function(a,b) return a.score<b.score end)
+ local best=candidates[1]
+ return best and best.route,best and best.index
 end
 function TrafficRouting.getRouteForVehicle(vehicle)
  if not TrafficAdjustor.isFeatureEnabled('routing') then return nil end
  local z=TrafficZones_getAt(GetEntityCoords(vehicle))
  if z and z.routeId and TrafficRoutes[z.routeId] then return TrafficRoutes[z.routeId] end
  local route,index=nearestRoute(GetEntityCoords(vehicle),Config.RouteSnapDistance)
- if route then progress[vehicle]=progress[vehicle] or index end
+ if route then
+  progress[vehicle]=progress[vehicle] or index
+ else
+  progress[vehicle]=nil
+ end
  return route
 end
 function TrafficRouting.driveRoute(vehicle,route)
