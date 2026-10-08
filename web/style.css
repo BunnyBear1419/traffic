@@ -8,7 +8,7 @@
 
 
 /* Compact, responsive dashboard tabs */
-.dashboardTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 32px 16px}
+.dashboardTabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:0 32px 16px}
 .dashboardTab{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;min-width:0;padding:12px 14px;border:1px solid #ffffff12;background:#ffffff05;border-radius:12px;transition:background .15s,border-color .15s,transform .15s}
 .dashboardTab strong{font-size:12px;font-weight:700}
 .dashboardTab small{font-size:10px;line-height:1.35;color:#929bad}
@@ -32,3 +32,5 @@
 .jobPermissionGrid label{display:flex;align-items:center;gap:8px;font-size:12px;min-width:0}
 .jobPermissionGrid input{accent-color:var(--accent,currentColor)}
 @media(max-width:600px){.jobPermissionGrid{grid-template-columns:1fr}}
+
+.jobWorkspace{max-width:1100px;margin:0 auto;padding:0 32px 24px}.jobWorkspace .advBlock{width:100%}@media(max-width:760px){.jobWorkspace{padding:0 20px 20px}}
