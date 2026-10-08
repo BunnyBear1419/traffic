@@ -9,3 +9,7 @@ RegisterCommand('trafficteach',function(source)
  if not TrafficPermissions.canLearn(source) then TriggerClientEvent('chat:addMessage',source,{args={'Traffic Director','No permission.'}}) return end
  TriggerClientEvent('traffic:client:toggleLearning',source)
 end,false)
+RegisterCommand('trafficnpcdebug',function(source)
+ if not TrafficPermissions.isAdmin(source) then TriggerClientEvent('chat:addMessage',source,{args={'Traffic Director','No permission.'}}) return end
+ TriggerClientEvent('traffic:appearance:debug',source)
+end,false)
