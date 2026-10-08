@@ -99,7 +99,7 @@ RegisterNetEvent('traffic:server:importSettings',function(payload)
 end)
 RegisterNetEvent('traffic:server:requestPresets',function() publishPresets(source) end)
 RegisterNetEvent('traffic:server:applyPreset',function(id)
- if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canControl(source) or type(id)~='string' then return end
  TrafficSettings=TrafficSettings or load()
  local chosen
  for _,p in ipairs(BuiltInPresets) do if p.id==id then chosen=presetPayload(p) break end end
