@@ -52,4 +52,4 @@ CreateThread(function()
   Wait(1000)
  end
 end)
-CreateThread(function() TriggerServerEvent('traffic:server:requestData') end)
+
