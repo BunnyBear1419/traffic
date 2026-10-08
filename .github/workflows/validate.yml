@@ -30,6 +30,30 @@ jobs:
           PY
       - name: Validate NUI JavaScript
         run: node --check web/app.js
+      - name: Validate HTML structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          html = Path("web/index.html").read_text(encoding="utf-8")
+          required = ["scanMLOs", "mloSummary", "mloFindings", "avoidanceList"]
+          missing = [x for x in required if x not in html]
+          if missing:
+              raise SystemExit("Missing NUI elements: " + ", ".join(missing))
+          print("OK required NUI elements")
+          PY
+      - name: Validate manifest file references
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path("fxmanifest.lua").read_text(encoding="utf-8")
+          files = ["client/detection.lua","client/routing.lua","client/recovery.lua","server/mlo_audit.lua","data/mlo_evidence.json"]
+          for f in files:
+              if f not in text and f != "data/mlo_evidence.json":
+                  raise SystemExit("Manifest missing: " + f)
+              if not Path(f).exists():
+                  raise SystemExit("Missing file: " + f)
+          print("OK module files")
+          PY
       - name: Validate manifest references
         run: |
           test -f fxmanifest.lua
