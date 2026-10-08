@@ -8,7 +8,7 @@ function TrafficOwnership.isLocal(entity)
  return not DoesEntityExist(entity) or not NetworkGetEntityIsNetworked(entity) or NetworkHasControlOfEntity(entity)
 end
 function TrafficOwnership.ensure(entity)
- if not Config.OneSync.enabled or not DoesEntityExist(entity) then return true end
+ if not TrafficAdjustor.isFeatureEnabled('oneSync') or not Config.OneSync.enabled or not DoesEntityExist(entity) then return true end
  if not NetworkGetEntityIsNetworked(entity) or NetworkHasControlOfEntity(entity) then return true end
  local now=GetGameTimer()
  local s=attempts[entity] or {count=0,untilAt=0}
