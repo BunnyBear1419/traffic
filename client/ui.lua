@@ -8,10 +8,13 @@ end
 local function pushData()
  if not open then return end
  local stats=npcStats()
+ local adjustor=TrafficAdjustor and TrafficAdjustor.snapshot and TrafficAdjustor.snapshot() or {}
+ local learning=TrafficLearning and TrafficLearning.snapshot and TrafficLearning.snapshot() or {}
+ local monitor=TrafficMonitor and TrafficMonitor.stats or {}
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,avoidance=TrafficClientAvoidance,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
-  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor={},adjustor={},learning={}
+  performance={scanInterval=(adjustor.scanInterval or Config.ScanInterval),maxTasks=(adjustor.maxTasks or Config.MaxTrafficTasks)},monitor=monitor,adjustor=adjustor,learning=learning
  })
 end
 RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(false,false);SetNuiFocus(true,true);SendNUIMessage({action='open'});TriggerServerEvent('traffic:server:requestSettings'); end)
