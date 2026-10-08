@@ -30,4 +30,16 @@ Config.ZoneBehavior = {baseSpeed=22.0,lightSpeed=24.0,heavySpeed=16.0,raceSpeed=
 Config.VehiclePopulation = {emergencyVehicles=true,militaryVehicles=true,parkedVehicleLevel=70,cleanupDisabled=true,modelSuppression=true,emergencyModels={'police','police2','police3','police4','policeb','policeold1','policeold2','policet','sheriff','sheriff2','fbi','fbi2','ambulance','firetruk','riot','riot2','pbus','pranger','polmav'},militaryModels={'rhino','barracks','barracks2','barracks3','crusader','halftrack','insurgent','insurgent2','technical','technical2','technical3','apc','khanjali','chernobog','scarab','scarab2','scarab3'}}
 Config.NativeSafety = {enabled=true,speedControl=true,vehicleTasks=true,shapeTests=false,populationCleanup=true,poolScanning=false,monitorScanning=false,npcManager=false,roadNodes=false,trafficThread=true,trafficCleanupThread=false,debug=false,cleanupRadius=110.0,cleanupBatch=12,cleanupInterval=250,crashIsolation=true}
 Config.Framework = 'standalone'
-Config.FrameworkAdapters = {enabled=false}
+Config.FrameworkAdapters = {enabled=false,esx=true,qbcore=true}
+Config.SmartTraffic = {enabled=true,timeOfDay=true,weather=true,location=true,highway=true,nightTraffic=25,dayTraffic=70,rushHourTraffic=90,rushHourNPC=85,rushHourParked=95,lateNightNPC=20,lateNightParked=30,updateInterval=15000}
+Config.SafeMode = {enabled=true,protectPlayers=true,protectMission=true,protectJobs=true,restoreOnStop=true,detectExternalChanges=true}
+Config.VehicleCategories = {enabled=true,models={taxi={'taxi','taxi2','taxi3'},bus={'bus','coach','bus2'},truck={'mule','mule2','mule3','mule4','pounder','phantom','hauler'},commercial={'benson','benson2','boxville','boxville2','boxville3','boxville4','boxville5','rumpo','speedo','speedo2','speedo4'},motorcycle={'bati','bati2','akuma','daemon','double','faggio','hexer','pcj','ruffian'},sports={'adder','zentorno','t20','osiris','turismor','italigtb','italirsx'}}}
+Config.ProtectedVehicles = {models={},jobModels={},allowPlayer=true,allowMission=true,allowEmergencyWhenDisabled=true}
+Config.TrafficEvents = {enabled=true,maxActive=4,defaultDuration=120000,types={'roadwork','checkpoint','accident','emergency_response','fire_scene','traffic_jam','race_event','military_convoy','police_pursuit'}}
+Config.JobTraffic = {enabled=true,pollInterval=3000,defaultMinimumGrade=0,rules={
+ {id='police',name='Police',jobs={'police'},minimumGrade=0,priority=50,mode='emergency',trafficLevel=35,npcLevel=45,parkedVehicleLevel=35,emergencyVehicles=true,militaryVehicles=false,actions={traffic=true,npc=true,parked=true,emergency=true,military=false,events=true,zones=true}},
+ {id='fib',name='FIB',jobs={'fib'},minimumGrade=0,priority=60,mode='emergency',trafficLevel=25,npcLevel=35,parkedVehicleLevel=25,emergencyVehicles=true,militaryVehicles=true,actions={traffic=true,npc=true,parked=true,emergency=true,military=true,events=true,zones=true}},
+ {id='sheriff',name='Sheriff',jobs={'sheriff'},minimumGrade=0,priority=45,mode='emergency',trafficLevel=40,npcLevel=45,parkedVehicleLevel=40,emergencyVehicles=true,militaryVehicles=false,actions={traffic=true,npc=true,parked=true,emergency=true,military=false,events=true,zones=true}}
+}}
+Config.RealismZones = {enabled=true,highwayTypes={'highway','race'},highwayTrafficBonus=15,highwayNPCBonus=5,cityTraffic=70,cityNPC=70,cityParked=75}
+Config.Diagnostics = {enabled=true,historySize=60,recoveryInterval=5000}
