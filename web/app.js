@@ -140,10 +140,12 @@ initDashboardTabs();
   $('#jobRuleId').value=t.id;$('#jobRuleName').value=t.name;$('#jobNames').value=t.jobs;$('#jobMode').value=t.mode;
   $('#jobTraffic').value=t.traffic;$('#jobNPC').value=t.npc;$('#jobParked').value=t.parked; 
   document.querySelectorAll('[data-job-action]').forEach(input=>input.checked=!!t.actions[input.dataset.jobAction]);
+  document.querySelectorAll('[data-job-view]').forEach(input=>input.checked=(t.views||{overview:true})[input.dataset.jobView]===true);
  });
  const save=$('#saveJobRule');
  if(save)save.onclick=()=>{
   const actions={};document.querySelectorAll('[data-job-action]').forEach(input=>actions[input.dataset.jobAction]=input.checked);
-  post('saveJobRule',{id:$('#jobRuleId').value,name:$('#jobRuleName').value,jobs:csv($('#jobNames').value),minimumGrade:Number($('#jobGrade').value||0),priority:Number($('#jobPriority').value||0),mode:$('#jobMode').value,trafficLevel:Number($('#jobTraffic').value||70),npcLevel:Number($('#jobNPC').value||70),parkedVehicleLevel:Number($('#jobParked').value||70),emergencyVehicles:actions.emergency,militaryVehicles:actions.military,actions});
+  const views={};document.querySelectorAll('[data-job-view]').forEach(input=>views[input.dataset.jobView]=input.checked);
+  post('saveJobRule',{id:$('#jobRuleId').value,name:$('#jobRuleName').value,jobs:csv($('#jobNames').value),minimumGrade:Number($('#jobGrade').value||0),priority:Number($('#jobPriority').value||0),mode:$('#jobMode').value,trafficLevel:Number($('#jobTraffic').value||70),npcLevel:Number($('#jobNPC').value||70),parkedVehicleLevel:Number($('#jobParked').value||70),emergencyVehicles:actions.emergency,militaryVehicles:actions.military,actions,views});
  };
 })();
