@@ -27,7 +27,7 @@ RegisterNetEvent('traffic:server:startEvent',function(kind,duration)
 end)
 
 RegisterNetEvent('traffic:server:stopEvent',function()
- if not TrafficPermissions.isAdmin(source) then return end
+ if not TrafficPermissions.canEvents(source) then return end
  TrafficEventController.active=nil;publish()
 end)
 
