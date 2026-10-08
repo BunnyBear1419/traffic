@@ -4,7 +4,8 @@ for k,v in pairs(defaults) do TrafficAdjustor.features[k]=v end
 
 local function clamp(v,a,b) return math.max(a,math.min(b,v)) end
 local function feature(name) return TrafficAdjustor.features[name] ~= false end
-function TrafficAdjustor.isFeatureEnabled(name) return feature(name) end
+function TrafficAdjustor.isFeatureEnabled(name) return feature(name) and (TrafficAdjustor.state.masterEnabled ~= false) end
+function TrafficAdjustor.isMasterEnabled() return TrafficAdjustor.state.masterEnabled ~= false end
 function TrafficAdjustor.getTrafficScale()
  local a=Config.Adjustor or {}
  local level=tonumber(TrafficAdjustor.state.trafficLevel) or 70
@@ -48,6 +49,8 @@ local function applySettings(settings)
  if type(settings)~='table' then return end
  for k,v in pairs(defaults) do TrafficAdjustor.features[k]=settings.features and settings.features[k] ~= false or v end
  local a=Config.Adjustor or {}
+ TrafficAdjustor.state.masterEnabled=settings.masterEnabled~=false
+ TrafficAdjustor.state.configured=settings.configured==true
  TrafficAdjustor.state.mode=settings.mode=='manual' and 'manual' or 'auto'
  TrafficAdjustor.state.trafficLevel=clamp(tonumber(settings.trafficLevel) or a.trafficLevel,0,100)
  TrafficAdjustor.state.npcLevel=clamp(tonumber(settings.npcLevel) or a.npcLevel,0,100)
