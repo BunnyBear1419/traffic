@@ -111,7 +111,7 @@ CreateThread(function()
 end)
 end
 
-if Config.NativeSafety and Config.NativeSafety.trafficCleanupThread ~= false then
+if Config.NativeSafety and Config.NativeSafety.trafficCleanupThread == true then
 CreateThread(function()
  while true do
   Wait(5000)
