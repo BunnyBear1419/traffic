@@ -32,6 +32,7 @@ local function nearestRoute(coords,radius)
  return best,bestIndex
 end
 function TrafficRouting.getRouteForVehicle(vehicle)
+ if not TrafficAdjustor.isFeatureEnabled('routing') then return nil end
  local z=TrafficZones_getAt(GetEntityCoords(vehicle))
  if z and z.routeId and TrafficRoutes[z.routeId] then return TrafficRoutes[z.routeId] end
  local route,index=nearestRoute(GetEntityCoords(vehicle),Config.RouteSnapDistance)
@@ -39,6 +40,7 @@ function TrafficRouting.getRouteForVehicle(vehicle)
  return route
 end
 function TrafficRouting.driveRoute(vehicle,route)
+ if not TrafficAdjustor.isFeatureEnabled('routing') then return false end
  if not route or not route.points or #route.points<2 then return false end
  local idx=progress[vehicle] or 1
  local p=GetEntityCoords(vehicle)
@@ -69,6 +71,7 @@ function TrafficRouting.driveRoute(vehicle,route)
  return true
 end
 function TrafficRouting.redirectToRoad(vehicle)
+ if not TrafficAdjustor.isFeatureEnabled('routing') then return false end
  if not TrafficOwnership.ensure(vehicle) then return false end
  local p=GetEntityCoords(vehicle);local node=TrafficDetection.findRoadPoint(p,GetEntityHeading(vehicle))
  if node then TaskVehicleDriveToCoordLongrange(vehicle,node.x,node.y,node.z,13.0,786603,5.0);return true end
