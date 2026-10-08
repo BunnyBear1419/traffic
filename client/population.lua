@@ -24,11 +24,13 @@ local function isProtectedVehicle(v)
  return (driver~=0 and DoesEntityExist(driver) and IsPedAPlayer(driver)) or IsEntityAMissionEntity(v)
 end
 
-local function applyModelSuppression()
+local lastSuppressedEmergency=nil
+local lastSuppressedMilitary=nil
+local function applyModelSuppression(emergencyEnabled,militaryEnabled)
  local cfg=Config.VehiclePopulation or {}
  if cfg.modelSuppression==false then return end
- for _,name in ipairs(cfg.emergencyModels or {}) do SetVehicleModelIsSuppressed(GetHashKey(name),cfg.emergencyVehicles==false) end
- for _,name in ipairs(cfg.militaryModels or {}) do SetVehicleModelIsSuppressed(GetHashKey(name),cfg.militaryVehicles==false) end
+ if emergencyEnabled~=lastSuppressedEmergency then for _,name in ipairs(cfg.emergencyModels or {}) do SetVehicleModelIsSuppressed(GetHashKey(name),not emergencyEnabled) end;lastSuppressedEmergency=emergencyEnabled end
+ if militaryEnabled~=lastSuppressedMilitary then for _,name in ipairs(cfg.militaryModels or {}) do SetVehicleModelIsSuppressed(GetHashKey(name),not militaryEnabled) end;lastSuppressedMilitary=militaryEnabled end
 end
 
 CreateThread(function()
@@ -38,6 +40,7 @@ CreateThread(function()
    local density=TrafficAdjustor.getPopulationDensity(mode.density or 1.0)
    local npcDensity=math.max(0,math.min(1.5,TrafficAdjustor.getNPCScale()))
    local parkedScale=TrafficAdjustor.getParkedVehicleScale and TrafficAdjustor.getParkedVehicleScale() or 0.7
+   local _,emergencyEnabled,militaryEnabled=vehicleSettings()
    local trafficZero=(TrafficAdjustor.getTrafficScale and TrafficAdjustor.getTrafficScale() or 0)<=0
    local npcZero=(TrafficAdjustor.getNPCScale and TrafficAdjustor.getNPCScale() or 0)<=0
    SetVehicleDensityMultiplierThisFrame(trafficZero and 0.0 or density)
@@ -46,7 +49,7 @@ CreateThread(function()
    SetPedDensityMultiplierThisFrame(npcZero and 0.0 or math.min(npcDensity,1.0))
    SetScenarioPedDensityMultiplierThisFrame(npcZero and 0.0 or math.min(npcDensity,1.0),npcZero and 0.0 or math.min(npcDensity,1.0))
    if density<=0 and npcDensity<=0 and parkedScale<=0 then SetVehiclePopulationBudget(0);SetPedPopulationBudget(0) else SetVehiclePopulationBudget(3);SetPedPopulationBudget(3) end
-   applyModelSuppression()
+   applyModelSuppression(emergencyEnabled,militaryEnabled)
   end
   Wait(0)
  end
