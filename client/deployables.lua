@@ -21,7 +21,7 @@ local function place(kind,scene)
  TriggerServerEvent('traffic:server:deployProp',kind,{x=ahead.x,y=ahead.y,z=ahead.z},(GetEntityHeading(ped)+rotation)%360,scene or '')
 end
 local function placeKit(kit)
- local ped=PlayerPedId();local ahead=coordsAhead(Config.Deployables.placementDistance or 3.0)
+ local ped=PlayerPedId();local ahead=coordsAhead(placementDistance)
  TriggerServerEvent('traffic:server:deployKit',kit,{x=ahead.x,y=ahead.y,z=ahead.z},(GetEntityHeading(ped)+rotation)%360)
 end
 local function closeMenu()
@@ -70,7 +70,7 @@ CreateThread(function()
  while true do
   if menuOpen and preview then
    Wait(0)
-   local p=coordsAhead(Config.Deployables.placementDistance or 3.0)
+   local p=coordsAhead(placementDistance)
    DrawMarker(1,p.x,p.y,p.z-0.9,0.0,0.0,0.0,0.0,0.0,GetEntityHeading(PlayerPedId())+rotation,0.55,0.55,0.12,190,215,240,125,false,false,2,false,nil,nil,false)
   else Wait(500) end
  end
