@@ -1,6 +1,34 @@
 local reportRate={}
 local failureRate={}
-local function broadcast() TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles) end
+local function broadcast() TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles,TrafficRouteAvoidance) end
+local function cleanupAvoidance(now)
+ if not Config.RouteAvoidance.enabled then return false end
+ local changed=false;local ttl=Config.RouteAvoidance.decayHours*3600
+ for id,a in pairs(TrafficRouteAvoidance) do
+  if ttl>0 and now-(a.lastSeen or now)>ttl then TrafficRouteAvoidance[id]=nil;changed=true end
+ end
+ return changed
+end
+local function upsertAvoidance(data,now)
+ if not Config.RouteAvoidance.enabled or not data.coords then return end
+ local c=data.coords;local best,dist
+ for id,a in pairs(TrafficRouteAvoidance) do
+  local d=Traffic.distance(c,a)
+  if d<=Config.RouteAvoidance.radius and (not dist or d<dist) then best,dist=id,d end
+ end
+ if best then
+  local a=TrafficRouteAvoidance[best];a.hits=(a.hits or 0)+1;a.lastSeen=now;a.reason=tostring(data.reason or a.reason or 'route_failure'):sub(1,40);a.routeIds=a.routeIds or {};if data.routeId then a.routeIds[data.routeId]=true end
+ else
+  local count=0;for _ in pairs(TrafficRouteAvoidance) do count=count+1 end
+  if count>=Config.RouteAvoidance.maxEntries then
+   local oldestId,oldest
+   for id,a in pairs(TrafficRouteAvoidance) do if not oldest or (a.lastSeen or 0)<oldest then oldestId,oldest=id,a.lastSeen or 0 end end
+   if oldestId then TrafficRouteAvoidance[oldestId]=nil end
+  end
+  local id=('avoid_%s_%s'):format(os.time(),math.random(1000,9999))
+  TrafficRouteAvoidance[id]={id=id,x=num(c.x,0),y=num(c.y,0),z=num(c.z,0),hits=1,firstSeen=now,lastSeen=now,reason=tostring(data.reason or 'route_failure'):sub(1,40),routeIds=data.routeId and {[data.routeId]=true} or {}}
+ end
+end
 local function allowedReport(src)
  local now=os.time();local last=reportRate[src] or 0
  if now-last<2 then return false end
@@ -77,7 +105,15 @@ RegisterNetEvent('traffic:server:updateRoute',function(route)
 end)
 RegisterNetEvent('traffic:server:deleteRoute',function(id)
  if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
- TrafficRoutes[id]=nil;TrafficPersistence_save();broadcast()
+ TrafficRoutes[id]=nil
+ if Config.RouteAvoidance.clearOnRouteDelete then
+  for aid,a in pairs(TrafficRouteAvoidance) do if a.routeIds then a.routeIds[id]=nil;local any=false;for _ in pairs(a.routeIds) do any=true;break end;if not any then TrafficRouteAvoidance[aid]=nil end end end
+ end
+ TrafficPersistence_save();broadcast()
+end)
+RegisterNetEvent('traffic:server:deleteAvoidance',function(id)
+ if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ TrafficRouteAvoidance[id]=nil;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:addZone',function(zone)
  if not TrafficPermissions.isAdmin(source) or type(zone)~='table' then return end
@@ -115,6 +151,9 @@ RegisterNetEvent('traffic:server:routeFailure',function(data)
  if type(data)~='table' or not data.routeId then return end
  local r=TrafficRoutes[data.routeId]
  if r then r.failures=(r.failures or 0)+1;r.confidence=math.max(-100,(r.confidence or 0)-Config.AutoDiscovery.confidenceLoss) end
+ local dataCoords=type(data.coords)=='table' and data.coords or nil
+ if dataCoords and dataCoords.x and dataCoords.y and dataCoords.z then upsertAvoidance({routeId=data.routeId,reason=data.reason,coords=dataCoords},now) end
+ cleanupAvoidance(now)
  TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteObstacle',function(id)
