@@ -1,7 +1,8 @@
 TrafficRecovery={}
 local state={}
 local lastReport={}
-function TrafficRecovery.reset(v) state[v]=nil;lastReport[v]=nil;if TrafficRouting.reset then TrafficRouting.reset(v) end;TrafficOwnership.reset(v) end
+local lastFailureReport={}
+function TrafficRecovery.reset(v) state[v]=nil;lastReport[v]=nil;lastFailureReport[v]=nil;if TrafficRouting.reset then TrafficRouting.reset(v) end;TrafficOwnership.reset(v) end
 function TrafficRecovery.tick(v)
  if not DoesEntityExist(v) or not TrafficAdjustor.isFeatureEnabled('recovery') then return end
  if not TrafficOwnership.isLocal(v) then return end
@@ -17,7 +18,11 @@ function TrafficRecovery.tick(v)
  if obstacle and (not lastReport[v] or now-lastReport[v]>Config.AdaptiveRouting.obstacleReportCooldown) then
   obstacle.reason='stuck';obstacle.vehicleClass=GetVehicleClass(v)
   TriggerServerEvent('traffic:server:reportObstacle',obstacle)
-  TriggerServerEvent('traffic:server:routeFailure',{routeId=TrafficRouting.getRouteForVehicle(v) and TrafficRouting.getRouteForVehicle(v).id or nil,reason='stuck',coords={x=p.x,y=p.y,z=p.z}})
+  local route=TrafficRouting.getActiveRoute and TrafficRouting.getActiveRoute(v) or TrafficRouting.getRouteForVehicle(v)
+  if route and route.id and (not lastFailureReport[v] or now-lastFailureReport[v]>=Config.AdaptiveRouting.obstacleReportCooldown) then
+   TriggerServerEvent('traffic:server:routeFailure',{routeId=route.id,reason='stuck',coords={x=p.x,y=p.y,z=p.z}})
+   lastFailureReport[v]=now
+  end
   lastReport[v]=now
  end
  ClearVehicleTasks(v);TrafficRouting.redirectToRoad(v);s.since=now;s.probes=s.probes+1
