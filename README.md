@@ -143,3 +143,12 @@ Likewise, custom clothing resources differ in how they stream and apply appearan
 ## Production testing
 
 GitHub CI validates source syntax and repository data. Actual FiveM runtime testing is still required on the target server for custom map assets, OneSync/entity ownership, NPC clothing resources, population interactions and other resource behavior.
+
+
+## MLO Collision Lab
+
+Traffic Director can scan installed resources for identical map/collision assets and correlate runtime NPC collision/stuck events with asset model hashes when FiveM exposes a matching entity model. Evidence is persisted with confidence levels (`suspected`, `likely`, `high_confidence`, `verified`) and exposed in the admin control center. The system deliberately does **not** delete or rewrite original MLO files. Safe-fix planning is dry-run/review-first and supports backup/rollback policy settings.
+
+### Detection limits
+
+FiveM does not provide a universal Lua API that exposes arbitrary MLO geometry ownership or perfect resource attribution. Exact duplicate detection and runtime model correlation are therefore evidence sources, not proof of a collision mesh being defective. True spatial geometry overlap remains a server/build-pipeline concern.
