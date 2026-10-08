@@ -58,6 +58,7 @@ end
 function TrafficPolicy.recalculate()
  if not TrafficAdjustor then return end
  local s=TrafficAdjustor.state
+ TrafficClientMode=TrafficAdjustor.baseTrafficMode or TrafficClientMode or Config.DefaultMode
  local base={traffic=TrafficAdjustor.baseTrafficLevel or s.trafficLevel or 70,npc=TrafficAdjustor.baseNPCLevel or s.npcLevel or 70,parked=s.parkedVehicleLevel or 70,emergency=s.emergencyVehicles~=false,military=s.militaryVehicles~=false}
  local out=base
  if TrafficPolicy.jobContext and TrafficPolicy.jobContext.active then out=applyJob(out) else out=applySmart(out) end
