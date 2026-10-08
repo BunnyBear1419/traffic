@@ -31,7 +31,7 @@ CreateThread(function()
  TrafficObstacles=loadJson('obstacles',{})
  TrafficRouteAvoidance=loadJson('avoidance',{})
  TrafficMLOEvidence=loadJson('mlo_evidence',{})
- TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles)
+ TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles,TrafficRouteAvoidance)
 end)
 local function decayRouteConfidence(now)
  if not Config.RouteLearning.enabled or Config.RouteLearning.decayHours<=0 then return false end
