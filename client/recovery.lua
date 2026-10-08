@@ -3,7 +3,7 @@ local state={}
 local lastReport={}
 function TrafficRecovery.reset(v) state[v]=nil;lastReport[v]=nil;if TrafficRouting.reset then TrafficRouting.reset(v) end;TrafficOwnership.reset(v) end
 function TrafficRecovery.tick(v)
- if not DoesEntityExist(v) then return end
+ if not DoesEntityExist(v) or not TrafficAdjustor.isFeatureEnabled('recovery') then return end
  if not TrafficOwnership.isLocal(v) then return end
  local now=GetGameTimer();local s=state[v]
  if not s then state[v]={last=GetEntityCoords(v),since=now,probes=0};return end
