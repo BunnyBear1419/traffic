@@ -2,6 +2,8 @@ Config = {}
 Config.Debug = false
 Config.AdminAce = 'traffic.admin'
 Config.LearnAce = 'traffic.learn'
+Config.Release = {enabled=true,masterEnabled=true,firstRunSetup=true,exportImport=true,diagnostics=true}
+Config.PermissionAces = {control='traffic.control',events='traffic.events',jobs='traffic.jobs',vehicles='traffic.vehicles',zones='traffic.zones',routes='traffic.routes',diagnostics='traffic.diagnostics'}
 Config.ScanInterval = 750
 Config.StuckCheckInterval = 1500
 Config.MaxTrafficTasks = 80
