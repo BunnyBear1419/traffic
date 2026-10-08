@@ -30,8 +30,9 @@ AddEventHandler('playerJoining',function()
  ensureController()
 end)
 
-AddEventHandler('playerDropped',function(src)
- if tonumber(src)==tonumber(GlobalState.trafficDirectorController) then
+AddEventHandler('playerDropped',function()
+ local dropped=tonumber(source) or 0
+ if dropped==tonumber(GlobalState.trafficDirectorController) then
   electController()
  else
   ensureController()
