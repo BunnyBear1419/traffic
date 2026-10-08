@@ -14,6 +14,7 @@ local function applyVariation(ped,appearance)
  end
 end
 local function variationMismatch(ped,appearance)
+ if not DoesEntityExist(ped) or not IsEntityAPed(ped) then return false end
  if not Config.AppearanceGuard.verifyVariation or not appearance then return false end
  for _,c in ipairs(appearance.components or {}) do
   if GetPedDrawableVariation(ped,c.component or c.slot or 0)~=(c.drawable or 0) or GetPedTextureVariation(ped,c.component or c.slot or 0)~=(c.texture or 0) then return true end
@@ -21,7 +22,7 @@ local function variationMismatch(ped,appearance)
  return false
 end
 local function softRepair(ped,entry)
- if not DoesEntityExist(ped) or IsEntityDead(ped) then return false end
+ if not DoesEntityExist(ped) or not IsEntityAPed(ped) or IsEntityDead(ped) then return false end
  local t=now();attempts[ped]=(attempts[ped] or 0)+1
  SetEntityVisible(ped,true,false);ResetEntityAlpha(ped);SetEntityAlpha(ped,255,false);SetEntityCollision(ped,true,true)
  if entry.appearance then applyVariation(ped,entry.appearance) end
