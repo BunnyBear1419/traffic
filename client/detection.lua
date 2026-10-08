@@ -1,13 +1,15 @@
 TrafficDetection={}
 
 function TrafficDetection.forwardBlocked(vehicle)
+ if not vehicle or not DoesEntityExist(vehicle) or not IsEntityAVehicle(vehicle) then return false,nil,0 end
  local p=GetEntityCoords(vehicle)
  local f=GetEntityForwardVector(vehicle)
  local a=vector3(p.x,p.y,p.z+0.65)
  local b=vector3(p.x+f.x*Config.ObstacleProbeDistance,p.y+f.y*Config.ObstacleProbeDistance,p.z+0.65)
  local ray=StartShapeTestRay(a.x,a.y,a.z,b.x,b.y,b.z,1,vehicle,7)
  local _,hit,hitCoords,_,entity=GetShapeTestResult(ray)
- return hit==1,hitCoords,entity
+ if hit~=1 or not hitCoords then return false,nil,entity or 0 end
+ return true,hitCoords,entity or 0
 end
 
 function TrafficDetection.sampleObstacle(vehicle)
