@@ -159,3 +159,26 @@ FiveM does not provide a universal Lua API that exposes arbitrary MLO geometry o
 Traffic Director is **standalone-first and framework-independent**. It does not require ESX, QBCore/Qbox, vRP, ox_core, or any other roleplay framework. Core traffic routing, NPC management, obstacle learning, recovery, MLO intelligence, persistence, OneSync ownership, NUI controls and ACE permissions operate directly through FiveM/GTA V APIs.
 
 Framework-specific integrations are intentionally disabled by default so Traffic Director can be dropped into an existing server without creating a framework dependency. If a future adapter is added, it will remain optional and isolated from the core engine.
+
+
+## Release hardening
+
+Traffic Director includes a server-owner safety layer:
+- First-run configuration state and a visible setup action.
+- Master safety switch for live traffic/population controls.
+- Configuration export/import with server-side validation.
+- Live diagnostics snapshot in the control center.
+- Granular ACE permissions: `traffic.control`, `traffic.events`, `traffic.jobs`, `traffic.vehicles`, `traffic.zones`, `traffic.routes`, and `traffic.diagnostics`.
+
+Example ACE setup:
+~~~cfg
+add_ace group.admin traffic.admin allow
+add_ace group.trafficmanager traffic.control allow
+add_ace group.trafficevents traffic.events allow
+add_ace group.trafficjobs traffic.jobs allow
+add_ace group.trafficvehicles traffic.vehicles allow
+add_ace group.trafficzones traffic.zones allow
+add_ace group.trafficdiagnostics traffic.diagnostics allow
+~~~
+
+Before major changes, export a known-good configuration. If another resource is causing conflicts, use the master switch to safely disable Traffic Director population control while keeping the resource installed.
