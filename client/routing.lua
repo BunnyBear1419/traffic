@@ -1,19 +1,32 @@
 TrafficRouting={}
 local progress={}
 local lastTask={}
-local function nearHotspot(p)
- if not Config.AdaptiveRouting.enabled then return false end
+local function hotspotPenalty(p)
+ if not Config.AdaptiveRouting.enabled then return 0 end
+ local score=0
  for _,o in pairs(TrafficClientObstacles or {}) do
-  if (o.hits or 0)>=Config.AdaptiveRouting.minHotspotHits and Traffic.distance(p,o)<=Config.AdaptiveRouting.avoidRadius then return true end
+  local d=Traffic.distance(p,o)
+  if d<=Config.AdaptiveRouting.avoidRadius then score=score+(o.hits or 1)*Config.AdaptiveRouting.failurePenalty end
  end
- return false
+ return score
+end
+local function routeScore(route,coords)
+ local first=route.points and route.points[1]
+ local d=first and Traffic.distance(coords,first) or 99999
+ local confidence=tonumber(route.confidence) or 0
+ local failures=tonumber(route.failures) or 0
+ local successes=tonumber(route.successes) or 0
+ return d+(failures*Config.AdaptiveRouting.failurePenalty)-(successes*Config.AdaptiveRouting.confidenceBonus)-confidence-hotspotPenalty(first or coords)
 end
 local function nearestRoute(coords,radius)
- local best,bd,bestIndex
+ local best,bd,bestIndex,bestScore
  for _,route in pairs(TrafficRoutes or {}) do
   for i,p in ipairs(route.points or {}) do
    local d=Traffic.distance(coords,p)
-   if d<=radius and (not bd or d<bd) then best,bd,bestIndex=route,d,i end
+   if d<=radius then
+    local score=d+(route.failures or 0)*Config.AdaptiveRouting.failurePenalty-(route.successes or 0)*Config.AdaptiveRouting.confidenceBonus-(route.confidence or 0)+hotspotPenalty(p)
+    if not bestScore or score<bestScore then best,bd,bestIndex,bestScore=route,d,i,score end
+   end
   end
  end
  return best,bestIndex
@@ -35,10 +48,10 @@ function TrafficRouting.driveRoute(vehicle,route)
   if d<bestDist then bestDist=d;idx=i end
  end
  if bestDist<10.0 then idx=idx+1 end
- local candidate=route.points[idx]
- local tries=0
- while candidate and nearHotspot(candidate) and tries<8 do
+ local candidate=route.points[idx];local tries=0
+ while candidate and hotspotPenalty(candidate)>Config.AdaptiveRouting.failurePenalty do
   idx=idx+1;tries=tries+1
+  if tries>=8 then break end
   if idx>#route.points then idx=route.loop and 1 or #route.points end
   candidate=route.points[idx]
  end
@@ -48,6 +61,7 @@ function TrafficRouting.driveRoute(vehicle,route)
  if not target then return false end
  local now=GetGameTimer()
  if not lastTask[vehicle] or now-lastTask[vehicle]>1500 then
+  if not TrafficOwnership.ensure(vehicle) then return false end
   local mode=Config.Modes[TrafficClientMode] or Config.Modes.normal
   TaskVehicleDriveToCoordLongrange(vehicle,target.x,target.y,target.z,14.0*mode.speed,786603,4.0)
   lastTask[vehicle]=now
@@ -55,6 +69,7 @@ function TrafficRouting.driveRoute(vehicle,route)
  return true
 end
 function TrafficRouting.redirectToRoad(vehicle)
+ if not TrafficOwnership.ensure(vehicle) then return false end
  local p=GetEntityCoords(vehicle);local node=TrafficDetection.findRoadPoint(p,GetEntityHeading(vehicle))
  if node then TaskVehicleDriveToCoordLongrange(vehicle,node.x,node.y,node.z,13.0,786603,5.0);return true end
  return false
