@@ -1,5 +1,6 @@
 TrafficRecovery={}
-local state={}\nlocal lastReport={}
+local state={}
+local lastReport={}
 function TrafficRecovery.reset(v) state[v]=nil;lastReport[v]=nil; if TrafficRouting.reset then TrafficRouting.reset(v) end end
 function TrafficRecovery.tick(v)
  if not DoesEntityExist(v) then return end
@@ -9,6 +10,10 @@ function TrafficRecovery.tick(v)
  if Traffic.distance(p,s.last)>3.0 then s.last=p;s.since=now;s.probes=0;return end
  if now-s.since<Config.RecoveryTimeout then return end
  local obstacle=TrafficDetection.sampleObstacle(v)
- if obstacle then\n  if not lastReport[v] or now-lastReport[v]>Config.AdaptiveRouting.obstacleReportCooldown then\n   TriggerServerEvent('traffic:server:reportObstacle',obstacle);lastReport[v]=now\n  end\n end
+ if obstacle then
+  if not lastReport[v] or now-lastReport[v]>Config.AdaptiveRouting.obstacleReportCooldown then
+   TriggerServerEvent('traffic:server:reportObstacle',obstacle);lastReport[v]=now
+  end
+ end
  ClearVehicleTasks(v);TrafficRouting.redirectToRoad(v);s.since=now;s.probes=s.probes+1
 end
