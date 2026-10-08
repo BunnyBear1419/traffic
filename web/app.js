@@ -18,7 +18,7 @@ function renderFeatures(){
  $('#features').innerHTML=Object.keys(featureLabels).map(k=>'<label class="feature"><span><strong>'+esc(featureLabels[k])+'</strong><small>'+esc(k)+'</small></span><input type="checkbox" data-feature="'+k+'" '+(f[k]!==false?'checked':'')+'></label>').join('');
 }
 function renderMLOAudit(){
- const r=state.mloAudit||{},s=\$('#mloSummary'),f=\$('#mloFindings');if(!s||!f)return;
+ const r=state.mloAudit||{},s=$('#mloSummary'),f=$('#mloFindings');if(!s||!f)return;
  const cap=r.capability||{};
  s.innerHTML=`<div class="healthGrid"><div><b>${Number(r.resourceCount||0)}</b><small>Map resources scanned</small></div><div><b>${Number(r.fileCount||0)}</b><small>Collision/map assets</small></div><div><b>${Number(r.findingCount||0)}</b><small>Duplicate findings</small></div><div><b>${Number(r.evidenceCount||0)}</b><small>Runtime evidence</small></div></div><div class="mloCapabilities"><span>Duplicate assets: ${cap.duplicateAssets?'YES':'NO'}</span><span>Runtime correlation: ${cap.runtimeCorrelation?'YES':'NO'}</span><span>Geometry overlap: ${cap.spatialGeometry?'YES':'NOT AVAILABLE'}</span><span>Destructive auto-fix: ${cap.automaticDestructiveFix?'ENABLED':'DISABLED'}</span></div>`;
  const dup=(r.findings||[]).map(x=>`<div class="item mloFinding"><div><strong>🔴 Duplicate collision asset • ${esc(x.size||0)} bytes</strong><small>${esc(x.message||'Potential duplicate asset')}<br>${x.files.map(v=>esc(v.resource)+' / '+esc(v.path)).join('<br>')}</small></div><button data-mlo-ignore="${esc(x.key)}">Ignore</button></div>`).join('');
