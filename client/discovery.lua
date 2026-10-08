@@ -16,7 +16,7 @@ local function push(v,s)
 end
 CreateThread(function()
  while true do
-  if Config.AutoDiscovery.enabled then
+  if TrafficAdjustor.isFeatureEnabled('discovery') and Config.AutoDiscovery.enabled then
    local pool=GetGamePool('CVehicle')
    for i=1,#pool do
     local v=pool[i]
