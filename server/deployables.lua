@@ -27,7 +27,8 @@ local function publish()
 end
 RegisterNetEvent('traffic:server:deployProp',function(kind,coords,heading)
  local src=source
- if not Config.Deployables or not Config.Deployables.enabled or not authorized(src) then return end
+ if not Config.Deployables or not Config.Deployables.enabled then return end
+ if not authorized(src) then TriggerClientEvent('traffic:client:deployNotice',src,'Your job is not authorized to deploy Traffic Director props.');return end
  if type(kind)~='string' or type(coords)~='table' then return end
  local model=Config.Deployables.models[kind]
  if not model then return end
@@ -58,7 +59,8 @@ RegisterNetEvent('traffic:server:deployProp',function(kind,coords,heading)
 end)
 RegisterNetEvent('traffic:server:removeProp',function(coords)
  local src=source
- if not authorized(src) or type(coords)~='table' then return end
+ if not authorized(src) then TriggerClientEvent('traffic:client:deployNotice',src,'Your job is not authorized to remove Traffic Director props.');return end
+ if type(coords)~='table' then return end
  local pos={x=tonumber(coords.x),y=tonumber(coords.y),z=tonumber(coords.z)}
  if not pos.x or not pos.y or not pos.z then return end
  local player=playerCoords(src)
