@@ -107,7 +107,7 @@ RegisterNetEvent('traffic:server:updateRoute',function(route)
  TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteRoute',function(id)
- if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canRoutes(source) or type(id)~='string' then return end
  TrafficRoutes[id]=nil
  if Config.RouteAvoidance.clearOnRouteDelete then
   for aid,a in pairs(TrafficRouteAvoidance) do if a.routeIds then a.routeIds[id]=nil;local any=false;for _ in pairs(a.routeIds) do any=true;break end;if not any then TrafficRouteAvoidance[aid]=nil end end end
@@ -115,11 +115,11 @@ RegisterNetEvent('traffic:server:deleteRoute',function(id)
  TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteAvoidance',function(id)
- if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canRoutes(source) or type(id)~='string' then return end
  TrafficRouteAvoidance[id]=nil;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:addZone',function(zone)
- if not TrafficPermissions.isAdmin(source) or type(zone)~='table' then return end
+ if not TrafficPermissions.canZones(source) or type(zone)~='table' then return end
  zone.id=zone.id or ('zone_%s_%s'):format(os.time(),math.random(1000,9999))
  zone.type=Config.ZoneTypes[zone.type] and zone.type or 'normal'
  zone.radius=math.max(10,math.min(500,num(zone.radius,Config.ZoneTypes[zone.type].radius)))
@@ -128,7 +128,7 @@ RegisterNetEvent('traffic:server:addZone',function(zone)
  TrafficZones[zone.id]=zone;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteZone',function(id)
- if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canRoutes(source) or type(id)~='string' then return end
  TrafficZones[id]=nil;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:reportObstacle',function(hit)
@@ -183,7 +183,7 @@ RegisterNetEvent('traffic:server:routeFailure',function(data)
  TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteObstacle',function(id)
- if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canRoutes(source) or type(id)~='string' then return end
  TrafficObstacles[id]=nil;TrafficPersistence_save();broadcast()
 end)
 AddEventHandler('playerDropped',function() reportRate[source]=nil;failureRate[source]=nil end)
