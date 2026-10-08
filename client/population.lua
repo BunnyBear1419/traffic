@@ -40,6 +40,25 @@ CreateThread(function()
     end
    end
   end
+  if TrafficAdjustor.isFeatureEnabled('population') and TrafficAdjustor.getNPCScale()<=0 then
+   local peds=GetGamePool('CPed')
+   for i=1,#peds do
+    local ped=peds[i]
+    if DoesEntityExist(ped) and IsEntityAPed(ped) and not IsPedAPlayer(ped) and not IsPedInAnyVehicle(ped,false) and not IsEntityAMissionEntity(ped) then
+     if NetworkGetEntityIsNetworked(ped) then
+      if NetworkHasControlOfEntity(ped) then
+       SetEntityAsMissionEntity(ped,true,true)
+       DeleteEntity(ped)
+      else
+       NetworkRequestControlOfEntity(ped)
+      end
+     else
+      SetEntityAsMissionEntity(ped,true,true)
+      DeleteEntity(ped)
+     end
+    end
+   end
+  end
   Wait(1000)
  end
 end)
