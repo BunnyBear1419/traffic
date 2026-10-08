@@ -128,7 +128,7 @@ RegisterNetEvent('traffic:server:addZone',function(zone)
  TrafficZones[zone.id]=zone;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteZone',function(id)
- if not TrafficPermissions.canRoutes(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canZones(source) or type(id)~='string' then return end
  TrafficZones[id]=nil;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:reportObstacle',function(hit)
