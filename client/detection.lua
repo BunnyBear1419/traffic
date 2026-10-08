@@ -14,7 +14,17 @@ function TrafficDetection.sampleObstacle(vehicle)
  local blocked,hitCoords,entity=TrafficDetection.forwardBlocked(vehicle)
  if not blocked then return nil end
  local p=GetEntityCoords(vehicle)
- return {x=hitCoords.x,y=hitCoords.y,z=hitCoords.z,vehicleX=p.x,vehicleY=p.y,vehicleZ=p.z,heading=GetEntityHeading(vehicle),entity=entity or 0}
+ local entityId=entity or 0
+ local netId=0
+ local model=0
+ local entityType=0
+ if entityId~=0 and DoesEntityExist(entityId) then
+  netId=NetworkGetNetworkIdFromEntity(entityId) or 0
+  model=GetEntityModel(entityId) or 0
+  entityType=GetEntityType(entityId) or 0
+ end
+ return {x=hitCoords.x,y=hitCoords.y,z=hitCoords.z,vehicleX=p.x,vehicleY=p.y,vehicleZ=p.z,
+  heading=GetEntityHeading(vehicle),entity=entityId,netId=netId,entityModel=model,entityType=entityType}
 end
 
 function TrafficDetection.findRoadPoint(coords,heading)
