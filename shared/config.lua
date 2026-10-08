@@ -50,6 +50,7 @@ Config.Deployables = {
  enabled=true, maxPerPlayer=18, maxTotal=160, placementDistance=3.0, removeDistance=8.0,
  spikeRadius=2.2, spikeCooldown=10000, requireDuty=true, sceneCleanupRadius=45.0,
  models={cone='prop_roadcone02a',barrier='prop_barrier_work05',police_barrier='prop_barrier_work06a',spikes='p_ld_stinger_s',flare='prop_flare_01'},
+ enabledProps={cone=true,barrier=true,police_barrier=true,spikes=true,flare=true},
  kits={
   traffic_stop={{type='cone',x=-1.4,y=1.0},{type='cone',x=1.4,y=1.0},{type='cone',x=-2.0,y=3.0},{type='cone',x=2.0,y=3.0},{type='police_barrier',x=0,y=5.0}},
   road_closure={{type='barrier',x=-3.0,y=2.0},{type='barrier',x=0,y=2.0},{type='barrier',x=3.0,y=2.0},{type='cone',x=-3.0,y=4.0},{type='cone',x=3.0,y=4.0}},
