@@ -32,7 +32,7 @@ function TrafficAdjustor.getScanInterval()
  return math.floor(a.maxTrafficScale>0 and clamp(Config.ScanInterval/(0.45+scale*0.55),a.minScanInterval or 350,a.maxScanInterval or 2000) or Config.ScanInterval)
 end
 function TrafficAdjustor.snapshot()
- return {mode=TrafficAdjustor.state.mode,trafficLevel=TrafficAdjustor.state.trafficLevel,npcLevel=TrafficAdjustor.state.npcLevel,population=TrafficAdjustor.state.population,players=TrafficAdjustor.state.players,reason=TrafficAdjustor.state.reason,features=TrafficAdjustor.features,trafficScale=TrafficAdjustor.getTrafficScale(),npcScale=TrafficAdjustor.getNPCScale(),maxTasks=TrafficAdjustor.getMaxTasks(),scanInterval=TrafficAdjustor.getScanInterval()}
+ return {mode=TrafficAdjustor.state.mode,trafficMode=TrafficClientMode or Config.DefaultMode,trafficLevel=TrafficAdjustor.state.trafficLevel,npcLevel=TrafficAdjustor.state.npcLevel,population=TrafficAdjustor.state.population,players=TrafficAdjustor.state.players,reason=TrafficAdjustor.state.reason,features=TrafficAdjustor.features,trafficScale=TrafficAdjustor.getTrafficScale(),npcScale=TrafficAdjustor.getNPCScale(),maxTasks=TrafficAdjustor.getMaxTasks(),scanInterval=TrafficAdjustor.getScanInterval()}
 end
 local function applySettings(settings)
  if type(settings)~='table' then return end
