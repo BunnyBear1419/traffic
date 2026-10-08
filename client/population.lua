@@ -31,47 +31,77 @@ local lastNPCLevel=70
 local function cleanupAmbient()
  if not Config.NativeSafety or not Config.NativeSafety.enabled or Config.NativeSafety.populationCleanup~=true then return end
  local radius=Config.NativeSafety.cleanupRadius or 110.0
- local batch=math.max(1,math.min(8,Config.NativeSafety.cleanupBatch or 5))
+ local batch=math.max(1,math.min(12,Config.NativeSafety.cleanupBatch or 5))
  local p=GetEntityCoords(PlayerPedId())
- local trafficLevel=TrafficAdjustor.state.trafficLevel or 0
- local npcLevel=TrafficAdjustor.state.npcLevel or 0
+ local trafficLevel=tonumber(TrafficAdjustor.state.trafficLevel) or 0
+ local npcLevel=tonumber(TrafficAdjustor.state.npcLevel) or 0
  local trafficZero=(TrafficAdjustor.getTrafficScale and TrafficAdjustor.getTrafficScale() or 0)<=0
  local npcZero=(TrafficAdjustor.getNPCScale and TrafficAdjustor.getNPCScale() or 0)<=0
  local removed=0
+
+ -- Do not stop at the first protected/player vehicle. Scan past it so an
+ -- ordinary ambient vehicle farther away can still be removed.
  if trafficLevel<=0 or trafficZero then
-  for i=1,batch do
-   local v=GetClosestVehicle(p.x,p.y,p.z,radius,0,70)
-   if not v or v==0 or not DoesEntityExist(v) or not IsEntityAVehicle(v) then break end
-   local driver=GetPedInVehicleSeat(v,-1)
-   if driver~=0 and DoesEntityExist(driver) and not IsPedAPlayer(driver) then
-    if NetworkGetEntityIsNetworked(v) and not NetworkHasControlOfEntity(v) then
-     TrafficOwnership.ensure(v)
+  local handle,vehicle=FindFirstVehicle()
+  local success=true
+  while success and vehicle and vehicle~=0 and removed<batch do
+   if DoesEntityExist(vehicle) and IsEntityAVehicle(vehicle) then
+    local vp=GetEntityCoords(vehicle)
+    local dx=vp.x-p.x
+    local dy=vp.y-p.y
+    local dz=vp.z-p.z
+    if (dx*dx+dy*dy+dz*dz)<=radius*radius then
+     local driver=GetPedInVehicleSeat(vehicle,-1)
+     local playerVehicle=driver~=0 and DoesEntityExist(driver) and IsPedAPlayer(driver)
+     local missionVehicle=IsEntityAMissionEntity(vehicle)
+     if not playerVehicle and not missionVehicle then
+      if NetworkGetEntityIsNetworked(vehicle) and not NetworkHasControlOfEntity(vehicle) then
+       TrafficOwnership.ensure(vehicle)
+      end
+      if not NetworkGetEntityIsNetworked(vehicle) or NetworkHasControlOfEntity(vehicle) then
+       SetEntityAsMissionEntity(vehicle,true,true)
+       DeleteEntity(vehicle)
+       removed=removed+1
+      end
+     end
     end
-    if not NetworkGetEntityIsNetworked(v) or NetworkHasControlOfEntity(v) then
-     SetEntityAsMissionEntity(v,true,true)
-     DeleteEntity(v)
-     removed=removed+1
-    else break end
-   else
-    break
+   end
+   if removed<batch then
+    success,vehicle=FindNextVehicle(handle)
    end
   end
+  EndFindVehicle(handle)
  end
+
+ -- The same rule applies to pedestrians: skip players/managed mission peds
+ -- rather than breaking the scan at the first protected entity.
  if npcLevel<=0 or npcZero then
-  for i=1,batch do
-   local ped=GetClosestPed(p.x,p.y,p.z,radius,1,1,1,1,1,28,0)
-   if not ped or ped==0 or not DoesEntityExist(ped) or IsPedAPlayer(ped) then break end
-   if IsPedInAnyVehicle(ped,false) then break end
-   if NetworkGetEntityIsNetworked(ped) and not NetworkHasControlOfEntity(ped) then
-    TrafficOwnership.ensure(ped)
+  local handle,ped=FindFirstPed()
+  local success=true
+  while success and ped and ped~=0 and removed<batch do
+   if DoesEntityExist(ped) and not IsPedAPlayer(ped) then
+    local pp=GetEntityCoords(ped)
+    local dx=pp.x-p.x
+    local dy=pp.y-p.y
+    local dz=pp.z-p.z
+    if (dx*dx+dy*dy+dz*dz)<=radius*radius and not IsEntityAMissionEntity(ped) and not IsPedInAnyVehicle(ped,false) then
+     if NetworkGetEntityIsNetworked(ped) and not NetworkHasControlOfEntity(ped) then
+      TrafficOwnership.ensure(ped)
+     end
+     if not NetworkGetEntityIsNetworked(ped) or NetworkHasControlOfEntity(ped) then
+      SetEntityAsMissionEntity(ped,true,true)
+      DeleteEntity(ped)
+      removed=removed+1
+     end
+    end
    end
-   if not NetworkGetEntityIsNetworked(ped) or NetworkHasControlOfEntity(ped) then
-    SetEntityAsMissionEntity(ped,true,true)
-    DeleteEntity(ped)
-    removed=removed+1
-   else break end
+   if removed<batch then
+    success,ped=FindNextPed(handle)
+   end
   end
+  EndFindPed(handle)
  end
+
  return removed
 end
 
