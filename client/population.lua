@@ -24,15 +24,15 @@ end)
 CreateThread(function()
  while true do
   if TrafficAdjustor.isFeatureEnabled('population') and TrafficAdjustor.getTrafficScale()<=0 and TrafficAdjustor.getNPCScale()<=0 then
-   local vehicles=GetGamePool('CVehicle')
+   local vehicles={}
+   if Traffic.nativeSafetyEnabled('poolScanning') then Traffic.nativeProbe('Population','GetGamePool(CVehicle)',true);vehicles=GetGamePool('CVehicle') end
    for i=1,#vehicles do
     local v=vehicles[i]
     if DoesEntityExist(v) and IsEntityAVehicle(v) then
      local driver=GetPedInVehicleSeat(v,-1)
      if driver~=0 and DoesEntityExist(driver) and not IsPedAPlayer(driver) then
       if NetworkHasControlOfEntity(v) then
-       SetEntityAsMissionEntity(v,true,true)
-       DeleteEntity(v)
+       if Traffic.nativeSafetyEnabled('populationCleanup') then SetEntityAsMissionEntity(v,true,true);DeleteEntity(v) end
       else
        NetworkRequestControlOfEntity(v)
       end
@@ -41,20 +41,19 @@ CreateThread(function()
    end
   end
   if TrafficAdjustor.isFeatureEnabled('population') and TrafficAdjustor.getNPCScale()<=0 then
-   local peds=GetGamePool('CPed')
+   local peds={}
+   if Traffic.nativeSafetyEnabled('poolScanning') then Traffic.nativeProbe('Population','GetGamePool(CPed)',true);peds=GetGamePool('CPed') end
    for i=1,#peds do
     local ped=peds[i]
     if DoesEntityExist(ped) and IsEntityAPed(ped) and not IsPedAPlayer(ped) and not IsPedInAnyVehicle(ped,false) and not IsEntityAMissionEntity(ped) then
      if NetworkGetEntityIsNetworked(ped) then
       if NetworkHasControlOfEntity(ped) then
-       SetEntityAsMissionEntity(ped,true,true)
-       DeleteEntity(ped)
+       if Traffic.nativeSafetyEnabled('populationCleanup') then SetEntityAsMissionEntity(ped,true,true);DeleteEntity(ped) end
       else
        NetworkRequestControlOfEntity(ped)
       end
      else
-      SetEntityAsMissionEntity(ped,true,true)
-      DeleteEntity(ped)
+      if Traffic.nativeSafetyEnabled('populationCleanup') then SetEntityAsMissionEntity(ped,true,true);DeleteEntity(ped) end
      end
     end
    end
