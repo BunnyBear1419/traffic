@@ -152,3 +152,10 @@ Traffic Director can scan installed resources for identical map/collision assets
 ### Detection limits
 
 FiveM does not provide a universal Lua API that exposes arbitrary MLO geometry ownership or perfect resource attribution. Exact duplicate detection and runtime model correlation are therefore evidence sources, not proof of a collision mesh being defective. True spatial geometry overlap remains a server/build-pipeline concern.
+
+
+## Framework compatibility
+
+Traffic Director is **standalone-first and framework-independent**. It does not require ESX, QBCore/Qbox, vRP, ox_core, or any other roleplay framework. Core traffic routing, NPC management, obstacle learning, recovery, MLO intelligence, persistence, OneSync ownership, NUI controls and ACE permissions operate directly through FiveM/GTA V APIs.
+
+Framework-specific integrations are intentionally disabled by default so Traffic Director can be dropped into an existing server without creating a framework dependency. If a future adapter is added, it will remain optional and isolated from the core engine.
