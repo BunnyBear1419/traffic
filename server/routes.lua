@@ -42,7 +42,7 @@ end
 local function sanitizePoint(p)
  if type(p)~='table' then return nil end
  if not p.x or not p.y or not p.z then return nil end
- return {x=num(p.x,0),y=num(p.y,0),z=num(p.z,0),heading=num(p.heading,0),dx=num(p.dx,nil),dy=num(p.dy,nil)}
+ return {x=num(p.x,0),y=num(p.y,0),z=num(p.z,0),heading=num(p.heading,0),dx=num(p.dx,nil),dy=num(p.dy,nil),turn=(p.turn=='left' or p.turn=='right') and p.turn or 'straight'}
 end
 local function sanitizeRoute(route)
  if type(route)~='table' then return nil end
