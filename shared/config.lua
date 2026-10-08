@@ -58,6 +58,19 @@ Config.ZoneTypes = {
 }
 Config.ZoneBehavior = {baseSpeed=22.0,lightSpeed=24.0,heavySpeed=16.0,raceSpeed=30.0,emergencySpeed=34.0,yieldSpeed=7.0,closureExitBuffer=35.0,rerouteCooldown=2500}
 
+-- Native crash isolation. GTA/FiveM native access violations cannot be reliably caught with Lua pcall,
+-- so high-risk native families can be disabled independently while the rest of Traffic Director stays online.
+Config.NativeSafety = {
+ enabled=true,
+ speedControl=false,      -- disables SetVehicleMaxSpeed/SetVehicleForwardSpeed while isolating native crashes
+ vehicleTasks=true,       -- TaskVehicleDriveToCoordLongrange
+ shapeTests=true,         -- StartShapeTestRay/GetShapeTestResult
+ populationCleanup=false, -- DeleteEntity/mission-entity cleanup path
+ poolScanning=true,       -- GetGamePool vehicle/ped enumeration
+ monitorScanning=true,    -- monitor vehicle-pool enumeration
+ debug=false
+}
+
 -- Traffic Director is standalone by design. No ESX/QBCore/Qbox/vRP/ox_core dependency.
 Config.Framework = 'standalone'
 Config.FrameworkAdapters = { enabled = false }
