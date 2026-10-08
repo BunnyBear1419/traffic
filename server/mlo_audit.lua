@@ -65,6 +65,23 @@ local function distance(a,b)
  return math.sqrt(dx*dx+dy*dy+dz*dz)
 end
 
+local function decayEvidence(now)
+ if not Config.MLOCollisionAudit.runtime.enabled or Config.MLOCollisionAudit.runtime.confidenceDecayHours<=0 then return false end
+ local ttl=Config.MLOCollisionAudit.runtime.confidenceDecayHours*3600
+ local changed=false
+ for id,e in pairs(TrafficMLOEvidence or {}) do
+  if not e.verified and (e.lastSeen or 0)>0 and now-(e.lastSeen or now)>ttl then
+   e.confidence=math.max(0,(tonumber(e.confidence) or 0)-10)
+   e.hits=math.max(0,(tonumber(e.hits) or 0)-1)
+   e.state=evidenceState and evidenceState(e) or 'suspected'
+   e.lastDecay=now
+   changed=true
+   if (e.confidence or 0)<=0 and (e.hits or 0)<=0 then TrafficMLOEvidence[id]=nil end
+  end
+ end
+ return changed
+end
+
 local function evidenceState(e)
  local hits=tonumber(e.hits) or 0
  local candidates=e.resources or {}
@@ -200,6 +217,15 @@ RegisterNetEvent('traffic:server:mloPrepareFix',function(id)
  if plan then TriggerClientEvent('traffic:client:mloFixPlan',source,plan) end
 end)
 
+CreateThread(function()
+ if Config.MLOCollisionAudit.enabled and Config.MLOCollisionAudit.runtime.enabled then
+  Wait(30000)
+  while Config.MLOCollisionAudit.enabled do
+   Wait(math.max(3600000,math.floor(Config.MLOCollisionAudit.runtime.confidenceDecayHours*3600000/2)))
+   if decayEvidence(os.time()) then TrafficPersistence_save() end
+  end
+ end
+end)
 CreateThread(function()
  if Config.MLOCollisionAudit.enabled and Config.MLOCollisionAudit.scanOnStart then
   Wait(5000);TrafficMLOAudit.scan()
