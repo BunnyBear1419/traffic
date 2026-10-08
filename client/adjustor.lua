@@ -9,7 +9,10 @@ function TrafficAdjustor.getTrafficScale()
  local a=Config.Adjustor or {}
  local level=tonumber(TrafficAdjustor.state.trafficLevel) or 70
  if level<=0 then return 0 end
- return a.minTrafficScale + (level/100)*(a.maxTrafficScale-a.minTrafficScale)
+ local mode=TrafficClientMode or Config.DefaultMode
+ if mode=='stop' then return 0 end
+ local modeScale=(Config.Modes[mode] and tonumber(Config.Modes[mode].density)) or 1.0
+ return math.max(0,a.minTrafficScale + (level/100)*(a.maxTrafficScale-a.minTrafficScale))*modeScale
 end
 function TrafficAdjustor.getPopulationDensity(base)
  local density=tonumber(base) or 1.0
@@ -19,7 +22,10 @@ function TrafficAdjustor.getNPCScale()
  local a=Config.Adjustor or {}
  local level=tonumber(TrafficAdjustor.state.npcLevel) or 70
  if level<=0 then return 0 end
- return a.minNPCScale + (level/100)*(a.maxNPCScale-a.minNPCScale)
+ local mode=TrafficClientMode or Config.DefaultMode
+ if mode=='stop' then return 0 end
+ local modeScale=(Config.Modes[mode] and tonumber(Config.Modes[mode].density)) or 1.0
+ return math.max(0,a.minNPCScale + (level/100)*(a.maxNPCScale-a.minNPCScale))*modeScale
 end
 function TrafficAdjustor.getMaxTasks()
  local scale=TrafficAdjustor.getTrafficScale()
@@ -45,6 +51,7 @@ local function applySettings(settings)
  TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel
  TrafficAdjustor.state.reason=TrafficAdjustor.state.mode=='manual' and 'Manual control' or 'Configured'
  if type(settings.trafficMode)=='string' and Config.Modes[settings.trafficMode] then TrafficClientMode=settings.trafficMode end
+ TrafficAdjustor.state.lastAppliedAt=GetGameTimer()
 end
 RegisterNetEvent('traffic:client:settings',function(settings) applySettings(settings) end)
 
