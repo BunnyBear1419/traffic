@@ -29,7 +29,7 @@ local function rerouteOutOfZone(v,z)
  local buffer=(Config.ZoneBehavior and Config.ZoneBehavior.closureExitBuffer) or 35.0
  local tx=p.x+(dx/len)*((z.radius or 60.0)+buffer);local ty=p.y+(dy/len)*((z.radius or 60.0)+buffer)
  local road=TrafficDetection.findRoadPoint({x=tx,y=ty,z=p.z},GetEntityHeading(v))
- if road and TrafficOwnership.ensure(v) then ClearVehicleTasks(v);TaskVehicleDriveToCoordLongrange(v,road.x,road.y,road.z,14.0,786603,8.0) end
+ if road and TrafficOwnership.ensure(v) and Traffic.nativeSafetyEnabled('vehicleTasks') and Traffic.nativeProbe('Traffic','TaskVehicleDriveToCoordLongrange',true) then ClearVehicleTasks(v);TaskVehicleDriveToCoordLongrange(v,road.x,road.y,road.z,14.0,786603,8.0) end
 end
 local function forceDirection(v,z)
  local diff=math.abs(((GetEntityHeading(v)-(z.heading or 0)+180.0)%360.0)-180.0)
@@ -40,7 +40,7 @@ local function forceDirection(v,z)
  local h=math.rad(z.heading or 0);local p=GetEntityCoords(v);local distance=(z.radius or 60.0)+60.0
  local target={x=z.x+math.sin(h)*distance,y=z.y+math.cos(h)*distance,z=p.z}
  local road=TrafficDetection.findRoadPoint(target,z.heading or GetEntityHeading(v))
- if road and TrafficOwnership.ensure(v) then ClearVehicleTasks(v);TaskVehicleDriveToCoordLongrange(v,road.x,road.y,road.z,14.0,786603,7.0) end
+ if road and TrafficOwnership.ensure(v) and Traffic.nativeSafetyEnabled('vehicleTasks') and Traffic.nativeProbe('Traffic','TaskVehicleDriveToCoordLongrange',true) then ClearVehicleTasks(v);TaskVehicleDriveToCoordLongrange(v,road.x,road.y,road.z,14.0,786603,7.0) end
  return true
 end
 local function zoneControl(v)
