@@ -45,9 +45,11 @@ local function normalizeRule(r)
 end
 
 function TrafficJobController.getRules()
- local rules={}
- local sourceRules=(TrafficSettings and TrafficSettings.jobRules) or Config.JobTraffic.rules or {}
- for _,r in ipairs(sourceRules) do local n=normalizeRule(r);if n then rules[#rules+1]=n end end
+ local byId={}
+ for _,r in ipairs(Config.JobTraffic.rules or {}) do local n=normalizeRule(r);if n and n.id~='' then byId[n.id]=n end end
+ for id,r in pairs((TrafficSettings and TrafficSettings.jobRules) or {}) do local n=normalizeRule(r);if n and n.id~='' then byId[id]=n end end
+ local rules={};for _,n in pairs(byId) do rules[#rules+1]=n end
+ table.sort(rules,function(a,b) return a.priority>b.priority end)
  return rules
 end
 
