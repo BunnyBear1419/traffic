@@ -2,15 +2,9 @@ TrafficNPCManager={}
 local points={}
 local managed={}
 local lastSpawnAttempt={}
-
-local function isController()
- return (GlobalState.trafficDirectorController or 0)==GetPlayerServerId(PlayerId())
-end
-
-local function validModel(model)
- return type(model)=='number' and IsModelInCdimage(model) and IsModelValid(model)
-end
-
+local function safetyEnabled() return Config.NativeSafety and Config.NativeSafety.enabled and Config.NativeSafety.npcManager==true end
+local function isController() return (GlobalState.trafficDirectorController or 0)==GetPlayerServerId(PlayerId()) end
+local function validModel(model) return type(model)=='number' and IsModelInCdimage(model) and IsModelValid(model) end
 local function loadModel(model)
  if not validModel(model) then return false end
  RequestModel(model)
@@ -18,31 +12,17 @@ local function loadModel(model)
  while not HasModelLoaded(model) and GetGameTimer()<untilAt do Wait(50) end
  return HasModelLoaded(model)
 end
-
 local function managedCount()
  local count=0
- for id,e in pairs(managed) do
-  if DoesEntityExist(e.ped) then count=count+1
-  else managed[id]=nil end
- end
+ for id,e in pairs(managed) do if DoesEntityExist(e.ped) then count=count+1 else managed[id]=nil end end
  return count
 end
-
 local function findManagedSpawn(def)
- for _,e in pairs(managed) do
-  if e.pointId==def.id and DoesEntityExist(e.ped) then return true end
- end
- for _,ped in ipairs(GetGamePool('CPed')) do
-  if DoesEntityExist(ped) and Entity(ped).state.trafficDirectorSpawnPoint==def.id then
-   managed['state:'..def.id]={ped=ped,pointId=def.id,def=def,spawned=GetGameTimer()}
-   return true
-  end
- end
+ for _,e in pairs(managed) do if e.pointId==def.id and DoesEntityExist(e.ped) then return true end end
  return false
 end
-
 local function spawn(def)
- if not TrafficAdjustor.isFeatureEnabled('npcManager') or not isController() or not Config.NPCManager.enabled or not def or not loadModel(def.model) then return 0 end
+ if not safetyEnabled() or not TrafficAdjustor.isFeatureEnabled('npcManager') or not isController() or not Config.NPCManager.enabled or not def or not loadModel(def.model) then return 0 end
  local p=def.coords
  local ped=CreatePed(4,def.model,p.x,p.y,p.z,def.heading or 0.0,true,true)
  if ped==0 then return 0 end
@@ -50,65 +30,51 @@ local function spawn(def)
  Entity(ped).state:set('trafficDirectorSpawnPoint',def.id,true)
  if def.freeze then FreezeEntityPosition(ped,true) end
  if def.scenario then TaskStartScenarioInPlace(ped,def.scenario,0,true) end
- if def.appearance then TrafficAppearance.register(ped,{type=def.type or 'managed',appearance=def.appearance,repair=def.repair}) end
+ if def.appearance and TrafficAppearance and TrafficAppearance.register then TrafficAppearance.register(ped,{type=def.type or 'managed',appearance=def.appearance,repair=def.repair}) end
  local id=('%s:%s'):format(def.id,GetGameTimer())
  managed[id]={ped=ped,pointId=def.id,def=def,spawned=GetGameTimer()}
  SetModelAsNoLongerNeeded(def.model)
  return ped
 end
-
 function TrafficNPCManager.registerPoint(def)
  if not TrafficAdjustor.isFeatureEnabled('npcManager') or not Config.NPCManager.enabled or type(def)~='table' or not def.coords or not def.model then return false end
- local count=0
- for _ in pairs(points) do count=count+1 end
+ local count=0 for _ in pairs(points) do count=count+1 end
  if count>=Config.NPCManager.maxSpawnPoints and not points[def.id] then return false end
  def.id=def.id or ('spawn_'..tostring(def.model)..'_'..string.format('%.1f_%.1f_%.1f',def.coords.x,def.coords.y,def.coords.z))
- points[def.id]=def
- return true
+ points[def.id]=def return true
 end
-
 function TrafficNPCManager.unregisterPoint(id)
- points[id]=nil
- lastSpawnAttempt[id]=nil
+ points[id]=nil lastSpawnAttempt[id]=nil
  for key,e in pairs(managed) do
   if e.pointId==id then
    if DoesEntityExist(e.ped) then
-    TrafficAppearance.unregister(e.ped)
-    DeleteEntity(e.ped)
+    if TrafficAppearance and TrafficAppearance.unregister then TrafficAppearance.unregister(e.ped) end
+    if safetyEnabled() then DeleteEntity(e.ped) end
    end
    managed[key]=nil
   end
  end
 end
-
 function TrafficNPCManager.stats()
  return {spawnPoints=(function() local n=0 for _ in pairs(points) do n=n+1 end return n end)(),managed=managedCount()}
 end
-
 exports('RegisterNPCSpawnPoint',function(def) return TrafficNPCManager.registerPoint(def) end)
 exports('UnregisterNPCSpawnPoint',function(id) TrafficNPCManager.unregisterPoint(id) end)
 exports('GetNPCManagerStats',TrafficNPCManager.stats)
-
 CreateThread(function()
  while true do
-  if TrafficAdjustor.isFeatureEnabled('npcManager') and isController() and Config.NPCManager.enabled and TrafficAdjustor.getNPCScale()>0 then
+  if safetyEnabled() and TrafficAdjustor.isFeatureEnabled('npcManager') and isController() and Config.NPCManager.enabled and TrafficAdjustor.getNPCScale()>0 then
    local me=GetEntityCoords(PlayerPedId())
    for id,def in pairs(points) do
-    local existing=findManagedSpawn(def)
-    if not existing and Config.NPCManager.respawn and Traffic.distance(me,def.coords)<=Config.NPCManager.spawnDistance and GetGameTimer()-(lastSpawnAttempt[id] or 0)>=Config.NPCManager.respawnDelay then
-     local total=managedCount()
-     if total<math.max(1,math.floor(Config.NPCManager.maxManaged*TrafficAdjustor.getNPCScale())) then
-      lastSpawnAttempt[id]=GetGameTimer()
-      spawn(def)
-     end
+    if not findManagedSpawn(def) and Config.NPCManager.respawn and Traffic.distance(me,def.coords)<=Config.NPCManager.spawnDistance and GetGameTimer()-(lastSpawnAttempt[id] or 0)>=Config.NPCManager.respawnDelay then
+     if managedCount()<math.max(1,math.floor(Config.NPCManager.maxManaged*TrafficAdjustor.getNPCScale())) then lastSpawnAttempt[id]=GetGameTimer() spawn(def) end
     end
    end
    for id,e in pairs(managed) do
-    if not DoesEntityExist(e.ped) then
-     managed[id]=nil
+    if not DoesEntityExist(e.ped) then managed[id]=nil
     elseif Traffic.distance(me,GetEntityCoords(e.ped))>Config.NPCManager.despawnDistance then
-     TrafficAppearance.unregister(e.ped)
-     DeleteEntity(e.ped)
+     if TrafficAppearance and TrafficAppearance.unregister then TrafficAppearance.unregister(e.ped) end
+     if safetyEnabled() then DeleteEntity(e.ped) end
      managed[id]=nil
     end
    end
