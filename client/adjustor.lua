@@ -37,6 +37,8 @@ local function applySettings(settings)
  TrafficAdjustor.state.mode=settings.mode=='manual' and 'manual' or 'auto'
  TrafficAdjustor.state.trafficLevel=clamp(tonumber(settings.trafficLevel) or a.trafficLevel,0,100)
  TrafficAdjustor.state.npcLevel=clamp(tonumber(settings.npcLevel) or a.npcLevel,0,100)
+ TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel
+ TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel
 end
 RegisterNetEvent('traffic:client:settings',function(settings) applySettings(settings) end)
 
@@ -50,8 +52,8 @@ CreateThread(function()
    TrafficAdjustor.state.players=players
    if TrafficAdjustor.state.mode=='auto' then
     local a=Config.Adjustor
-    local traffic=a.trafficLevel
-    local npc=a.npcLevel
+    local traffic=TrafficAdjustor.baseTrafficLevel
+    local npc=TrafficAdjustor.baseNPCLevel
     if population>=a.criticalPopulation then traffic=traffic-35;npc=npc-30;TrafficAdjustor.state.reason='Critical traffic population'
     elseif population>=a.highPopulation then traffic=traffic-18;npc=npc-15;TrafficAdjustor.state.reason='High traffic population'
     elseif population<=a.lowPopulation then traffic=traffic+12;npc=npc+10;TrafficAdjustor.state.reason='Low traffic population'
