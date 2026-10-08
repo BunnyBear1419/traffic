@@ -1,6 +1,6 @@
 local open=false
 local function npcStats()
- if exports['traffic'] and exports['traffic'].GetNPCAppearanceStats then return exports['traffic']:GetNPCAppearanceStats() end
+ if exports[GetCurrentResourceName()] and exports['traffic'].GetNPCAppearanceStats then return exports['traffic']:GetNPCAppearanceStats() end
  return {managed=0,repairs=0}
 end
 local function pushData()
