@@ -49,7 +49,7 @@ local function publish(target)
 end
 local function publicPresets()
  local out={}
- for _,p in ipairs(BuiltInPresets) do local x=presetPayload(p);out[#out+1]={id=p.id,name=p.name,description=p.description,builtIn=true,mode=x.mode,trafficMode=x.trafficMode,trafficLevel=x.trafficLevel,npcLevel=x.npcLevel,features=x.features} end
+ for _,p in ipairs(BuiltInPresets) do local x=presetPayload(p);out[#out+1]={id=p.id,name=p.name,description=p.description,builtIn=true,mode=x.mode,trafficMode=x.trafficMode,trafficLevel=x.trafficLevel,npcLevel=x.npcLevel,parkedVehicleLevel=x.parkedVehicleLevel,emergencyVehicles=x.emergencyVehicles,militaryVehicles=x.militaryVehicles,features=x.features} end
  for id,p in pairs(TrafficSettings.presets or {}) do out[#out+1]={id=id,name=p.name or id,description=p.description or 'Custom preset',builtIn=false,mode=p.mode,trafficMode=p.trafficMode or Config.DefaultMode,trafficLevel=p.trafficLevel,npcLevel=p.npcLevel,parkedVehicleLevel=p.parkedVehicleLevel or 70,emergencyVehicles=p.emergencyVehicles~=false,militaryVehicles=p.militaryVehicles~=false,features=p.features or defaultFeatures()} end
  return out
 end
