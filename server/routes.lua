@@ -146,6 +146,12 @@ RegisterNetEvent('traffic:server:reportObstacle',function(hit)
  end
  TrafficPersistence_save();broadcast()
 end)
+RegisterNetEvent('traffic:server:routeSuccess',function(data)
+ if not Config.RouteLearning.enabled or type(data)~='table' or type(data.routeId)~='string' then return end
+ local r=TrafficRoutes[data.routeId];if not r then return end
+ r.successes=(r.successes or 0)+1;r.confidence=math.min(Config.RouteLearning.maxConfidence,(r.confidence or 0)+Config.RouteLearning.confidenceGain);r.lastSuccess=os.time()
+ TrafficPersistence_save();broadcast()
+end)
 RegisterNetEvent('traffic:server:routeFailure',function(data)
  local now=os.time();if (failureRate[source] or 0)>now-1 then return end;failureRate[source]=now
  if type(data)~='table' or not data.routeId then return end
