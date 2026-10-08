@@ -40,16 +40,16 @@ local function manage(v)
 end
 CreateThread(function()
  while true do
-  if TrafficActive then
+  if TrafficActive and TrafficAdjustor.isFeatureEnabled('traffic') then
    local list=GetGamePool('CVehicle');local n=0
-   if Config.Performance.enabled then
+   if TrafficAdjustor.isFeatureEnabled('performance') and Config.Performance.enabled then
     local count=#list
     if count>=Config.Performance.criticalPopulation then
-     scanInterval=Config.Performance.maxScanInterval;maxTasks=Config.Performance.minTasks
+     scanInterval=Config.Performance.maxScanInterval;maxTasks=math.max(Config.Performance.minTasks,TrafficAdjustor.getMaxTasks())
     elseif count>=Config.Performance.highPopulation then
-     scanInterval=math.min(Config.Performance.maxScanInterval,Config.ScanInterval+400);maxTasks=math.max(Config.Performance.minTasks,math.floor(Config.MaxTrafficTasks*0.7))
+     scanInterval=math.min(Config.Performance.maxScanInterval,TrafficAdjustor.getScanInterval()+400);maxTasks=math.max(Config.Performance.minTasks,math.floor(TrafficAdjustor.getMaxTasks()*0.7))
     else
-     scanInterval=Config.ScanInterval;maxTasks=Config.MaxTrafficTasks
+     scanInterval=TrafficAdjustor.getScanInterval();maxTasks=TrafficAdjustor.getMaxTasks()
     end
    end
    for i=1,#list do
