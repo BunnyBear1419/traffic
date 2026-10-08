@@ -144,12 +144,18 @@ RegisterNetEvent('traffic:server:reportObstacle',function(hit)
   local id=('obstacle_%s_%s'):format(os.time(),math.random(1000,9999))
   TrafficObstacles[id]={id=id,x=hit.x,y=hit.y,z=hit.z,hits=1,firstSeen=os.time(),lastSeen=os.time(),heading=num(hit.heading,0),category=classifyObstacle(hit),reason=tostring(hit.reason or 'blocked'):sub(1,40)}
  end
+ if TrafficMLOAudit and TrafficMLOAudit.recordRuntimeHit then TrafficMLOAudit.recordRuntimeHit(hit) end
  TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:routeSuccess',function(data)
- if not Config.RouteLearning.enabled or type(data)~='table' or type(data.routeId)~='string' then return end
+ if not Config.RouteLearning.enabled or type(data)~='table' or type(data.routeId)~='string' or data.completed~=true then return end
  local r=TrafficRoutes[data.routeId];if not r then return end
- r.successes=(r.successes or 0)+1;r.confidence=math.min(Config.RouteLearning.maxConfidence,(r.confidence or 0)+Config.RouteLearning.confidenceGain);r.lastSuccess=os.time()
+ local distance=tonumber(data.distance) or 0
+ local progressIndex=tonumber(data.progressIndex) or 0
+ if distance<Config.RouteLearning.minProgressDistance or progressIndex<2 then return end
+ r.successes=(r.successes or 0)+1
+ r.confidence=math.min(Config.RouteLearning.maxConfidence,(r.confidence or 0)+Config.RouteLearning.confidenceGain)
+ r.lastSuccess=os.time()
  TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:routeFailure',function(data)
