@@ -60,9 +60,19 @@ RegisterNUICallback('deployRotate',function(data,cb)
  SendNUIMessage({action='deployRotation',rotation=rotation});cb({ok=true,rotation=rotation})
 end)
 RegisterNUICallback('deployRemove',function(_,cb) local c=GetEntityCoords(PlayerPedId());TriggerServerEvent('traffic:server:removeProp',{x=c.x,y=c.y,z=c.z});cb({ok=true}) end)
+RegisterNUICallback('deployClearScene',function(data,cb) if type(data)=='table' and type(data.scene)=='string' then TriggerServerEvent('traffic:server:clearScene',data.scene) end;cb({ok=true}) end)
 RegisterNUICallback('deployClearOwn',function(_,cb) TriggerServerEvent('traffic:server:clearOwnProps');cb({ok=true}) end)
 RegisterNUICallback('deployClearAll',function(_,cb) TriggerServerEvent('traffic:server:clearAllProps');cb({ok=true}) end)
 RegisterNUICallback('deployAuditRequest',function(_,cb) TriggerServerEvent('traffic:server:requestDeployAudit');cb({ok=true}) end)
+CreateThread(function()
+ while true do
+  if menuOpen and preview then
+   Wait(0)
+   local p=coordsAhead(Config.Deployables.placementDistance or 3.0)
+   DrawMarker(1,p.x,p.y,p.z-0.9,0.0,0.0,0.0,0.0,0.0,GetEntityHeading(PlayerPedId())+rotation,0.55,0.55,0.12,190,215,240,125,false,false,2,false,nil,nil,false)
+  else Wait(500) end
+ end
+end)
 RegisterNetEvent('traffic:client:requestDeployables',function() TriggerServerEvent('traffic:server:requestDeployables') end)
 CreateThread(function()
  Wait(1500);TriggerServerEvent('traffic:server:requestDeployables')
