@@ -1,4 +1,4 @@
-TrafficAdjustor={state={mode=Config.Adjustor.mode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,population=0,players=0,reason='Configured'},features={}}
+TrafficAdjustor={state={mode=Config.Adjustor.mode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,population=0,players=0,reason='Configured'},features={},baseTrafficLevel=Config.Adjustor.trafficLevel,baseNPCLevel=Config.Adjustor.npcLevel}
 local defaults=Config.FeatureToggles or {}
 for k,v in pairs(defaults) do TrafficAdjustor.features[k]=v end
 
@@ -10,6 +10,10 @@ function TrafficAdjustor.isFeatureEnabled(name) return feature(name) end
 function TrafficAdjustor.getTrafficScale()
  local a=Config.Adjustor or {}
  return a.minTrafficScale + ((TrafficAdjustor.state.trafficLevel or 70)/100)*(a.maxTrafficScale-a.minTrafficScale)
+end
+function TrafficAdjustor.getPopulationDensity(base)
+ local density=tonumber(base) or 1.0
+ return math.max(0,math.min(1.5,density*TrafficAdjustor.getTrafficScale()))
 end
 function TrafficAdjustor.getNPCScale()
  local a=Config.Adjustor or {}
@@ -46,15 +50,16 @@ CreateThread(function()
    TrafficAdjustor.state.players=players
    if TrafficAdjustor.state.mode=='auto' then
     local a=Config.Adjustor
-    local traffic=TrafficAdjustor.state.trafficLevel
-    if population>=a.criticalPopulation then traffic=math.max(0,traffic-35);TrafficAdjustor.state.reason='Critical traffic population'
-    elseif population>=a.highPopulation then traffic=math.max(0,traffic-18);TrafficAdjustor.state.reason='High traffic population'
-    elseif population<=a.lowPopulation then traffic=math.min(100,traffic+12);TrafficAdjustor.state.reason='Low traffic population'
+    local traffic=a.trafficLevel
+    local npc=a.npcLevel
+    if population>=a.criticalPopulation then traffic=traffic-35;npc=npc-30;TrafficAdjustor.state.reason='Critical traffic population'
+    elseif population>=a.highPopulation then traffic=traffic-18;npc=npc-15;TrafficAdjustor.state.reason='High traffic population'
+    elseif population<=a.lowPopulation then traffic=traffic+12;npc=npc+10;TrafficAdjustor.state.reason='Low traffic population'
     else TrafficAdjustor.state.reason='Balanced server load' end
-    if players>=a.highPlayerCount then traffic=math.max(0,traffic-10)
-    elseif players<=a.lowPlayerCount then traffic=math.min(100,traffic+5) end
+    if players>=a.highPlayerCount then traffic=traffic-10;npc=npc-8
+    elseif players<=a.lowPlayerCount then traffic=traffic+5;npc=npc+4 end
     TrafficAdjustor.state.trafficLevel=clamp(traffic,0,100)
-    TrafficAdjustor.state.npcLevel=clamp(traffic,0,100)
+    TrafficAdjustor.state.npcLevel=clamp(npc,0,100)
    end
   end
   Wait((Config.Adjustor and Config.Adjustor.updateInterval) or 3000)
