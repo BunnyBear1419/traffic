@@ -62,7 +62,7 @@ Config.ZoneBehavior = {baseSpeed=22.0,lightSpeed=24.0,heavySpeed=16.0,raceSpeed=
 -- so high-risk native families can be disabled independently while the rest of Traffic Director stays online.
 Config.NativeSafety = {
  enabled=true,
- speedControl=false,      -- disables SetVehicleMaxSpeed/SetVehicleForwardSpeed while isolating native crashes
+ speedControl=true,      -- disables SetVehicleMaxSpeed/SetVehicleForwardSpeed while isolating native crashes
  vehicleTasks=true,       -- TaskVehicleDriveToCoordLongrange
  shapeTests=false,         -- StartShapeTestRay/GetShapeTestResult
  populationCleanup=false, -- DeleteEntity/mission-entity cleanup path
