@@ -20,3 +20,26 @@ CreateThread(function()
   ::continue::
  end
 end)
+
+CreateThread(function()
+ while true do
+  if TrafficAdjustor.isFeatureEnabled('population') and TrafficAdjustor.getTrafficScale()<=0 and TrafficAdjustor.getNPCScale()<=0 then
+   local vehicles=GetGamePool('CVehicle')
+   for i=1,#vehicles do
+    local v=vehicles[i]
+    if DoesEntityExist(v) and IsEntityAVehicle(v) then
+     local driver=GetPedInVehicleSeat(v,-1)
+     if driver~=0 and DoesEntityExist(driver) and not IsPedAPlayer(driver) then
+      if NetworkHasControlOfEntity(v) then
+       SetEntityAsMissionEntity(v,true,true)
+       DeleteEntity(v)
+      else
+       NetworkRequestControlOfEntity(v)
+      end
+     end
+    end
+   end
+  end
+  Wait(1000)
+ end
+end)
