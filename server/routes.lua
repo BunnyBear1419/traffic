@@ -1,4 +1,5 @@
 local reportRate={}
+local failureRate={}
 local function broadcast() TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles) end
 local function allowedReport(src)
  local now=os.time();local last=reportRate[src] or 0
@@ -110,7 +111,8 @@ RegisterNetEvent('traffic:server:reportObstacle',function(hit)
  TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:routeFailure',function(data)
- if not allowedReport(source) or type(data)~='table' or not data.routeId then return end
+ local now=os.time();if (failureRate[source] or 0)>now-1 then return end;failureRate[source]=now
+ if type(data)~='table' or not data.routeId then return end
  local r=TrafficRoutes[data.routeId]
  if r then r.failures=(r.failures or 0)+1;r.confidence=math.max(-100,(r.confidence or 0)-Config.AutoDiscovery.confidenceLoss) end
  TrafficPersistence_save();broadcast()
@@ -119,4 +121,4 @@ RegisterNetEvent('traffic:server:deleteObstacle',function(id)
  if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
  TrafficObstacles[id]=nil;TrafficPersistence_save();broadcast()
 end)
-AddEventHandler('playerDropped',function() reportRate[source]=nil end)
+AddEventHandler('playerDropped',function() reportRate[source]=nil;failureRate[source]=nil end)
