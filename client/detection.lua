@@ -1,18 +1,24 @@
 TrafficDetection={}
 
 function TrafficDetection.forwardBlocked(vehicle)
- if not Traffic.nativeSafetyEnabled('shapeTests') then return false,nil,0 end
+ -- Safe fallback: do not use GTA shape-test natives. They are unstable on some
+ -- custom maps/builds. Detect roadless/abnormal locations from bounded road-node data.
  if not vehicle or not DoesEntityExist(vehicle) or not IsEntityAVehicle(vehicle) then return false,nil,0 end
  local p=GetEntityCoords(vehicle)
- local f=GetEntityForwardVector(vehicle)
- local a=vector3(p.x,p.y,p.z+0.65)
- local b=vector3(p.x+f.x*Config.ObstacleProbeDistance,p.y+f.y*Config.ObstacleProbeDistance,p.z+0.65)
- Traffic.nativeProbe('Detection','StartShapeTestRay',true)
- local ray=StartShapeTestRay(a.x,a.y,a.z,b.x,b.y,b.z,1,vehicle,7)
- Traffic.nativeProbe('Detection','GetShapeTestResult',true)
- local _,hit,hitCoords,_,entity=GetShapeTestResult(ray)
- if hit~=1 or not hitCoords then return false,nil,entity or 0 end
- return true,hitCoords,entity or 0
+ local heading=GetEntityHeading(vehicle)
+ if not Traffic.nativeSafetyEnabled('roadNodes') then return false,nil,0 end
+ Traffic.nativeProbe('Detection','GetClosestVehicleNodeWithHeading',true)
+ local ok,node=GetClosestVehicleNodeWithHeading(p.x,p.y,p.z,heading or 0.0,1,3.0,0)
+ if not ok or not node then
+  return true,p,0
+ end
+ local dx=p.x-node.x
+ local dy=p.y-node.y
+ local dz=p.z-node.z
+ local distance=math.sqrt(dx*dx+dy*dy+dz*dz)
+ local threshold=math.max(12.0,tonumber(Config.RouteSnapDistance) or 18.0)
+ if distance>threshold then return true,p,0 end
+ return false,nil,0
 end
 
 function TrafficDetection.sampleObstacle(vehicle)
