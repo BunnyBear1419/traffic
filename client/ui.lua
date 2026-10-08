@@ -14,7 +14,7 @@ local function pushData()
  })
 end
 RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(true,true);TriggerServerEvent('traffic:server:requestSettings');pushData() end)
-RegisterNetEvent('traffic:client:settings',function(settings) TrafficAdjustor.state.mode=settings.mode or TrafficAdjustor.state.mode;TrafficAdjustor.state.trafficLevel=tonumber(settings.trafficLevel) or TrafficAdjustor.state.trafficLevel;TrafficAdjustor.state.npcLevel=tonumber(settings.npcLevel) or TrafficAdjustor.state.npcLevel;TrafficAdjustor.features=settings.features or TrafficAdjustor.features;pushData() end)
+RegisterNetEvent('traffic:client:settings',function(settings) TrafficAdjustor.state.mode=settings.mode or TrafficAdjustor.state.mode;TrafficAdjustor.state.trafficLevel=tonumber(settings.trafficLevel) or TrafficAdjustor.state.trafficLevel;TrafficAdjustor.state.npcLevel=tonumber(settings.npcLevel) or TrafficAdjustor.state.npcLevel;TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel;TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel;TrafficAdjustor.features=settings.features or TrafficAdjustor.features;pushData() end)
 RegisterNetEvent('traffic:client:data',function(routes,zones,obstacles)
  TrafficRoutes=routes or {};TrafficClientZones=zones or {};TrafficClientObstacles=obstacles or {};pushData()
 end)
