@@ -129,7 +129,7 @@ RegisterNetEvent('traffic:server:deletePreset',function(id)
  TrafficSettings=TrafficSettings or load();if TrafficSettings.presets then TrafficSettings.presets[id]=nil end;save();publishPresets(source)
 end)
 RegisterNetEvent('traffic:server:updateSettings',function(payload)
- if not TrafficPermissions.isAdmin(source) or type(payload)~='table' then return end
+ if not TrafficPermissions.canControl(source) or type(payload)~='table' then return end
  local d=defaults();TrafficSettings=TrafficSettings or load()
  if payload.mode=='auto' or payload.mode=='manual' then TrafficSettings.mode=payload.mode end
  TrafficSettings.profile='custom'
