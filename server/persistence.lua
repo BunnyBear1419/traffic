@@ -30,6 +30,12 @@ CreateThread(function()
  TrafficObstacles=loadJson('obstacles',{})
  TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles)
 end)
+local function decayRouteConfidence(now)
+ if not Config.RouteLearning.enabled or Config.RouteLearning.decayHours<=0 then return false end
+ local changed=false;local ttl=Config.RouteLearning.decayHours*3600
+ for _,r in pairs(TrafficRoutes) do local t=r.lastSuccess or r.updatedAt or r.createdAt;if t and now-t>ttl and (tonumber(r.confidence) or 0)>0 then r.confidence=math.max(0,(r.confidence or 0)-Config.RouteLearning.confidenceLoss);r.lastSuccess=now;changed=true end end
+ return changed
+end
 function TrafficPersistence_save()
  saveJson('routes',TrafficRoutes);saveJson('zones',TrafficZones);saveJson('obstacles',TrafficObstacles);saveJson('avoidance',TrafficRouteAvoidance)
 end
