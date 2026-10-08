@@ -14,9 +14,14 @@ function TrafficRecovery.tick(v)
   return
  end
  if now-s.since<Config.RecoveryTimeout then return end
+
+ -- Always record a stuck location. Shape tests are optional and remain disabled by default.
  local obstacle=TrafficDetection.sampleObstacle(v)
- if obstacle and (not lastReport[v] or now-lastReport[v]>Config.AdaptiveRouting.obstacleReportCooldown) then
-  obstacle.reason='stuck';obstacle.vehicleClass=GetVehicleClass(v);obstacle.recoveryCount=(s.probes or 0)+1
+ obstacle=obstacle or {x=p.x,y=p.y,z=p.z,vehicleX=p.x,vehicleY=p.y,vehicleZ=p.z,heading=GetEntityHeading(v),entity=0,netId=0,entityModel=GetEntityModel(v),entityType=2}
+ obstacle.reason='stuck'
+ obstacle.vehicleClass=GetVehicleClass(v)
+ obstacle.recoveryCount=(s.probes or 0)+1
+ if not lastReport[v] or now-lastReport[v]>Config.AdaptiveRouting.obstacleReportCooldown then
   TriggerServerEvent('traffic:server:reportObstacle',obstacle)
   local route=TrafficRouting.getActiveRoute and TrafficRouting.getActiveRoute(v) or TrafficRouting.getRouteForVehicle(v)
   if route and route.id and (not lastFailureReport[v] or now-lastFailureReport[v]>=Config.AdaptiveRouting.obstacleReportCooldown) then
@@ -25,5 +30,7 @@ function TrafficRecovery.tick(v)
   end
   lastReport[v]=now
  end
- ClearVehicleTasks(v);TrafficRouting.redirectToRoad(v);s.since=now;s.probes=s.probes+1
+ ClearVehicleTasks(v)
+ if TrafficRouting.redirectToRoad then TrafficRouting.redirectToRoad(v) end
+ s.last=p;s.since=now;s.probes=s.probes+1
 end
