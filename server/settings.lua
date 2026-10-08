@@ -64,6 +64,13 @@ end
 local function publishPresets(target) TriggerClientEvent('traffic:client:presets',target or -1,publicPresets()) end
 function TrafficSettings_init() TrafficSettings=load();publish();publishPresets() end
 RegisterNetEvent('traffic:server:requestSettings',function() publish(source);publishPresets(source) end)
+RegisterNetEvent('traffic:server:requestDiagnostics',function()
+ if not TrafficPermissions.canDiagnostics(source) then return end
+ local players=#GetPlayers()
+ local snapshot={resource=resourceName,state=GetResourceState(resourceName),framework=Config.Framework or 'standalone',oneSync=GetConvar('onesync','off'),oneSyncPopulation=GetConvar('onesync_population','true'),players=players,masterEnabled=TrafficSettings and TrafficSettings.masterEnabled~=false,configured=TrafficSettings and TrafficSettings.configured==true,activeEvent=TrafficEventController and TrafficEventController.active or nil,jobRules=TrafficJobController and #TrafficJobController.getRules() or 0,serverTime=os.time()}
+ TriggerClientEvent('traffic:client:diagnosticsServer',source,snapshot)
+ TriggerClientEvent('traffic:client:diagnosticsRequest',source)
+end)
 RegisterNetEvent('traffic:server:completeSetup',function()
  if not TrafficPermissions.canControl(source) then return end
  TrafficSettings=TrafficSettings or load();TrafficSettings.configured=true;TrafficSettings.masterEnabled=true;save();publish()
@@ -81,6 +88,8 @@ RegisterNetEvent('traffic:server:importSettings',function(payload)
  local d=defaults()
  if payload.trafficLevel==nil or payload.npcLevel==nil then return end
  TrafficSettings=TrafficSettings or load()
+ local before=json.encode(TrafficSettings or defaults())
+ if before then SaveResourceFile(resourceName,'data/settings.json.preimport.json',before,-1) end
  TrafficSettings.configured=true
  TrafficSettings.masterEnabled=payload.masterEnabled~=false
  TrafficSettings.mode=payload.mode=='manual' and 'manual' or 'auto'
