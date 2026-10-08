@@ -4,7 +4,7 @@ local tracked={}
 local scanInterval=Config.ScanInterval
 local maxTasks=Config.MaxTrafficTasks
 local function npc(v)
- if not DoesEntityExist(v) or not IsEntityAVehicle(v) then return false end
+ if not v or not DoesEntityExist(v) or not IsEntityAVehicle(v) then return false end
  local d=GetPedInVehicleSeat(v,-1)
  return d~=0 and DoesEntityExist(d) and not IsPedAPlayer(d)
 end
