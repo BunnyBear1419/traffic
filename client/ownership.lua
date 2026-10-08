@@ -3,6 +3,8 @@ local attempts={}
 function TrafficOwnership.owner(entity)
  if not entity or not DoesEntityExist(entity) then return PlayerId() end
  if not NetworkGetEntityIsNetworked(entity) then return PlayerId() end
+ local netId=NetworkGetNetworkIdFromEntity(entity)
+ if not netId or netId==0 then return PlayerId() end
  return NetworkGetEntityOwner(entity)
 end
 function TrafficOwnership.isLocal(entity)
@@ -13,6 +15,8 @@ end
 function TrafficOwnership.ensure(entity)
  if not TrafficAdjustor.isFeatureEnabled('oneSync') or not Config.OneSync.enabled or not DoesEntityExist(entity) then return true end
  if not NetworkGetEntityIsNetworked(entity) or NetworkHasControlOfEntity(entity) then return true end
+ local netId=NetworkGetNetworkIdFromEntity(entity)
+ if not netId or netId==0 then return false end
  local now=GetGameTimer()
  local s=attempts[entity] or {count=0,untilAt=0}
  if now<s.untilAt then return false end
