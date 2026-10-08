@@ -44,6 +44,7 @@ local function applySettings(settings)
  TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel
  TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel
  TrafficAdjustor.state.reason=TrafficAdjustor.state.mode=='manual' and 'Manual control' or 'Configured'
+ if type(settings.trafficMode)=='string' and Config.Modes[settings.trafficMode] then TrafficClientMode=settings.trafficMode end
 end
 RegisterNetEvent('traffic:client:settings',function(settings) applySettings(settings) end)
 
