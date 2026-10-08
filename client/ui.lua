@@ -22,6 +22,12 @@ RegisterNetEvent('traffic:client:mode',function(mode) TrafficClientMode=mode or 
 RegisterNetEvent('traffic:client:routeSaved',function(data) if TrafficLearning and TrafficLearning.onSaved then TrafficLearning.onSaved(data) end end)
 RegisterNetEvent('traffic:client:settings',function(settings) if type(settings)=='table' and type(settings.trafficMode)=='string' and Config.Modes[settings.trafficMode] then TrafficClientMode=settings.trafficMode elseif type(settings)=='table' and type(settings.profile)=='string' and Config.Modes[settings.profile] then TrafficClientMode=settings.profile end;TrafficAdjustor.state.mode=settings.mode or TrafficAdjustor.state.mode;TrafficAdjustor.state.trafficLevel=tonumber(settings.trafficLevel) or TrafficAdjustor.state.trafficLevel;TrafficAdjustor.state.npcLevel=tonumber(settings.npcLevel) or TrafficAdjustor.state.npcLevel;TrafficAdjustor.state.parkedVehicleLevel=tonumber(settings.parkedVehicleLevel) or TrafficAdjustor.state.parkedVehicleLevel or 70;if settings.masterEnabled~=nil then TrafficAdjustor.state.masterEnabled=settings.masterEnabled==true end;if settings.configured~=nil then TrafficAdjustor.state.configured=settings.configured==true end;if settings.emergencyVehicles~=nil then TrafficAdjustor.state.emergencyVehicles=settings.emergencyVehicles==true end;if settings.militaryVehicles~=nil then TrafficAdjustor.state.militaryVehicles=settings.militaryVehicles==true end;TrafficClientMode=settings.trafficMode or TrafficClientMode or Config.DefaultMode;TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel;TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel;TrafficAdjustor.baseTrafficMode=TrafficClientMode;TrafficAdjustor.features=settings.features or TrafficAdjustor.features;TrafficAdjustor.state.vehiclePolicy=settings.vehiclePolicy or TrafficAdjustor.state.vehiclePolicy;pushData() end)
 RegisterNetEvent('traffic:client:diagnostics',function(snapshot) SendNUIMessage({action='diagnostics',snapshot=snapshot or {}}) end)
+RegisterNetEvent('traffic:client:diagnosticsServer',function(snapshot) TrafficUIDiagnosticsServer=snapshot or {} end)
+RegisterNetEvent('traffic:client:diagnosticsRequest',function()
+ local d=TrafficAdjustor and TrafficAdjustor.snapshot and TrafficAdjustor.snapshot() or {}
+ d.clientResource=GetCurrentResourceName();d.clientPed=DoesEntityExist(PlayerPedId());d.clientCoords=GetEntityCoords(PlayerPedId());d.server=TrafficUIDiagnosticsServer or {}
+ SendNUIMessage({action='diagnostics',snapshot=d})
+end)
 RegisterNetEvent('traffic:client:configExport',function(snapshot) SendNUIMessage({action='configExport',snapshot=snapshot or {}}) end)
 RegisterNetEvent('traffic:client:importResult',function(ok,message) SendNUIMessage({action='importResult',ok=ok,message=message}) end)
 RegisterNetEvent('traffic:client:presets',function(presets) SendNUIMessage({action='presets',presets=presets or {}}) end)
@@ -50,6 +56,7 @@ RegisterNUICallback('saveVehiclePolicy',function(d,cb) TriggerServerEvent('traff
 RegisterNUICallback('completeSetup',function(_,cb) TriggerServerEvent('traffic:server:completeSetup');cb('ok') end)
 RegisterNUICallback('setMasterEnabled',function(d,cb) TriggerServerEvent('traffic:server:setMasterEnabled',d and d.enabled==true);cb('ok') end)
 RegisterNUICallback('exportSettings',function(_,cb) TriggerServerEvent('traffic:server:exportSettings');cb('ok') end)
+RegisterNUICallback('requestDiagnostics',function(_,cb) TriggerServerEvent('traffic:server:requestDiagnostics');cb('ok') end)
 RegisterNUICallback('importSettings',function(d,cb) TriggerServerEvent('traffic:server:importSettings',d and d.config);cb('ok') end)
 RegisterNUICallback('setMode',function(d,cb) if type(d)=='table' and type(d.mode)=='string' then TrafficClientMode=d.mode end;TriggerServerEvent('traffic:server:setMode',d.mode);cb('ok') end)
 RegisterNUICallback('deleteRoute',function(d,cb) TriggerServerEvent('traffic:server:deleteRoute',d.id);cb('ok') end)
