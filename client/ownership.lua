@@ -19,4 +19,11 @@ function TrafficOwnership.ensure(entity)
  return NetworkHasControlOfEntity(entity)
 end
 function TrafficOwnership.reset(entity) attempts[entity]=nil end
-CreateThread(function() while true do Wait(5000);for entity in pairs(attempts) do if not DoesEntityExist(entity) then attempts[entity]=nil end end end)
+CreateThread(function()
+ while true do
+  Wait(5000)
+  for entity in pairs(attempts) do
+   if not DoesEntityExist(entity) then attempts[entity]=nil end
+  end
+ end
+end)
