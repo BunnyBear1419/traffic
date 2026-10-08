@@ -50,6 +50,8 @@ CreateThread(function()
    SetScenarioPedDensityMultiplierThisFrame(npcZero and 0.0 or math.min(npcDensity,1.0),npcZero and 0.0 or math.min(npcDensity,1.0))
    if density<=0 and npcDensity<=0 and parkedScale<=0 then SetVehiclePopulationBudget(0);SetPedPopulationBudget(0) else SetVehiclePopulationBudget(3);SetPedPopulationBudget(3) end
    applyModelSuppression(emergencyEnabled,militaryEnabled)
+  else
+   applyModelSuppression(true,true)
   end
   Wait(0)
  end
