@@ -9,7 +9,7 @@ version '2.0.0'
 shared_scripts {'shared/config.lua','shared/utils.lua'}
 client_scripts {
  'client/appearance.lua','client/ownership.lua','client/adjustor.lua',
- 'client/learning.lua','client/intelligence.lua',
+ 'client/detection.lua','client/routing.lua','client/recovery.lua','client/learning.lua','client/intelligence.lua',
  'client/discovery.lua','client/npc_manager.lua','client/monitor.lua','client/ui.lua'
 }
 server_scripts {'server/persistence.lua','server/permissions.lua','server/settings.lua','server/routes.lua','server/mlo_audit.lua','server/main.lua'}
