@@ -42,6 +42,7 @@ Config.RouteLearning = {enabled=true,successWindow=45000,minProgressDistance=25.
 Config.OneSync = {enabled=true,requestControl=true,requestTimeout=300,maxControlAttempts=2,migrationGrace=1500}
 Config.Intersections = {enabled=true,radius=24.0,maxQueued=6,gridlockSpeed=2.0,cooldown=5000,emergencyBypass=true}
 Config.MLOIntelligence = {enabled=true,roadProbeRadius=24.0,classify=true,minimumHits=2,categories={'building_entrance','garage','tunnel','parking','dead_end','blocked_road','unknown'}}
+Config.MLOCollisionAudit = {enabled=true,scanOnStart=true,scanInterval=300000,maxResources=300,maxFilesPerResource=500,maxFindings=500,includeExtensions={ybn=true,ydr=true,ytyp=true,ymap=true,ymf=true,ydd=true},minimumDuplicateSize=64,allowResourceStop=false}
 Config.MLOCollisionAudit = {enabled=true,scanOnStart=true,scanInterval=300000,maxResources=300,maxFilesPerResource=500,maxFindings=500,includeExtensions={ybn=true,ydr=true,ytyp=true,ymap=true,ymf=true,ydd=true},minimumDuplicateSize=64,autoStopDisabled=false,allowResourceStop=false}
 Config.AutoDiscovery = {enabled=true,sampleInterval=1200,minSpeed=3.0,minSamples=8,maxCandidates=100,successWindow=45000,confidenceStart=1.0,confidenceGain=0.25,confidenceLoss=0.5}
 Config.NPCManager = {enabled=true,maxSpawnPoints=100,maxManaged=250,respawn=true,respawnDelay=5000,spawnDistance=180.0,despawnDistance=260.0}
