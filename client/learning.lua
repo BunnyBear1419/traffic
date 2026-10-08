@@ -50,7 +50,12 @@ CreateThread(function()
      if #TrafficLearning.points==0 or Traffic.distance(p,TrafficLearning.points[#TrafficLearning.points])>=Config.RouteSampleDistance then
       local previous=TrafficLearning.points[#TrafficLearning.points]
       local h=GetEntityHeading(v);local dx,dy=hv(h)
-      TrafficLearning.points[#TrafficLearning.points+1]={x=p.x,y=p.y,z=p.z,heading=h,dx=dx,dy=dy}
+      local turn='straight'
+      if previous and previous.heading then
+       local delta=((h-previous.heading+540)%360)-180
+       if delta>25 then turn='right' elseif delta<-25 then turn='left' end
+      end
+      TrafficLearning.points[#TrafficLearning.points+1]={x=p.x,y=p.y,z=p.z,heading=h,dx=dx,dy=dy,turn=turn}
       if previous then TrafficLearning.distance=TrafficLearning.distance+Traffic.distance(p,previous) end
       TrafficLearning.status='Recording'
       notify()
