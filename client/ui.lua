@@ -10,7 +10,7 @@ local function pushData()
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
-  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks}
+  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=TrafficMonitor and TrafficMonitor.snapshot() or {}
  })
 end
 RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(true,true);pushData() end)
