@@ -92,7 +92,7 @@ RegisterNetEvent('traffic:server:saveJobRule',function(rule)
 end)
 
 RegisterNetEvent('traffic:server:deleteJobRule',function(id)
- if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canJobs(source) or type(id)~='string' then return end
  TrafficSettings=TrafficSettings or {}
  if TrafficSettings.jobRules then TrafficSettings.jobRules[id]=nil end
  if TrafficSettings_save then TrafficSettings_save() end
