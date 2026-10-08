@@ -94,15 +94,16 @@ end
 CreateThread(function()
  while true do
   if TrafficActive and TrafficAdjustor.isFeatureEnabled('traffic') then
-   local list={};local n=0
-   if Traffic.nativeSafetyEnabled('poolScanning') then Traffic.nativeProbe('Traffic','GetGamePool(CVehicle)',true);list=GetGamePool('CVehicle') else Wait(scanInterval);goto continue end
+   local n=0
+   local player=PlayerPedId()
+   local p=GetEntityCoords(player)
+   local radius=math.min(120.0,math.max(40.0,(TrafficAdjustor.getScanInterval() or Config.ScanInterval)/10.0))
+   Traffic.nativeProbe('Traffic','GetClosestVehicle',true)
+   local vehicle=GetClosestVehicle(p.x,p.y,p.z,radius,0,70)
+   if vehicle and vehicle~=0 and npc(vehicle) then manage(vehicle);n=1 end
    if TrafficAdjustor.isFeatureEnabled('performance') and Config.Performance.enabled then
-    local count=#list
-    if count>=Config.Performance.criticalPopulation then scanInterval=Config.Performance.maxScanInterval;maxTasks=math.max(Config.Performance.minTasks,TrafficAdjustor.getMaxTasks())
-    elseif count>=Config.Performance.highPopulation then scanInterval=math.min(Config.Performance.maxScanInterval,TrafficAdjustor.getScanInterval()+400);maxTasks=math.max(Config.Performance.minTasks,math.floor(TrafficAdjustor.getMaxTasks()*0.7))
-    else scanInterval=TrafficAdjustor.getScanInterval();maxTasks=TrafficAdjustor.getMaxTasks() end
+    scanInterval=TrafficAdjustor.getScanInterval();maxTasks=math.min(TrafficAdjustor.getMaxTasks(),Config.Performance.minTasks+1)
    end
-   for i=1,#list do if n<maxTasks and npc(list[i]) then manage(list[i]);n=n+1 end end
   end
   Wait(scanInterval)
   ::continue::
