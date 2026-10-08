@@ -42,6 +42,7 @@ local function save()
  local encoded=json.encode(TrafficSettings or defaults())
  if encoded then SaveResourceFile(resourceName,'data/settings.json',encoded,-1) end
 end
+TrafficSettings_save=save
 local function publish(target)
  GlobalState.trafficDirectorSettings=TrafficSettings
  if target then TriggerClientEvent('traffic:client:settings',target,TrafficSettings) else TriggerClientEvent('traffic:client:settings',-1,TrafficSettings) end
