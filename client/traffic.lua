@@ -91,7 +91,7 @@ local function manage(v)
  if route and not IsVehicleStuckOnRoof(v) then TrafficRouting.driveRoute(v,route) end
  TrafficRecovery.tick(v)
 end
-if Config.NativeSafety and Config.NativeSafety.trafficThread ~= false then
+if Config.NativeSafety and Config.NativeSafety.trafficThread == true then
 CreateThread(function()
  while true do
   if TrafficActive and TrafficAdjustor.isFeatureEnabled('traffic') then
@@ -111,7 +111,7 @@ CreateThread(function()
 end)
 end
 
-if Config.NativeSafety and Config.NativeSafety.trafficCleanupThread == true then
+if Config.NativeSafety and Config.NativeSafety.trafficCleanupThread ~= false then
 CreateThread(function()
  while true do
   Wait(5000)
