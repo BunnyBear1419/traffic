@@ -10,14 +10,16 @@ local function pushData()
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
-  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=TrafficMonitor and TrafficMonitor.snapshot() or {}
+  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=TrafficMonitor and TrafficMonitor.snapshot() or {},adjustor=TrafficAdjustor.snapshot()
  })
 end
-RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(true,true);pushData() end)
+RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(true,true);TriggerServerEvent('traffic:server:requestSettings');pushData() end)
+RegisterNetEvent('traffic:client:settings',function(settings) TrafficAdjustor.state.mode=settings.mode or TrafficAdjustor.state.mode;TrafficAdjustor.state.trafficLevel=tonumber(settings.trafficLevel) or TrafficAdjustor.state.trafficLevel;TrafficAdjustor.state.npcLevel=tonumber(settings.npcLevel) or TrafficAdjustor.state.npcLevel;TrafficAdjustor.features=settings.features or TrafficAdjustor.features;pushData() end)
 RegisterNetEvent('traffic:client:data',function(routes,zones,obstacles)
  TrafficRoutes=routes or {};TrafficClientZones=zones or {};TrafficClientObstacles=obstacles or {};pushData()
 end)
 RegisterNUICallback('close',function(_,cb) open=false;SetNuiFocus(false,false);cb('ok') end)
+RegisterNUICallback('updateSettings',function(d,cb) TriggerServerEvent('traffic:server:updateSettings',d);cb('ok') end)
 RegisterNUICallback('setMode',function(d,cb) TriggerServerEvent('traffic:server:setMode',d.mode);cb('ok') end)
 RegisterNUICallback('deleteRoute',function(d,cb) TriggerServerEvent('traffic:server:deleteRoute',d.id);cb('ok') end)
 RegisterNUICallback('updateRoute',function(d,cb) TriggerServerEvent('traffic:server:updateRoute',d.route);cb('ok') end)
