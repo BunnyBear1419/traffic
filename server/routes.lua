@@ -101,7 +101,7 @@ RegisterNetEvent('traffic:server:discoverRoute',function(route)
  TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:updateRoute',function(route)
- if not TrafficPermissions.isAdmin(source) or type(route)~='table' or not route.id or not TrafficRoutes[route.id] then return end
+ if not TrafficPermissions.canRoutes(source) or type(route)~='table' or not route.id or not TrafficRoutes[route.id] then return end
  route=sanitizeRoute(route);if not route then return end
  route.id=route.id;route.updatedAt=os.time();route.updatedBy=GetPlayerName(source) or 'console'
  TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast()
