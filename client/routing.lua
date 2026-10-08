@@ -1,6 +1,13 @@
 TrafficRouting={}
 local progress={}
 local lastTask={}
+local function nearHotspot(p)
+ if not Config.AdaptiveRouting.enabled then return false end
+ for _,o in pairs(TrafficClientObstacles or {}) do
+  if (o.hits or 0)>=Config.AdaptiveRouting.minHotspotHits and Traffic.distance(p,o)<=Config.AdaptiveRouting.avoidRadius then return true end
+ end
+ return false
+end
 local function nearestRoute(coords,radius)
  local best,bd,bestIndex
  for _,route in pairs(TrafficRoutes or {}) do
@@ -28,6 +35,13 @@ function TrafficRouting.driveRoute(vehicle,route)
   if d<bestDist then bestDist=d;idx=i end
  end
  if bestDist<10.0 then idx=idx+1 end
+ local candidate=route.points[idx]
+ local tries=0
+ while candidate and nearHotspot(candidate) and tries<8 do
+  idx=idx+1;tries=tries+1
+  if idx>#route.points then idx=route.loop and 1 or #route.points end
+  candidate=route.points[idx]
+ end
  if idx>#route.points then idx=route.loop and 1 or #route.points end
  progress[vehicle]=idx
  local target=route.points[idx]
@@ -41,8 +55,7 @@ function TrafficRouting.driveRoute(vehicle,route)
  return true
 end
 function TrafficRouting.redirectToRoad(vehicle)
- local p=GetEntityCoords(vehicle)
- local node=TrafficDetection.findRoadPoint(p,GetEntityHeading(vehicle))
+ local p=GetEntityCoords(vehicle);local node=TrafficDetection.findRoadPoint(p,GetEntityHeading(vehicle))
  if node then TaskVehicleDriveToCoordLongrange(vehicle,node.x,node.y,node.z,13.0,786603,5.0);return true end
  return false
 end
