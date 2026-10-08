@@ -1,6 +1,5 @@
 local open=false
 local function npcStats()
- local ok,result=pcall(function() return TrafficAppearance and select(1,TrafficAppearance.stats()) end)
  local s=exports[GetCurrentResourceName()]:GetNPCAppearanceStats() or {}
  local m=exports[GetCurrentResourceName()]:GetNPCManagerStats() or {}
  return {managed=s.managed or 0,repairs=s.repairs or 0,invisible=s.invisible or 0,mismatched=s.mismatched or 0,spawnPoints=m.spawnPoints or 0,spawned=m.managed or 0}
