@@ -6,7 +6,7 @@ local function isNpcVehicle(v)
  return d~=0 and DoesEntityExist(d) and not IsPedAPlayer(d)
 end
 function TrafficIntelligence.tick(v)
- if not Config.Intersections.enabled or not isNpcVehicle(v) or GetVehicleClass(v)==18 then return false end
+ if not TrafficAdjustor.isFeatureEnabled('intelligence') or not Config.Intersections.enabled or not isNpcVehicle(v) or GetVehicleClass(v)==18 then return false end
  local p=GetEntityCoords(v)
  local ok=GetClosestVehicleNode(p.x,p.y,p.z,1,Config.Intersections.radius,0)
  if not ok then return false end
