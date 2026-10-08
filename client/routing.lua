@@ -71,6 +71,7 @@ function TrafficRouting.getRouteForVehicle(vehicle)
  return route
 end
 function TrafficRouting.getActiveRoute(vehicle) return activeRoute[vehicle] end
+function TrafficRouting.getProgressIndex(vehicle) local s=routeDistance[vehicle];return s and s.nearest or 0 end
 function TrafficRouting.trackProgress(vehicle,route)
  if not Config.RouteLearning.enabled or not route or not route.id then return end
  local previous=activeRoute[vehicle]
