@@ -11,10 +11,12 @@ local function pushData()
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,avoidance=TrafficClientAvoidance,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
-  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=(function() local ok,v=pcall(function() return TrafficMonitor and TrafficMonitor.snapshot() or {} end);return ok and v or {} end)(),adjustor=TrafficAdjustor.snapshot()
+  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=(function() local ok,v=pcall(function() return TrafficMonitor and TrafficMonitor.snapshot() or {} end);return ok and v or {} end)(),adjustor=TrafficAdjustor.snapshot(),learning=(TrafficLearning and TrafficLearning.snapshot and TrafficLearning.snapshot() or {})
  })
 end
 RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(false,false);SetNuiFocus(true,true);SendNUIMessage({action='open'});TriggerServerEvent('traffic:server:requestSettings');TriggerServerEvent('traffic:server:requestData');pushData() end)
+RegisterNetEvent('traffic:client:mode',function(mode) TrafficClientMode=mode or TrafficClientMode;SendNUIMessage({action='mode',mode=TrafficClientMode}) end)
+RegisterNetEvent('traffic:client:routeSaved',function(data) if TrafficLearning and TrafficLearning.onSaved then TrafficLearning.onSaved(data) end end)
 RegisterNetEvent('traffic:client:settings',function(settings) TrafficAdjustor.state.mode=settings.mode or TrafficAdjustor.state.mode;TrafficAdjustor.state.trafficLevel=tonumber(settings.trafficLevel) or TrafficAdjustor.state.trafficLevel;TrafficAdjustor.state.npcLevel=tonumber(settings.npcLevel) or TrafficAdjustor.state.npcLevel;TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel;TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel;TrafficAdjustor.features=settings.features or TrafficAdjustor.features;pushData() end)
 RegisterNetEvent('traffic:client:presets',function(presets) SendNUIMessage({action='presets',presets=presets or {}}) end)
 RegisterNetEvent('traffic:client:data',function(routes,zones,obstacles,avoidance)
