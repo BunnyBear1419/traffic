@@ -1,0 +1,10 @@
+local open=false
+RegisterNetEvent('traffic:client:open',function()
+ open=true; SetNuiFocus(true,true)
+ SendNUIMessage({action='open',routes=TrafficRoutes,zones=TrafficClientZones,mode=TrafficClientMode})
+end)
+RegisterNUICallback('close',function(_,cb) open=false;SetNuiFocus(false,false);cb('ok') end)
+RegisterNUICallback('setMode',function(d,cb) TriggerServerEvent('traffic:server:setMode',d.mode);cb('ok') end)
+RegisterNUICallback('deleteRoute',function(d,cb) TriggerServerEvent('traffic:server:deleteRoute',d.id);cb('ok') end)
+RegisterNUICallback('deleteZone',function(d,cb) TriggerServerEvent('traffic:server:deleteZone',d.id);cb('ok') end)
+CreateThread(function() TriggerServerEvent('traffic:server:requestData') end)
