@@ -172,7 +172,10 @@ RegisterNetEvent('traffic:server:routeFailure',function(data)
  local r=TrafficRoutes[data.routeId]
  if r then r.failures=(r.failures or 0)+1;r.confidence=math.max(-100,(r.confidence or 0)-Config.AutoDiscovery.confidenceLoss) end
  local dataCoords=type(data.coords)=='table' and data.coords or nil
- if dataCoords and dataCoords.x and dataCoords.y and dataCoords.z then upsertAvoidance({routeId=data.routeId,reason=data.reason,coords=dataCoords},now) end
+ if dataCoords and dataCoords.x and dataCoords.y and dataCoords.z then
+  upsertAvoidance({routeId=data.routeId,reason=data.reason,coords=dataCoords},now)
+  if TrafficMLOAudit and TrafficMLOAudit.recordRuntimeHit then TrafficMLOAudit.recordRuntimeHit({x=dataCoords.x,y=dataCoords.y,z=dataCoords.z,reason=data.reason,entityModel=data.entityModel,netId=data.netId,routeId=data.routeId}) end
+ end
  cleanupAvoidance(now)
  TrafficPersistence_save();broadcast()
 end)
