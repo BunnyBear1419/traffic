@@ -18,7 +18,7 @@ local function publish()
 end
 
 RegisterNetEvent('traffic:server:startEvent',function(kind,duration)
- if not TrafficPermissions.isAdmin(source) or type(kind)~='string' or not Config.TrafficEvents.enabled then return end
+ if not TrafficPermissions.canEvents(source) or type(kind)~='string' or not Config.TrafficEvents.enabled then return end
  local p=presets[kind];if not p then return end
  local ms=math.max(10000,math.min(900000,tonumber(duration) or p.duration or Config.TrafficEvents.defaultDuration))
  local now=GetGameTimer()
