@@ -56,3 +56,7 @@ Config.ZoneTypes = {
  normal={radius=80.0},light={radius=80.0},heavy={radius=80.0},stop={radius=50.0},
  oneway={radius=60.0},closure={radius=60.0},emergency={radius=80.0},race={radius=100.0}
 }
+
+-- Traffic Director is standalone by design. No ESX/QBCore/Qbox/vRP/ox_core dependency.
+Config.Framework = 'standalone'
+Config.FrameworkAdapters = { enabled = false }
