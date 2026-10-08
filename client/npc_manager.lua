@@ -14,7 +14,7 @@ local function loadModel(model)
  return HasModelLoaded(model)
 end
 local function spawn(def)
- if not isController() or not Config.NPCManager.enabled or not def or not loadModel(def.model) then return 0 end
+ if not TrafficAdjustor.isFeatureEnabled('npcManager') or not isController() or not Config.NPCManager.enabled or not def or not loadModel(def.model) then return 0 end
  local p=def.coords
  local ped=CreatePed(4,def.model,p.x,p.y,p.z,def.heading or 0.0,true,true)
  if ped==0 then return 0 end
@@ -28,7 +28,7 @@ local function spawn(def)
  return ped
 end
 function TrafficNPCManager.registerPoint(def)
- if not Config.NPCManager.enabled or type(def)~='table' or not def.coords or not def.model then return false end
+ if not TrafficAdjustor.isFeatureEnabled('npcManager') or not Config.NPCManager.enabled or type(def)~='table' or not def.coords or not def.model then return false end
  local count=0;for _ in pairs(points) do count=count+1 end
  if count>=Config.NPCManager.maxSpawnPoints then return false end
  def.id=def.id or ('spawn_'..tostring(def.model)..'_'..string.format('%.1f_%.1f_%.1f',def.coords.x,def.coords.y,def.coords.z));points[def.id]=def
@@ -45,7 +45,7 @@ exports('UnregisterNPCSpawnPoint',function(id) TrafficNPCManager.unregisterPoint
 exports('GetNPCManagerStats',TrafficNPCManager.stats)
 CreateThread(function()
  while true do
-  if isController() and Config.NPCManager.enabled then
+  if TrafficAdjustor.isFeatureEnabled('npcManager') and isController() and Config.NPCManager.enabled then
    local me=GetEntityCoords(PlayerPedId())
    for id,def in pairs(points) do
     local existing=false
@@ -57,7 +57,7 @@ CreateThread(function()
     end
     if not existing and Config.NPCManager.respawn and Traffic.distance(me,def.coords)<=Config.NPCManager.spawnDistance and GetGameTimer()-(lastSpawnAttempt[id] or 0)>=Config.NPCManager.respawnDelay then
      local total=0;for _ in pairs(managed) do total=total+1 end
-     if total<Config.NPCManager.maxManaged then lastSpawnAttempt[id]=GetGameTimer();spawn(def) end
+     if total<math.max(1,math.floor(Config.NPCManager.maxManaged*TrafficAdjustor.getNPCScale())) then lastSpawnAttempt[id]=GetGameTimer();spawn(def) end
     end
    end
    for id,e in pairs(managed) do
