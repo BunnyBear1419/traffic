@@ -74,7 +74,7 @@ end
 RegisterNetEvent('traffic:server:requestJobContext',function() publish(source) end)
 
 RegisterNetEvent('traffic:server:saveJobRule',function(rule)
- if not TrafficPermissions.isAdmin(source) or type(rule)~='table' then return end
+ if not TrafficPermissions.canJobs(source) or type(rule)~='table' then return end
  local id=tostring(rule.id or ''):lower():gsub('[^%w_%-]','_')
  if id=='' or #id>48 then return end
  local jobs={}
