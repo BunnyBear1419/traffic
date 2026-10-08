@@ -100,7 +100,7 @@ RegisterNetEvent('traffic:server:deleteJobRule',function(id)
 end)
 
 RegisterNetEvent('traffic:server:requestJobRules',function()
- if TrafficPermissions.isAdmin(source) then TriggerClientEvent('traffic:client:jobRules',source,TrafficJobController.getRules()) end
+ if TrafficPermissions.canJobs(source) then TriggerClientEvent('traffic:client:jobRules',source,TrafficJobController.getRules()) end
 end)
 
 AddEventHandler('playerJoining',function() local src=source;SetTimeout(1500,function() if GetPlayerName(tostring(src)) then publish(src) end end) end)
