@@ -38,6 +38,7 @@ Config.Modes = {
 Config.AppearanceGuard = {enabled=true,interval=2000,repairCooldown=5000,repairInvisible=true,verifyVariation=true,maxManagedNPCs=500,maxRepairAttempts=4,retryBackoff=1500}
 Config.AdaptiveRouting = {enabled=true,minHotspotHits=2,avoidRadius=16.0,obstacleReportCooldown=8000,failurePenalty=3.0,congestionPenalty=1.5,confidenceBonus=2.0}
 Config.RouteAvoidance = {enabled=true,minimumHits=3,radius=20.0,penalty=8.0,decayHours=24,maxEntries=250,clearOnRouteDelete=true}
+Config.RouteLearning = {enabled=true,successWindow=45000,minProgressDistance=25.0,minSuccessSpeed=2.0,confidenceGain=0.75,confidenceLoss=0.5,decayHours=48,maxConfidence=100}
 Config.OneSync = {enabled=true,requestControl=true,requestTimeout=300,maxControlAttempts=2,migrationGrace=1500}
 Config.Intersections = {enabled=true,radius=24.0,maxQueued=6,gridlockSpeed=2.0,cooldown=5000,emergencyBypass=true}
 Config.MLOIntelligence = {enabled=true,roadProbeRadius=24.0,classify=true,minimumHits=2,categories={'building_entrance','garage','tunnel','parking','dead_end','blocked_road','unknown'}}
