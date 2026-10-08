@@ -12,7 +12,7 @@ client_scripts {
  'client/detection.lua','client/routing.lua','client/recovery.lua','client/zones.lua',
  'client/learning.lua','client/intelligence.lua','client/discovery.lua','client/npc_manager.lua','client/monitor.lua','client/ui.lua'
 }
-server_scripts {'server/persistence.lua','server/permissions.lua','server/settings.lua','server/routes.lua','server/main.lua'}
+server_scripts {'server/persistence.lua','server/permissions.lua','server/settings.lua','server/routes.lua','server/mlo_audit.lua','server/main.lua'}
 ui_page 'web/index.html'
 files {'web/index.html','web/style.css','web/app.js'}
 escrow_ignore {'shared/config.lua'}
