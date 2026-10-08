@@ -163,6 +163,8 @@ initDashboardTabs();
  root.querySelectorAll('[data-deploy-kit]').forEach(b=>b.addEventListener('click',()=>postDeploy('deployKit',{kit:b.dataset.deployKit})));
  $('#deployRotateLeft').onclick=()=>postDeploy('deployRotate',{delta:-15});
  $('#deployRotateRight').onclick=()=>postDeploy('deployRotate',{delta:15});
+ $('#deployDistanceNear').onclick=()=>postDeploy('deployDistance',{delta:-1});
+ $('#deployDistanceFar').onclick=()=>postDeploy('deployDistance',{delta:1});
  $('#deployRemove').onclick=()=>postDeploy('deployRemove');
  $('#deployClearOwn').onclick=()=>postDeploy('deployClearOwn');
  $('#deployClearAll').onclick=()=>{if(confirm('Admin action: remove every Traffic Director deployment?'))postDeploy('deployClearAll')};
@@ -180,9 +182,10 @@ initDashboardTabs();
  }
  function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  window.addEventListener('message',e=>{
-  if(e.data.action==='deployMenuOpen'){root.classList.add('visible');root.setAttribute('aria-hidden','false');$('#deployRotation').textContent=(e.data.rotation||0)+'°'}
+  if(e.data.action==='deployMenuOpen'){root.classList.add('visible');root.setAttribute('aria-hidden','false');$('#deployRotation').textContent=(e.data.rotation||0)+'°';$('#deployDistance').textContent=Number(e.data.distance||3).toFixed(1)+'m'}
   if(e.data.action==='deployMenuClose'){root.classList.remove('visible');root.setAttribute('aria-hidden','true')}
   if(e.data.action==='deployRotation')$('#deployRotation').textContent=(e.data.rotation||0)+'°';
+  if(e.data.action==='deployDistance')$('#deployDistance').textContent=Number(e.data.distance||3).toFixed(1)+'m';
   if(e.data.action==='deployables')renderItems(e.data.items||[]);
   if(e.data.action==='deployAudit')renderAudit(e.data.items||[]);
  });
