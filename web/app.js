@@ -128,11 +128,11 @@ initDashboardTabs();
 // Job templates and capability checklist.
 (function initJobAccessUI(){
  const templates={
-  police:{id:'police',name:'Police',jobs:'police',mode:'light',traffic:35,npc:45,parked:35,actions:{traffic:true,npc:true,parked:true,emergency:true,military:false,events:true,zones:true}},
-  fib:{id:'fib',name:'FIB',jobs:'fib',mode:'emergency',traffic:25,npc:35,parked:25,actions:{traffic:true,npc:true,parked:true,emergency:true,military:true,events:true,zones:true}},
-  sheriff:{id:'sheriff',name:'Sheriff',jobs:'sheriff',mode:'light',traffic:40,npc:45,parked:40,actions:{traffic:true,npc:true,parked:true,emergency:true,military:false,events:true,zones:true}},
-  doj:{id:'doj',name:'Department of Justice',jobs:'doj',mode:'normal',traffic:70,npc:70,parked:70,actions:{traffic:false,npc:false,parked:false,emergency:false,military:false,events:false,zones:false}},
-  ambulance:{id:'ems',name:'EMS / Ambulance',jobs:'ambulance,ems',mode:'emergency',traffic:45,npc:50,parked:40,actions:{traffic:false,npc:false,parked:false,emergency:true,military:false,events:true,zones:false}}
+  police:{id:'police',name:'Police',jobs:'police',mode:'light',traffic:35,npc:45,parked:35,actions:{traffic:true,npc:true,parked:true,emergency:true,military:false,events:true,zones:true,props:true}},
+  fib:{id:'fib',name:'FIB',jobs:'fib',mode:'emergency',traffic:25,npc:35,parked:25,actions:{traffic:true,npc:true,parked:true,emergency:true,military:true,events:true,zones:true,props:true}},
+  sheriff:{id:'sheriff',name:'Sheriff',jobs:'sheriff',mode:'light',traffic:40,npc:45,parked:40,actions:{traffic:true,npc:true,parked:true,emergency:true,military:false,events:true,zones:true,props:true}},
+  doj:{id:'doj',name:'Department of Justice',jobs:'doj',mode:'normal',traffic:70,npc:70,parked:70,actions:{traffic:false,npc:false,parked:false,emergency:false,military:false,events:false,zones:false,props:false}},
+  ambulance:{id:'ems',name:'EMS / Ambulance',jobs:'ambulance,ems',mode:'emergency',traffic:45,npc:50,parked:40,actions:{traffic:false,npc:false,parked:false,emergency:true,military:false,events:true,zones:false,props:false}}
  };
  const template=$('#jobTemplate');
  if(template)template.addEventListener('change',()=>{
