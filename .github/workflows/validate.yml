@@ -54,10 +54,3 @@ jobs:
                   raise SystemExit("Missing file: " + f)
           print("OK module files")
           PY
-      - name: Validate manifest references
-        run: |
-          test -f fxmanifest.lua
-          for f in web/index.html web/style.css web/app.js; do test -f "$f"; done
-      - name: Validate required modules
-        run: |
-          for f in client/ownership.lua client/adjustor.lua client/intelligence.lua client/discovery.lua client/npc_manager.lua client/monitor.lua server/settings.lua data/settings.json; do test -f "$f"; done
