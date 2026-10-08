@@ -45,3 +45,5 @@ Config.JobTraffic = {enabled=true,pollInterval=3000,defaultMinimumGrade=0,rules=
 }}
 Config.RealismZones = {enabled=true,highwayTypes={'highway','race'},highwayTrafficBonus=15,highwayNPCBonus=5,cityTraffic=70,cityNPC=70,cityParked=75}
 Config.Diagnostics = {enabled=true,historySize=60,recoveryInterval=5000}
+
+Config.Deployables = {enabled=true,maxPerPlayer=12,maxTotal=120,placementDistance=3.0,removeDistance=8.0,spikeRadius=2.2,models={cone='prop_roadcone02a',barrier='prop_barrier_work05',police_barrier='prop_barrier_work06a',spikes='p_ld_stinger_s',flare='prop_flare_01'}}
