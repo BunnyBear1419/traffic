@@ -9,32 +9,11 @@ Config.RouteSampleDistance = 6.0
 Config.RouteSnapDistance = 18.0
 Config.ObstacleProbeDistance = 22.0
 Config.RecoveryTimeout = 7000
-
--- Runtime-adjustable admin controls. These are safe defaults and can be changed live
--- from the Traffic Director control center without editing files or restarting.
-Config.FeatureToggles = {
- traffic=true,population=true,routing=true,recovery=true,learning=true,
- intelligence=true,discovery=true,npcManager=true,appearance=true,
- performance=true,oneSync=true
-}
-Config.Adjustor = {
- enabled=true,mode='auto',trafficLevel=70,npcLevel=70,
- minLevel=0,maxLevel=100,updateInterval=3000,
- lowPopulation=60,highPopulation=160,criticalPopulation=260,
- lowPlayerCount=8,highPlayerCount=32,
- minTrafficScale=0.15,maxTrafficScale=1.35,
- minNPCScale=0.25,maxNPCScale=1.25
-}
+Config.FeatureToggles = {traffic=true,population=true,routing=true,recovery=true,learning=true,intelligence=true,discovery=true,npcManager=true,appearance=true,performance=true,oneSync=true}
+Config.Adjustor = {enabled=true,mode='auto',trafficLevel=70,npcLevel=70,minLevel=0,maxLevel=100,updateInterval=3000,lowPopulation=60,highPopulation=160,criticalPopulation=260,lowPlayerCount=8,highPlayerCount=32,minTrafficScale=0.15,maxTrafficScale=1.35,minNPCScale=0.25,maxNPCScale=1.25}
 Config.Learning = {enabled=true,minSpeed=2.0,sampleInterval=350,maxPointsPerRoute=500}
 Config.DefaultMode = 'normal'
-Config.Modes = {
- normal={speed=1.0,density=1.0,behavior=0},
- light={speed=1.0,density=0.55,behavior=0},
- heavy={speed=0.78,density=1.25,behavior=0},
- stop={speed=0.0,density=0.0,behavior=1},
- emergency={speed=1.35,density=0.75,behavior=2},
- race={speed=1.25,density=0.8,behavior=3}
-}
+Config.Modes = {normal={speed=1.0,density=1.0,behavior=0},light={speed=1.0,density=0.55,behavior=0},heavy={speed=0.78,density=1.25,behavior=0},stop={speed=0.0,density=0.0,behavior=1},emergency={speed=1.35,density=0.75,behavior=2},race={speed=1.25,density=0.8,behavior=3}}
 Config.AppearanceGuard = {enabled=true,interval=2000,repairCooldown=5000,repairInvisible=true,verifyVariation=true,maxManagedNPCs=500,maxRepairAttempts=4,retryBackoff=1500}
 Config.AdaptiveRouting = {enabled=true,minHotspotHits=2,avoidRadius=16.0,obstacleReportCooldown=8000,failurePenalty=3.0,congestionPenalty=1.5,confidenceBonus=2.0}
 Config.RouteAvoidance = {enabled=true,minimumHits=3,radius=20.0,penalty=8.0,decayHours=24,maxEntries=250,clearOnRouteDelete=true}
@@ -42,36 +21,12 @@ Config.RouteLearning = {enabled=true,successWindow=45000,minProgressDistance=25.
 Config.OneSync = {enabled=true,requestControl=true,requestTimeout=300,maxControlAttempts=2,migrationGrace=1500}
 Config.Intersections = {enabled=true,radius=24.0,maxQueued=6,gridlockSpeed=2.0,cooldown=5000,emergencyBypass=true}
 Config.MLOIntelligence = {enabled=true,roadProbeRadius=24.0,classify=true,minimumHits=2,categories={'building_entrance','garage','tunnel','parking','dead_end','blocked_road','unknown'}}
-Config.MLOCollisionAudit = {
- enabled=true,scanOnStart=true,scanInterval=300000,maxResources=300,maxFilesPerResource=500,maxFindings=500,
- includeExtensions={ybn=true,ydr=true,ytyp=true,ymap=true,ymf=true,ydd=true},minimumDuplicateSize=64,
- allowResourceStop=false,allowGeneratedFixes=false,ignoreResources={},
- runtime={enabled=true,radius=28.0,minHits=2,maxEvidence=500,mergeRadius=18.0,confidenceDecayHours=168},
- fix={enabled=true,requireAdmin=true,dryRun=true,backup=true,rollback=true,maxActions=5}
-}
+Config.MLOCollisionAudit = {enabled=true,scanOnStart=true,scanInterval=300000,maxResources=300,maxFilesPerResource=500,maxFindings=500,includeExtensions={ybn=true,ydr=true,ytyp=true,ymap=true,ymf=true,ydd=true},minimumDuplicateSize=64,allowResourceStop=false,allowGeneratedFixes=false,ignoreResources={},runtime={enabled=true,radius=28.0,minHits=2,maxEvidence=500,mergeRadius=18.0,confidenceDecayHours=168},fix={enabled=true,requireAdmin=true,dryRun=true,backup=true,rollback=true,maxActions=5}}
 Config.AutoDiscovery = {enabled=true,sampleInterval=1200,minSpeed=3.0,minSamples=8,maxCandidates=100,successWindow=45000,confidenceStart=1.0,confidenceGain=0.25,confidenceLoss=0.5}
 Config.NPCManager = {enabled=true,maxSpawnPoints=100,maxManaged=250,respawn=true,respawnDelay=5000,spawnDistance=180.0,despawnDistance=260.0}
 Config.Performance = {enabled=true,minScanInterval=350,maxScanInterval=2000,minTasks=25,maxTasks=100,highPopulation=160,criticalPopulation=260}
-Config.ZoneTypes = {
- normal={radius=80.0},light={radius=80.0},heavy={radius=80.0},stop={radius=50.0},
- oneway={radius=60.0},closure={radius=60.0},emergency={radius=80.0},race={radius=100.0}
-}
+Config.ZoneTypes = {normal={radius=80.0},light={radius=80.0},heavy={radius=80.0},stop={radius=50.0},oneway={radius=60.0},closure={radius=60.0},emergency={radius=80.0},race={radius=100.0}}
 Config.ZoneBehavior = {baseSpeed=22.0,lightSpeed=24.0,heavySpeed=16.0,raceSpeed=30.0,emergencySpeed=34.0,yieldSpeed=7.0,closureExitBuffer=35.0,rerouteCooldown=2500}
-
--- Native crash isolation. GTA/FiveM native access violations cannot be reliably caught with Lua pcall,
--- so high-risk native families can be disabled independently while the rest of Traffic Director stays online.
-Config.NativeSafety = {
- enabled=true,
- speedControl=true,      -- disables SetVehicleMaxSpeed/SetVehicleForwardSpeed while isolating native crashes
- vehicleTasks=true,       -- TaskVehicleDriveToCoordLongrange
- shapeTests=false,         -- StartShapeTestRay/GetShapeTestResult
- populationCleanup=false, -- DeleteEntity/mission-entity cleanup path
- poolScanning=false,       -- GetGamePool vehicle/ped enumeration
- monitorScanning=false,
- roadNodes=true,    -- monitor vehicle-pool enumeration
- debug=false
-}
-
--- Traffic Director is standalone by design. No ESX/QBCore/Qbox/vRP/ox_core dependency.
+Config.NativeSafety = {enabled=true,speedControl=true,vehicleTasks=true,shapeTests=false,populationCleanup=false,poolScanning=false,monitorScanning=false,npcManager=false,roadNodes=true,debug=false}
 Config.Framework = 'standalone'
-Config.FrameworkAdapters = { enabled = false }
+Config.FrameworkAdapters = {enabled=false}
