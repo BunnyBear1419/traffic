@@ -22,3 +22,13 @@
 .tabPanel .advancedDirector{padding-bottom:22px}
 .tabPanel .releasePanel{padding-bottom:22px}
 @media(max-width:760px){.dashboardTabs{grid-template-columns:repeat(2,minmax(0,1fr));padding:0 20px 14px}.dashboardTab{padding:10px}.dashboardTab small{font-size:9px}}
+
+/* Job access management */
+.jobPresetRow{margin:12px 0}.jobPresetRow label{display:flex;align-items:center;gap:12px;max-width:420px;font-size:12px;color:var(--muted,#9aa3b2)}
+.jobPresetRow select{flex:1;min-width:0}
+.jobPermissions{margin-top:14px;padding:14px;border:1px solid var(--border,#ffffff18);border-radius:12px;background:var(--surface-soft,#ffffff04)}
+.jobPermissions>strong,.jobPermissions>small{display:block}.jobPermissions>small{margin-top:4px;margin-bottom:12px;color:var(--muted,#9aa3b2)}
+.jobPermissionGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.jobPermissionGrid label{display:flex;align-items:center;gap:8px;font-size:12px;min-width:0}
+.jobPermissionGrid input{accent-color:var(--accent,currentColor)}
+@media(max-width:600px){.jobPermissionGrid{grid-template-columns:1fr}}
