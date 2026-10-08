@@ -149,3 +149,41 @@ initDashboardTabs();
   post('saveJobRule',{id:$('#jobRuleId').value,name:$('#jobRuleName').value,jobs:csv($('#jobNames').value),minimumGrade:Number($('#jobGrade').value||0),priority:Number($('#jobPriority').value||0),mode:$('#jobMode').value,trafficLevel:Number($('#jobTraffic').value||70),npcLevel:Number($('#jobNPC').value||70),parkedVehicleLevel:Number($('#jobParked').value||70),emergencyVehicles:actions.emergency,militaryVehicles:actions.military,actions,views});
  };
 })();
+
+
+/* Field deployment NUI. All privileged actions are re-authorized by the server. */
+(function initFieldDeployment(){
+ const root=$('#deployMenu'); if(!root)return;
+ const postDeploy=(name,data={})=>fetch('https://'+GetParentResourceName()+'/'+name,{method:'POST',headers:{'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify(data)}).catch(()=>{});
+ const close=()=>postDeploy('deployMenuClose');
+ $('#deployClose').addEventListener('click',close);
+ root.addEventListener('click',e=>{if(e.target===root)close()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&root.classList.contains('visible'))close()});
+ root.querySelectorAll('[data-deploy-kind]').forEach(b=>b.addEventListener('click',()=>postDeploy('deployPlace',{kind:b.dataset.deployKind})));
+ root.querySelectorAll('[data-deploy-kit]').forEach(b=>b.addEventListener('click',()=>postDeploy('deployKit',{kit:b.dataset.deployKit})));
+ $('#deployRotateLeft').onclick=()=>postDeploy('deployRotate',{delta:-15});
+ $('#deployRotateRight').onclick=()=>postDeploy('deployRotate',{delta:15});
+ $('#deployRemove').onclick=()=>postDeploy('deployRemove');
+ $('#deployClearOwn').onclick=()=>postDeploy('deployClearOwn');
+ $('#deployClearAll').onclick=()=>{if(confirm('Admin action: remove every Traffic Director deployment?'))postDeploy('deployClearAll')};
+ $('#deployAuditRefresh').onclick=()=>postDeploy('deployAuditRequest');
+ function renderItems(items){
+  const list=$('#deployActiveList');const count=$('#deployCount');count.textContent=items.length+' prop'+(items.length===1?'':'s');
+  if(!items.length){list.innerHTML='<p class="deployEmpty">No active deployments.</p>';return}
+  const scenes=new Map();items.forEach(p=>{if(p.scene){if(!scenes.has(p.scene))scenes.set(p.scene,[]);scenes.get(p.scene).push(p)}});
+  list.innerHTML=items.map(p=>'<div class="deployActiveItem"><span class="deployDot"></span><div><strong>'+escapeHTML((p.type||'prop').replaceAll('_',' '))+'</strong><small>'+escapeHTML(p.ownerName||'Unknown')+(p.scene?' · scene':' · individual')+'</small></div>'+(p.scene?'<button data-clear-scene="'+escapeHTML(p.scene)+'">Clear scene</button>':'')+'</div>').join('');
+  list.querySelectorAll('[data-clear-scene]').forEach(b=>b.onclick=()=>{if(confirm('Clear this scene?'))postDeploy('deployClearScene',{scene:b.dataset.clearScene})});
+ }
+ function renderAudit(items){
+  const list=$('#deployAuditList');if(!items.length){list.innerHTML='<p class="deployEmpty">No audit entries yet.</p>';return}
+  list.innerHTML=items.slice(-30).reverse().map(i=>'<div class="deployAuditItem"><strong>'+escapeHTML(i.action||'action')+'</strong><span>'+escapeHTML(i.name||'Unknown')+' · '+escapeHTML(i.detail||'')+'</span><small>'+new Date(Number(i.time||0)*1000).toLocaleString()+'</small></div>').join('');
+ }
+ function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ window.addEventListener('message',e=>{
+  if(e.data.action==='deployMenuOpen'){root.classList.add('visible');root.setAttribute('aria-hidden','false');$('#deployRotation').textContent=(e.data.rotation||0)+'°'}
+  if(e.data.action==='deployMenuClose'){root.classList.remove('visible');root.setAttribute('aria-hidden','true')}
+  if(e.data.action==='deployRotation')$('#deployRotation').textContent=(e.data.rotation||0)+'°';
+  if(e.data.action==='deployables')renderItems(e.data.items||[]);
+  if(e.data.action==='deployAudit')renderAudit(e.data.items||[]);
+ });
+})();
