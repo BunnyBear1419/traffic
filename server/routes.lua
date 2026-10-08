@@ -31,14 +31,14 @@ local function sanitizeRoute(route)
 end
 local function classifyObstacle(hit)
  if not Config.MLOIntelligence.enabled then return 'unknown' end
- local ok,node=GetClosestVehicleNode(hit.x,hit.y,hit.z,1,Config.MLOIntelligence.roadProbeRadius,0)
- if not ok then return 'dead_end' end
- local dx=(node.x or hit.x)-hit.x;local dy=(node.y or hit.y)-hit.y
- local dist=math.sqrt(dx*dx+dy*dy)
- if dist>Config.MLOIntelligence.roadProbeRadius*0.75 then return 'blocked_road' end
- local h=math.abs(tonumber(hit.hits or 1))
- if h>=Config.MLOIntelligence.minimumHits then return 'building_entrance' end
- return 'unknown'
+ if hit.category and type(hit.category)=='string' then
+  for _,name in ipairs(Config.MLOIntelligence.categories) do if hit.category==name then return name end end
+ end
+ if hit.reason=='garage' then return 'garage' end
+ if hit.reason=='tunnel' then return 'tunnel' end
+ if hit.reason=='parking' then return 'parking' end
+ if (hit.hits or 1)>=Config.MLOIntelligence.minimumHits then return 'building_entrance' end
+ return 'blocked_road'
 end
 RegisterNetEvent('traffic:server:addRoute',function(route)
  if not TrafficPermissions.canLearn(source) then return end
