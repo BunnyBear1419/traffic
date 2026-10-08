@@ -19,39 +19,14 @@ Config.Modes = {
  emergency={speed=1.35,density=0.75,behavior=2},
  race={speed=1.25,density=0.8,behavior=3}
 }
-Config.AppearanceGuard = {
- enabled=true,interval=2000,repairCooldown=5000,repairInvisible=true,
- verifyVariation=true,maxManagedNPCs=500,maxRepairAttempts=4,retryBackoff=1500
-}
-Config.AdaptiveRouting = {
- enabled=true,minHotspotHits=2,avoidRadius=16.0,obstacleReportCooldown=8000,
- failurePenalty=3.0,congestionPenalty=1.5,confidenceBonus=2.0
-}
-Config.OneSync = {
- enabled=true,requestControl=true,requestTimeout=300,maxControlAttempts=2,
- migrationGrace=1500
-}
-Config.Intersections = {
- enabled=true,radius=24.0,maxQueued=6,gridlockSpeed=2.0,
- cooldown=5000,emergencyBypass=true
-}
-Config.MLOIntelligence = {
- enabled=true,roadProbeRadius=24.0,classify=true,minimumHits=2,
- categories={'building_entrance','garage','tunnel','parking','dead_end','blocked_road','unknown'}
-}
-Config.AutoDiscovery = {
- enabled=true,sampleInterval=1200,minSpeed=3.0,minSamples=8,
- maxCandidates=100,successWindow=45000,confidenceStart=1.0,confidenceGain=0.25,
- confidenceLoss=0.5
-}
-Config.NPCManager = {
- enabled=true,maxSpawnPoints=100,maxManaged=250,respawn=true,respawnDelay=5000,
- spawnDistance=180.0,despawnDistance=260.0
-}
-Config.Performance = {
- enabled=true,minScanInterval=350,maxScanInterval=2000,minTasks=25,maxTasks=100,
- highPopulation=160,criticalPopulation=260
-}
+Config.AppearanceGuard = {enabled=true,interval=2000,repairCooldown=5000,repairInvisible=true,verifyVariation=true,maxManagedNPCs=500,maxRepairAttempts=4,retryBackoff=1500}
+Config.AdaptiveRouting = {enabled=true,minHotspotHits=2,avoidRadius=16.0,obstacleReportCooldown=8000,failurePenalty=3.0,congestionPenalty=1.5,confidenceBonus=2.0}
+Config.OneSync = {enabled=true,requestControl=true,requestTimeout=300,maxControlAttempts=2,migrationGrace=1500}
+Config.Intersections = {enabled=true,radius=24.0,maxQueued=6,gridlockSpeed=2.0,cooldown=5000,emergencyBypass=true}
+Config.MLOIntelligence = {enabled=true,roadProbeRadius=24.0,classify=true,minimumHits=2,categories={'building_entrance','garage','tunnel','parking','dead_end','blocked_road','unknown'}}
+Config.AutoDiscovery = {enabled=true,sampleInterval=1200,minSpeed=3.0,minSamples=8,maxCandidates=100,successWindow=45000,confidenceStart=1.0,confidenceGain=0.25,confidenceLoss=0.5}
+Config.NPCManager = {enabled=true,maxSpawnPoints=100,maxManaged=250,respawn=true,respawnDelay=5000,spawnDistance=180.0,despawnDistance=260.0}
+Config.Performance = {enabled=true,minScanInterval=350,maxScanInterval=2000,minTasks=25,maxTasks=100,highPopulation=160,criticalPopulation=260}
 Config.ZoneTypes = {
  normal={radius=80.0},light={radius=80.0},heavy={radius=80.0},stop={radius=50.0},
  oneway={radius=60.0},closure={radius=60.0},emergency={radius=80.0},race={radius=100.0}
