@@ -27,7 +27,7 @@ local function presetPayload(preset)
  return {mode=preset.mode,trafficMode=preset.trafficMode or Config.DefaultMode,trafficLevel=preset.trafficLevel,npcLevel=preset.npcLevel,parkedVehicleLevel=preset.parkedVehicleLevel or 70,emergencyVehicles=preset.emergencyVehicles~=false,militaryVehicles=preset.militaryVehicles~=false,features=features}
 end
 local function defaults()
- return {mode=Config.Adjustor.mode,profile='normal_traffic',trafficMode=Config.DefaultMode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,parkedVehicleLevel=(Config.VehiclePopulation and Config.VehiclePopulation.parkedVehicleLevel) or 70,emergencyVehicles=Config.VehiclePopulation and Config.VehiclePopulation.emergencyVehicles~=false,militaryVehicles=Config.VehiclePopulation and Config.VehiclePopulation.militaryVehicles~=false,features=defaultFeatures(),presets={},jobRules={},vehiclePolicy={emergencyModels=Config.VehiclePopulation.emergencyModels,militaryModels=Config.VehiclePopulation.militaryModels,protectedModels=(Config.ProtectedVehicles and Config.ProtectedVehicles.models) or {},categoryLevels={taxi=100,bus=100,truck=100,commercial=100,motorcycle=100,sports=100}}}
+ return {configured=false,masterEnabled=(Config.Release and Config.Release.masterEnabled~=false),mode=Config.Adjustor.mode,profile='normal_traffic',trafficMode=Config.DefaultMode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,parkedVehicleLevel=(Config.VehiclePopulation and Config.VehiclePopulation.parkedVehicleLevel) or 70,emergencyVehicles=Config.VehiclePopulation and Config.VehiclePopulation.emergencyVehicles~=false,militaryVehicles=Config.VehiclePopulation and Config.VehiclePopulation.militaryVehicles~=false,features=defaultFeatures(),presets={},jobRules={},vehiclePolicy={emergencyModels=Config.VehiclePopulation.emergencyModels,militaryModels=Config.VehiclePopulation.militaryModels,protectedModels=(Config.ProtectedVehicles and Config.ProtectedVehicles.models) or {},categoryLevels={taxi=100,bus=100,truck=100,commercial=100,motorcycle=100,sports=100}}}
 end
 local function load()
  local raw=LoadResourceFile(resourceName,'data/settings.json')
@@ -36,6 +36,8 @@ local function load()
  if not ok or type(value)~='table' then return defaults() end
  local d=defaults()
  value.features=type(value.features)=='table' and value.features or d.features
+ value.configured=value.configured==true
+ if value.masterEnabled==nil then value.masterEnabled=d.masterEnabled end
  value.presets=type(value.presets)=='table' and value.presets or {};value.jobRules=type(value.jobRules)=='table' and value.jobRules or {};value.vehiclePolicy=type(value.vehiclePolicy)=='table' and value.vehiclePolicy or d.vehiclePolicy
  value.mode=value.mode=='manual' and 'manual' or 'auto';value.profile=type(value.profile)=='string' and value.profile or d.profile;value.trafficMode=type(value.trafficMode)=='string' and Config.Modes[value.trafficMode] and value.trafficMode or d.trafficMode
  value.trafficLevel=math.max(0,math.min(100,tonumber(value.trafficLevel) or d.trafficLevel))
@@ -48,6 +50,7 @@ local function save()
  if encoded then SaveResourceFile(resourceName,'data/settings.json',encoded,-1) end
 end
 TrafficSettings_save=save
+function TrafficSettings_publicSnapshot() return json.decode(json.encode(TrafficSettings or defaults())) or defaults() end
 local function publish(target)
  GlobalState.trafficDirectorSettings=TrafficSettings
  if target then TriggerClientEvent('traffic:client:settings',target,TrafficSettings) else TriggerClientEvent('traffic:client:settings',-1,TrafficSettings) end
@@ -61,6 +64,39 @@ end
 local function publishPresets(target) TriggerClientEvent('traffic:client:presets',target or -1,publicPresets()) end
 function TrafficSettings_init() TrafficSettings=load();publish();publishPresets() end
 RegisterNetEvent('traffic:server:requestSettings',function() publish(source);publishPresets(source) end)
+RegisterNetEvent('traffic:server:completeSetup',function()
+ if not TrafficPermissions.canControl(source) then return end
+ TrafficSettings=TrafficSettings or load();TrafficSettings.configured=true;TrafficSettings.masterEnabled=true;save();publish()
+end)
+RegisterNetEvent('traffic:server:setMasterEnabled',function(enabled)
+ if not TrafficPermissions.canControl(source) then return end
+ TrafficSettings=TrafficSettings or load();TrafficSettings.masterEnabled=enabled==true;save();publish()
+end)
+RegisterNetEvent('traffic:server:exportSettings',function()
+ if not TrafficPermissions.canDiagnostics(source) then return end
+ TriggerClientEvent('traffic:client:configExport',source,TrafficSettings_publicSnapshot())
+end)
+RegisterNetEvent('traffic:server:importSettings',function(payload)
+ if not TrafficPermissions.canDiagnostics(source) or type(payload)~='table' then return end
+ local d=defaults()
+ if payload.trafficLevel==nil or payload.npcLevel==nil then return end
+ TrafficSettings=TrafficSettings or load()
+ TrafficSettings.configured=true
+ TrafficSettings.masterEnabled=payload.masterEnabled~=false
+ TrafficSettings.mode=payload.mode=='manual' and 'manual' or 'auto'
+ TrafficSettings.profile='imported'
+ TrafficSettings.trafficMode=Config.Modes[payload.trafficMode] and payload.trafficMode or d.trafficMode
+ TrafficSettings.trafficLevel=math.max(0,math.min(100,tonumber(payload.trafficLevel) or d.trafficLevel))
+ TrafficSettings.npcLevel=math.max(0,math.min(100,tonumber(payload.npcLevel) or d.npcLevel))
+ TrafficSettings.parkedVehicleLevel=math.max(0,math.min(100,tonumber(payload.parkedVehicleLevel) or d.parkedVehicleLevel))
+ TrafficSettings.emergencyVehicles=payload.emergencyVehicles~=false
+ TrafficSettings.militaryVehicles=payload.militaryVehicles==true
+ if type(payload.features)=='table' then for k in pairs(d.features) do if payload.features[k]~=nil then TrafficSettings.features[k]=payload.features[k]==true end end end
+ if type(payload.presets)=='table' then TrafficSettings.presets=payload.presets end
+ if type(payload.jobRules)=='table' then TrafficSettings.jobRules=payload.jobRules end
+ if type(payload.vehiclePolicy)=='table' then TrafficSettings.vehiclePolicy=payload.vehiclePolicy end
+ save();publish();publishPresets();TriggerClientEvent('traffic:client:importResult',source,true,'Configuration imported successfully.')
+end)
 RegisterNetEvent('traffic:server:requestPresets',function() publishPresets(source) end)
 RegisterNetEvent('traffic:server:applyPreset',function(id)
  if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
