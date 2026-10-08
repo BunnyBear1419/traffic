@@ -11,7 +11,7 @@ local function pushData()
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,avoidance=TrafficClientAvoidance,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
-  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor={},adjustor=TrafficAdjustor.snapshot(),learning=(TrafficLearning and TrafficLearning.snapshot and TrafficLearning.snapshot() or {})
+  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor={},adjustor={},learning={}
  })
 end
 RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(false,false);SetNuiFocus(true,true);SendNUIMessage({action='open'});TriggerServerEvent('traffic:server:requestSettings'); end)
@@ -49,7 +49,8 @@ RegisterNUICallback('createZone',function(d,cb)
 end)
 CreateThread(function()
  while true do
-  Wait(1000)
+  if open then pushData() end
+  Wait(750)
  end
 end)
 CreateThread(function() TriggerServerEvent('traffic:server:requestData') end)
