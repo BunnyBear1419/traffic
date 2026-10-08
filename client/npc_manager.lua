@@ -1,6 +1,7 @@
 TrafficNPCManager={}
 local points={}
 local managed={}
+local lastSpawnAttempt={}
 local function isController()
  return (GlobalState.trafficDirectorController or 0)==GetPlayerServerId(PlayerId())
 end
@@ -54,9 +55,9 @@ CreateThread(function()
       if DoesEntityExist(ped) and Entity(ped).state.trafficDirectorSpawnPoint==id then managed['state:'..id]={ped=ped,pointId=id,def=def,spawned=GetGameTimer()};existing=true;break end
      end
     end
-    if not existing and Config.NPCManager.respawn and Traffic.distance(me,def.coords)<=Config.NPCManager.spawnDistance then
+    if not existing and Config.NPCManager.respawn and Traffic.distance(me,def.coords)<=Config.NPCManager.spawnDistance and GetGameTimer()-(lastSpawnAttempt[id] or 0)>=Config.NPCManager.respawnDelay then
      local total=0;for _ in pairs(managed) do total=total+1 end
-     if total<Config.NPCManager.maxManaged then spawn(def) end
+     if total<Config.NPCManager.maxManaged then lastSpawnAttempt[id]=GetGameTimer();spawn(def) end
     end
    end
    for id,e in pairs(managed) do
