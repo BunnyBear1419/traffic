@@ -76,30 +76,44 @@ end)
 RegisterNetEvent('traffic:client:requestDeployables',function() TriggerServerEvent('traffic:server:requestDeployables') end)
 CreateThread(function()
  Wait(1500);TriggerServerEvent('traffic:server:requestDeployables')
- local cooldown={}
+ local cooldown,previous,pending={},{},{}
+ local function burst(veh)
+  for tyre=0,5 do if not IsVehicleTyreBurst(veh,tyre,false) then SetVehicleTyreBurst(veh,tyre,true,1000.0) end end
+ end
  while true do
-  Wait(#TrafficClientDeployables>0 and 500 or 1800)
+  Wait(#TrafficClientDeployables>0 and 350 or 1800)
   local strips={}
   for _,p in ipairs(TrafficClientDeployables) do if p.type=='spikes' then strips[#strips+1]=p end end
   if #strips>0 then
    for _,veh in ipairs(GetGamePool('CVehicle')) do
     if DoesEntityExist(veh) and GetEntitySpeed(veh)>2.0 then
-     local c=GetEntityCoords(veh)
-     for _,s in ipairs(strips) do
-      local dx,dy,dz=c.x-s.x,c.y-s.y,c.z-s.z
-      if dx*dx+dy*dy+dz*dz<=(Config.Deployables.spikeRadius or 2.2)^2 then
-       local key=tostring(NetworkGetNetworkIdFromEntity(veh))
-       if not cooldown[key] or GetGameTimer()-cooldown[key]>(Config.Deployables.spikeCooldown or 10000) then
-        cooldown[key]=GetGameTimer()
-        if NetworkHasControlOfEntity(veh) or NetworkRequestControlOfEntity(veh) then
-         for tyre=0,5 do if not IsVehicleTyreBurst(veh,tyre,false) then SetVehicleTyreBurst(veh,tyre,true,1000.0) end end
-        end
+     local c=GetEntityCoords(veh);local key=tostring(NetworkGetNetworkIdFromEntity(veh));local prior=previous[key]
+     if prior then
+      for _,strip in ipairs(strips) do
+       local dx,dy=c.x-strip.x,c.y-strip.y
+       local theta=math.rad(tonumber(strip.heading) or 0)
+       local signed=dx*math.cos(theta)+dy*math.sin(theta)
+       local along=-dx*math.sin(theta)+dy*math.cos(theta)
+       local pdx,pdy=prior.x-strip.x,prior.y-strip.y
+       local priorSigned=pdx*math.cos(theta)+pdy*math.sin(theta)
+       local priorAlong=-pdx*math.sin(theta)+pdy*math.cos(theta)
+       local zNear=math.abs(c.z-strip.z)<=2.0 and math.abs(prior.z-strip.z)<=2.0
+       local crossed=(signed==0 or priorSigned==0 or (signed<0 and priorSigned>0) or (signed>0 and priorSigned<0))
+       if crossed and zNear and math.abs(along)<=2.4 and math.abs(priorAlong)<=2.4 then
+        if not cooldown[key] or GetGameTimer()-cooldown[key]>(Config.Deployables.spikeCooldown or 10000) then pending[key]={vehicle=veh,expires=GetGameTimer()+2000};cooldown[key]=GetGameTimer() end
+        break
        end
-       break
       end
+     end
+     previous[key]={x=c.x,y=c.y,z=c.z}
+     local task=pending[key]
+     if task then
+      if GetGameTimer()>task.expires or not DoesEntityExist(task.vehicle) then pending[key]=nil
+      elseif NetworkHasControlOfEntity(task.vehicle) then burst(task.vehicle);pending[key]=nil
+      else NetworkRequestControlOfEntity(task.vehicle) end
      end
     end
    end
-  end
+  else previous={} end
  end
 end)
