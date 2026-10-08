@@ -30,7 +30,7 @@ function TrafficNPCManager.registerPoint(def)
  if not Config.NPCManager.enabled or type(def)~='table' or not def.coords or not def.model then return false end
  local count=0;for _ in pairs(points) do count=count+1 end
  if count>=Config.NPCManager.maxSpawnPoints then return false end
- def.id=def.id or ('spawn_'..GetGameTimer()..'_'..math.random(1000,9999));points[def.id]=def
+ def.id=def.id or ('spawn_'..tostring(def.model)..'_'..string.format('%.1f_%.1f_%.1f',def.coords.x,def.coords.y,def.coords.z));points[def.id]=def
  return true
 end
 function TrafficNPCManager.unregisterPoint(id) points[id]=nil end
