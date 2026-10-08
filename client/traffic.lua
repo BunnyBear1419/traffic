@@ -12,12 +12,12 @@ local function npc(v)
 end
 local function emergency(v) return GetVehicleClass(v)==18 end
 local function setSpeed(v,speed)
- if TrafficOwnership.ensure(v) then SetVehicleMaxSpeed(v,math.max(0.1,tonumber(speed) or 22.0)) return true end
+ if TrafficOwnership.ensure(v) and Traffic.nativeSafetyEnabled('speedControl') and Traffic.nativeProbe('Traffic','SetVehicleMaxSpeed',true) then SetVehicleMaxSpeed(v,math.max(0.1,tonumber(speed) or 22.0)) return true end
  return false
 end
 local function resetVehicle(v)
  if not zoneState[v] then return end
- if TrafficOwnership.ensure(v) then SetVehicleMaxSpeed(v,1000.0) end
+ if TrafficOwnership.ensure(v) and Traffic.nativeSafetyEnabled('speedControl') and Traffic.nativeProbe('Traffic','SetVehicleMaxSpeed',true) then SetVehicleMaxSpeed(v,1000.0) end
  zoneState[v]=nil
 end
 local function rerouteOutOfZone(v,z)
@@ -49,7 +49,7 @@ local function zoneControl(v)
  zoneState[v]=z.id or z.type
  local behavior=Config.ZoneBehavior or {}
  if z.type=='stop' then
-  if not emergency(v) and TrafficOwnership.ensure(v) then ClearVehicleTasks(v);SetVehicleMaxSpeed(v,0.1);SetVehicleForwardSpeed(v,0.0) end
+  if not emergency(v) and TrafficOwnership.ensure(v) then ClearVehicleTasks(v);if Traffic.nativeSafetyEnabled('speedControl') then SetVehicleMaxSpeed(v,0.1);SetVehicleForwardSpeed(v,0.0) end end
   return true
  end
  if z.type=='closure' and not emergency(v) then
@@ -94,7 +94,8 @@ end
 CreateThread(function()
  while true do
   if TrafficActive and TrafficAdjustor.isFeatureEnabled('traffic') then
-   local list=GetGamePool('CVehicle');local n=0
+   local list={};local n=0
+   if Traffic.nativeSafetyEnabled('poolScanning') then Traffic.nativeProbe('Traffic','GetGamePool(CVehicle)',true);list=GetGamePool('CVehicle') else Wait(scanInterval);goto continue end
    if TrafficAdjustor.isFeatureEnabled('performance') and Config.Performance.enabled then
     local count=#list
     if count>=Config.Performance.criticalPopulation then scanInterval=Config.Performance.maxScanInterval;maxTasks=math.max(Config.Performance.minTasks,TrafficAdjustor.getMaxTasks())
@@ -104,6 +105,7 @@ CreateThread(function()
    for i=1,#list do if n<maxTasks and npc(list[i]) then manage(list[i]);n=n+1 end end
   end
   Wait(scanInterval)
+  ::continue::
  end
 end)
 CreateThread(function()
