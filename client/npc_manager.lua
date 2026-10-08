@@ -18,6 +18,7 @@ local function spawn(def)
  local ped=CreatePed(4,def.model,p.x,p.y,p.z,def.heading or 0.0,true,true)
  if ped==0 then return 0 end
  SetEntityAsMissionEntity(ped,true,true)
+ Entity(ped).state:set('trafficDirectorSpawnPoint',def.id,true)
  if def.freeze then FreezeEntityPosition(ped,true) end
  if def.scenario then TaskStartScenarioInPlace(ped,def.scenario,0,true) end
  if def.appearance then TrafficAppearance.register(ped,{type=def.type or 'managed',appearance=def.appearance,repair=def.repair}) end
@@ -48,6 +49,11 @@ CreateThread(function()
    for id,def in pairs(points) do
     local existing=false
     for _,e in pairs(managed) do if e.pointId==id and DoesEntityExist(e.ped) then existing=true end end
+    if not existing then
+     for _,ped in ipairs(GetGamePool('CPed')) do
+      if DoesEntityExist(ped) and Entity(ped).state.trafficDirectorSpawnPoint==id then managed['state:'..id]={ped=ped,pointId=id,def=def,spawned=GetGameTimer()};existing=true;break end
+     end
+    end
     if not existing and Config.NPCManager.respawn and Traffic.distance(me,def.coords)<=Config.NPCManager.spawnDistance then
      local total=0;for _ in pairs(managed) do total=total+1 end
      if total<Config.NPCManager.maxManaged then spawn(def) end
