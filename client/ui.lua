@@ -32,8 +32,8 @@ RegisterNUICallback('close',function(_,cb) open=false;SetNuiFocus(false,false);c
 RegisterNUICallback('applyPreset',function(d,cb) TriggerServerEvent('traffic:server:applyPreset',d.id);cb('ok') end)
 RegisterNUICallback('savePreset',function(d,cb) TriggerServerEvent('traffic:server:savePreset',d);cb('ok') end)
 RegisterNUICallback('deletePreset',function(d,cb) TriggerServerEvent('traffic:server:deletePreset',d.id);cb('ok') end)
-RegisterNUICallback('updateSettings',function(d,cb) TriggerServerEvent('traffic:server:updateSettings',d);cb('ok') end)
-RegisterNUICallback('setMode',function(d,cb) TriggerServerEvent('traffic:server:setMode',d.mode);cb('ok') end)
+RegisterNUICallback('updateSettings',function(d,cb) TriggerEvent('traffic:client:settings',d);TriggerServerEvent('traffic:server:updateSettings',d);cb('ok') end)
+RegisterNUICallback('setMode',function(d,cb) if type(d)=='table' and type(d.mode)=='string' then TrafficClientMode=d.mode end;TriggerServerEvent('traffic:server:setMode',d.mode);cb('ok') end)
 RegisterNUICallback('deleteRoute',function(d,cb) TriggerServerEvent('traffic:server:deleteRoute',d.id);cb('ok') end)
 RegisterNUICallback('updateRoute',function(d,cb) TriggerServerEvent('traffic:server:updateRoute',d.route);cb('ok') end)
 RegisterNUICallback('deleteZone',function(d,cb) TriggerServerEvent('traffic:server:deleteZone',d.id);cb('ok') end)
@@ -50,7 +50,7 @@ end)
 CreateThread(function()
  while true do
   if open then pushData() end
-  Wait(2000)
+  Wait(750)
  end
 end)
 CreateThread(function() TriggerServerEvent('traffic:server:requestData') end)
