@@ -125,7 +125,7 @@ RegisterNetEvent('traffic:server:savePreset',function(payload)
  save();publishPresets(source)
 end)
 RegisterNetEvent('traffic:server:deletePreset',function(id)
- if not TrafficPermissions.isAdmin(source) or type(id)~='string' then return end
+ if not TrafficPermissions.canControl(source) or type(id)~='string' then return end
  TrafficSettings=TrafficSettings or load();if TrafficSettings.presets then TrafficSettings.presets[id]=nil end;save();publishPresets(source)
 end)
 RegisterNetEvent('traffic:server:updateSettings',function(payload)
