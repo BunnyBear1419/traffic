@@ -67,7 +67,7 @@ Config.NativeSafety = {
  shapeTests=false,         -- StartShapeTestRay/GetShapeTestResult
  populationCleanup=false, -- DeleteEntity/mission-entity cleanup path
  poolScanning=true,       -- GetGamePool vehicle/ped enumeration
- monitorScanning=true,
+ monitorScanning=false,
  roadNodes=true,    -- monitor vehicle-pool enumeration
  debug=false
 }
