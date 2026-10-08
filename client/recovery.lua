@@ -18,7 +18,8 @@ function TrafficRecovery.tick(v)
  -- Always record a stuck location. Shape tests are optional and remain disabled by default.
  local obstacle=TrafficDetection.sampleObstacle(v)
  obstacle=obstacle or {x=p.x,y=p.y,z=p.z,vehicleX=p.x,vehicleY=p.y,vehicleZ=p.z,heading=GetEntityHeading(v),entity=0,netId=0,entityModel=GetEntityModel(v),entityType=2}
- obstacle.reason='stuck'
+ local roadAvailable=TrafficDetection.findRoadPoint(p,GetEntityHeading(v))~=nil
+ obstacle.reason=roadAvailable and 'stuck' or 'garage'
  obstacle.vehicleClass=GetVehicleClass(v)
  obstacle.recoveryCount=(s.probes or 0)+1
  if not lastReport[v] or now-lastReport[v]>Config.AdaptiveRouting.obstacleReportCooldown then
