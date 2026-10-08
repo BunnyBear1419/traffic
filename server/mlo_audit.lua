@@ -73,7 +73,7 @@ local function decayEvidence(now)
   if not e.verified and (e.lastSeen or 0)>0 and now-(e.lastSeen or now)>ttl then
    e.confidence=math.max(0,(tonumber(e.confidence) or 0)-10)
    e.hits=math.max(0,(tonumber(e.hits) or 0)-1)
-   e.state=evidenceState and evidenceState(e) or 'suspected'
+   e.state=(e.hits or 0)>=Config.MLOCollisionAudit.runtime.minHits and 'likely' or 'suspected'
    e.lastDecay=now
    changed=true
    if (e.confidence or 0)<=0 and (e.hits or 0)<=0 then TrafficMLOEvidence[id]=nil end
