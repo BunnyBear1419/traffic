@@ -9,7 +9,9 @@ end
 function TrafficAdjustor.isFeatureEnabled(name) return feature(name) end
 function TrafficAdjustor.getTrafficScale()
  local a=Config.Adjustor or {}
- return a.minTrafficScale + ((TrafficAdjustor.state.trafficLevel or 70)/100)*(a.maxTrafficScale-a.minTrafficScale)
+ local level=tonumber(TrafficAdjustor.state.trafficLevel) or 70
+ if level<=0 then return 0 end
+ return a.minTrafficScale + (level/100)*(a.maxTrafficScale-a.minTrafficScale)
 end
 function TrafficAdjustor.getPopulationDensity(base)
  local density=tonumber(base) or 1.0
@@ -17,10 +19,14 @@ function TrafficAdjustor.getPopulationDensity(base)
 end
 function TrafficAdjustor.getNPCScale()
  local a=Config.Adjustor or {}
- return a.minNPCScale + ((TrafficAdjustor.state.npcLevel or 70)/100)*(a.maxNPCScale-a.minNPCScale)
+ local level=tonumber(TrafficAdjustor.state.npcLevel) or 70
+ if level<=0 then return 0 end
+ return a.minNPCScale + (level/100)*(a.maxNPCScale-a.minNPCScale)
 end
 function TrafficAdjustor.getMaxTasks()
- return math.max(1,math.floor(Config.MaxTrafficTasks*TrafficAdjustor.getTrafficScale()))
+ local scale=TrafficAdjustor.getTrafficScale()
+ if scale<=0 then return 0 end
+ return math.max(1,math.floor(Config.MaxTrafficTasks*scale))
 end
 function TrafficAdjustor.getScanInterval()
  local a=Config.Adjustor or {}
