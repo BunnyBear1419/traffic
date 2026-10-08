@@ -1,6 +1,6 @@
 TrafficAppearance={}
 local managed={}
-local repairs={}
+local repairs={}\nlocal repairCount=0\nlocal lastRepair={}
 local function now() return GetGameTimer() end
 
 local function applyVariation(ped,appearance)
@@ -22,12 +22,12 @@ local function softRepair(ped,entry)
  SetEntityCollision(ped,true,true)
  if entry.appearance then applyVariation(ped,entry.appearance) end
  if entry.repair then pcall(entry.repair,ped) end
- repairs[ped]=now()
+ repairs[ped]=now()\n repairCount=repairCount+1\n lastRepair[ped]=now()\n TriggerEvent('traffic:appearance:repaired',ped,entry.type)
  return true
 end
 
 function TrafficAppearance.register(ped,definition)
- if not DoesEntityExist(ped) or not IsEntityAPed(ped) or IsPedAPlayer(ped) then return false end
+ if not DoesEntityExist(ped) or not IsEntityAPed(ped) or IsPedAPlayer(ped) then return false end\n if Config.AppearanceGuard and Config.AppearanceGuard.maxManagedNPCs then\n  local count=0 for _ in pairs(managed) do count=count+1 end\n  if not managed[ped] and count>=Config.AppearanceGuard.maxManagedNPCs then return false end\n end
  definition=definition or {}
  managed[ped]={
   type=definition.type or 'managed',
@@ -61,11 +61,11 @@ CreateThread(function()
   for ped,entry in pairs(managed) do
    if not DoesEntityExist(ped) then
     managed[ped]=nil;repairs[ped]=nil
-   elseif entry.verify and needsRepair(ped) and (not repairs[ped] or t-repairs[ped]>=5000) then
+   elseif entry.verify and needsRepair(ped) and (not repairs[ped] or t-repairs[ped]>=((Config.AppearanceGuard and Config.AppearanceGuard.repairCooldown) or 5000)) then
     softRepair(ped,entry)
    end
   end
-  Wait(2000)
+  Wait((Config.AppearanceGuard and Config.AppearanceGuard.interval) or 2000)
  end
 end)
 
