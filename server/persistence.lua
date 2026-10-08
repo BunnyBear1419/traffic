@@ -1,6 +1,7 @@
 TrafficRoutes={}
 TrafficZones={}
 TrafficObstacles={}
+TrafficRouteAvoidance={}
 local resourceName=GetCurrentResourceName()
 local function loadJson(name,fallback)
  local raw=LoadResourceFile(resourceName,'data/'..name..'.json')
@@ -30,7 +31,7 @@ CreateThread(function()
  TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles)
 end)
 function TrafficPersistence_save()
- saveJson('routes',TrafficRoutes);saveJson('zones',TrafficZones);saveJson('obstacles',TrafficObstacles)
+ saveJson('routes',TrafficRoutes);saveJson('zones',TrafficZones);saveJson('obstacles',TrafficObstacles);saveJson('avoidance',TrafficRouteAvoidance)
 end
 RegisterNetEvent('traffic:server:save',function(routes,zones)
  if not TrafficPermissions.isAdmin(source) then return end
@@ -39,6 +40,6 @@ RegisterNetEvent('traffic:server:save',function(routes,zones)
  TrafficPersistence_save()
 end)
 RegisterNetEvent('traffic:server:requestData',function()
- TriggerClientEvent('traffic:client:data',source,TrafficRoutes,TrafficZones,TrafficObstacles)
+ TriggerClientEvent('traffic:client:data',source,TrafficRoutes,TrafficZones,TrafficObstacles,TrafficRouteAvoidance)
 end)
 AddEventHandler('onResourceStop',function(res) if res==resourceName then TrafficPersistence_save() end end)
