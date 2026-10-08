@@ -1,0 +1,18 @@
+TrafficMonitor={stats={healthy=0,invisible=0,repairs=0,ownership=0,failures=0}}
+function TrafficMonitor.snapshot()
+ local pool=GetGamePool('CVehicle');local npc=0;local owned=0
+ for i=1,#pool do
+  local v=pool[i];local d=GetPedInVehicleSeat(v,-1)
+  if d~=0 and DoesEntityExist(d) and not IsPedAPlayer(d) then
+   npc=npc+1;if TrafficOwnership.isLocal(v) then owned=owned+1 end
+  end
+ end
+ local a=exports[GetCurrentResourceName()]:GetNPCAppearanceStats() or {}
+ TrafficMonitor.stats.npcVehicles=npc
+ TrafficMonitor.stats.ownedVehicles=owned
+ TrafficMonitor.stats.managedNPCs=a.managed or 0
+ TrafficMonitor.stats.appearanceRepairs=a.repairs or 0
+ TrafficMonitor.stats.lastUpdate=GetGameTimer()
+ return TrafficMonitor.stats
+end
+CreateThread(function() while true do TrafficMonitor.snapshot();Wait(2000) end end)
