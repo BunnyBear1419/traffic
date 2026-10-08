@@ -4,8 +4,8 @@ CreateThread(function()
   local mode=Config.Modes[TrafficClientMode] or Config.Modes.normal
   local density=TrafficAdjustor.getPopulationDensity(mode.density or 1.0)
   local npcDensity=math.max(0,math.min(1.5,(TrafficAdjustor.getNPCScale and TrafficAdjustor.getNPCScale() or 1.0)))
-  local trafficZero=(TrafficAdjustor.state.trafficLevel or 0)<=0
-  local npcZero=(TrafficAdjustor.state.npcLevel or 0)<=0
+  local trafficZero=(TrafficAdjustor.getTrafficScale and TrafficAdjustor.getTrafficScale() or 0)<=0
+  local npcZero=(TrafficAdjustor.getNPCScale and TrafficAdjustor.getNPCScale() or 0)<=0
   SetVehicleDensityMultiplierThisFrame(trafficZero and 0.0 or density)
   SetRandomVehicleDensityMultiplierThisFrame(trafficZero and 0.0 or density)
   SetParkedVehicleDensityMultiplierThisFrame(trafficZero and 0.0 or math.min(density,1.0))
@@ -35,8 +35,10 @@ local function cleanupAmbient()
  local p=GetEntityCoords(PlayerPedId())
  local trafficLevel=TrafficAdjustor.state.trafficLevel or 0
  local npcLevel=TrafficAdjustor.state.npcLevel or 0
+ local trafficZero=(TrafficAdjustor.getTrafficScale and TrafficAdjustor.getTrafficScale() or 0)<=0
+ local npcZero=(TrafficAdjustor.getNPCScale and TrafficAdjustor.getNPCScale() or 0)<=0
  local removed=0
- if trafficLevel<=0 then
+ if trafficLevel<=0 or trafficZero then
   for i=1,batch do
    local v=GetClosestVehicle(p.x,p.y,p.z,radius,0,70)
    if not v or v==0 or not DoesEntityExist(v) or not IsEntityAVehicle(v) then break end
@@ -55,7 +57,7 @@ local function cleanupAmbient()
    end
   end
  end
- if npcLevel<=0 then
+ if npcLevel<=0 or npcZero then
   for i=1,batch do
    local ped=GetClosestPed(p.x,p.y,p.z,radius,1,1,1,1,1,28,0)
    if not ped or ped==0 or not DoesEntityExist(ped) or IsPedAPlayer(ped) then break end
@@ -78,8 +80,10 @@ CreateThread(function()
   if TrafficAdjustor.isFeatureEnabled('population') and Config.NativeSafety and Config.NativeSafety.populationCleanup==true then
    local trafficLevel=TrafficAdjustor.state.trafficLevel or 0
    local npcLevel=TrafficAdjustor.state.npcLevel or 0
-   if trafficLevel<=0 or npcLevel<=0 then
-    if lastTrafficLevel>0 and trafficLevel<=0 or lastNPCLevel>0 and npcLevel<=0 then cleanupBoostUntil=GetGameTimer()+5000 end
+   local trafficZero=(TrafficAdjustor.getTrafficScale and TrafficAdjustor.getTrafficScale() or 0)<=0
+   local npcZero=(TrafficAdjustor.getNPCScale and TrafficAdjustor.getNPCScale() or 0)<=0
+   if trafficLevel<=0 or npcLevel<=0 or trafficZero or npcZero then
+    if lastTrafficLevel>0 and (trafficLevel<=0 or trafficZero) or lastNPCLevel>0 and (npcLevel<=0 or npcZero) then cleanupBoostUntil=GetGameTimer()+5000 end
     cleanupActive=true
     cleanupAmbient()
    else
