@@ -117,6 +117,12 @@ function TrafficRouting.driveRoute(vehicle,route)
  end
  if bestDist<10.0 then idx=idx+1 end
  local candidate=route.points[idx];local tries=0
+ -- Turn-aware lookahead: prefer the next learned heading instead of allowing a shortcut around a taught turn.
+ if candidate and candidate.heading then
+  local lookahead=math.min(#route.points,idx+2)
+  local turnPoint=route.points[lookahead]
+  if turnPoint and turnPoint.heading then candidate=turnPoint end
+ end
  while candidate and hotspotPenalty(candidate)>Config.AdaptiveRouting.failurePenalty do
   idx=idx+1;tries=tries+1
   if tries>=8 then break end
@@ -131,6 +137,7 @@ function TrafficRouting.driveRoute(vehicle,route)
  if not lastTask[vehicle] or now-lastTask[vehicle]>1500 then
   if not TrafficOwnership.ensure(vehicle) or not Traffic.nativeSafetyEnabled('vehicleTasks') then return false end
   local mode=Config.Modes[TrafficClientMode] or Config.Modes.normal
+  Traffic.nativeProbe('Routing','TaskVehicleDriveToCoordLongrange',true)
   TaskVehicleDriveToCoordLongrange(vehicle,target.x,target.y,target.z,14.0*mode.speed,786603,4.0)
   lastTask[vehicle]=now
  end
