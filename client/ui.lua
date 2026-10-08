@@ -1,7 +1,8 @@
 local open=false
 local function npcStats()
- local s=exports[GetCurrentResourceName()]:GetNPCAppearanceStats() or {}
- local m=exports[GetCurrentResourceName()]:GetNPCManagerStats() or {}
+ local s={};local m={}
+ local ok,a=pcall(function() return exports[GetCurrentResourceName()]:GetNPCAppearanceStats() end);if ok and type(a)=='table' then s=a end
+ local ok2,b=pcall(function() return exports[GetCurrentResourceName()]:GetNPCManagerStats() end);if ok2 and type(b)=='table' then m=b end
  return {managed=s.managed or 0,repairs=s.repairs or 0,invisible=s.invisible or 0,mismatched=s.mismatched or 0,spawnPoints=m.spawnPoints or 0,spawned=m.managed or 0}
 end
 local function pushData()
@@ -10,10 +11,10 @@ local function pushData()
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,avoidance=TrafficClientAvoidance,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
-  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=TrafficMonitor and TrafficMonitor.snapshot() or {},adjustor=TrafficAdjustor.snapshot()
+  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=(function() local ok,v=pcall(function() return TrafficMonitor and TrafficMonitor.snapshot() or {} end);return ok and v or {} end)(),adjustor=TrafficAdjustor.snapshot()
  })
 end
-RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(true,true);TriggerServerEvent('traffic:server:requestSettings');pushData() end)
+RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(false,false);SetNuiFocus(true,true);TriggerServerEvent('traffic:server:requestSettings');pushData() end)
 RegisterNetEvent('traffic:client:settings',function(settings) TrafficAdjustor.state.mode=settings.mode or TrafficAdjustor.state.mode;TrafficAdjustor.state.trafficLevel=tonumber(settings.trafficLevel) or TrafficAdjustor.state.trafficLevel;TrafficAdjustor.state.npcLevel=tonumber(settings.npcLevel) or TrafficAdjustor.state.npcLevel;TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel;TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel;TrafficAdjustor.features=settings.features or TrafficAdjustor.features;pushData() end)
 RegisterNetEvent('traffic:client:presets',function(presets) SendNUIMessage({action='presets',presets=presets or {}}) end)
 RegisterNetEvent('traffic:client:data',function(routes,zones,obstacles,avoidance)
