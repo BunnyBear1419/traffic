@@ -33,9 +33,22 @@ local function isProtectedVehicle(v)
  return (driver~=0 and DoesEntityExist(driver) and IsPedAPlayer(driver)) or IsEntityAMissionEntity(v)
 end
 
+local lastCategoryState={}
+local function applyCategorySuppression()
+ local cfg=Config.VehicleCategories or {};local vp=TrafficAdjustor.state and TrafficAdjustor.state.vehiclePolicy or {};local levels=vp.categoryLevels or {}
+ for category,models in pairs(cfg.models or {}) do
+  local enabled=(tonumber(levels[category]) or 100)>0
+  if enabled~=lastCategoryState[category] then
+   for _,name in ipairs(models or {}) do SetVehicleModelIsSuppressed(GetHashKey(name),not enabled) end
+   lastCategoryState[category]=enabled
+  end
+ end
+end
+
 local lastSuppressedEmergency=nil
 local lastSuppressedMilitary=nil
 local function applyModelSuppression(emergencyEnabled,militaryEnabled)
+   applyCategorySuppression()
  local cfg=Config.VehiclePopulation or {}
  local vp=TrafficAdjustor.state and TrafficAdjustor.state.vehiclePolicy or {}
  local emergencyModels=type(vp.emergencyModels)=='table' and vp.emergencyModels or cfg.emergencyModels or {}
