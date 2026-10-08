@@ -18,8 +18,12 @@ RegisterNetEvent('traffic:server:setMode',function(mode)
  if not TrafficPermissions.isAdmin(source) or not Config.Modes[mode] then return end
  GlobalState.trafficDirectorMode=mode
  TrafficSettings=TrafficSettings or {}
- TrafficSettings.mode=mode
+ TrafficSettings.mode=TrafficSettings.mode or 'manual'
+ TrafficSettings.trafficMode=mode
+ TrafficSettings.profile='custom'
+ if TrafficSettings_save then TrafficSettings_save() end
  TriggerClientEvent('traffic:client:mode',-1,mode)
+ TriggerClientEvent('traffic:client:settings',-1,TrafficSettings)
 end)
 
 AddEventHandler('onResourceStart',function(resource)
