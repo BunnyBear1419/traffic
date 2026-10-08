@@ -1,5 +1,9 @@
 local reportRate={}
 local failureRate={}
+local function num(v,default)
+ v=tonumber(v);if not v or v~=v or math.abs(v)>10000000 then return default end
+ return v
+end
 local function broadcast() TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles,TrafficRouteAvoidance) end
 local function cleanupAvoidance(now)
  if not Config.RouteAvoidance.enabled then return false end
@@ -34,10 +38,6 @@ local function allowedReport(src)
  if now-last<2 then return false end
  reportRate[src]=now
  return true
-end
-local function num(v,default)
- v=tonumber(v);if not v or v~=v or math.abs(v)>10000000 then return default end
- return v
 end
 local function sanitizePoint(p)
  if type(p)~='table' then return nil end
