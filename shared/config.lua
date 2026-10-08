@@ -68,7 +68,7 @@ Config.NativeSafety = {
  populationCleanup=false, -- DeleteEntity/mission-entity cleanup path
  poolScanning=true,       -- GetGamePool vehicle/ped enumeration
  monitorScanning=true,
- roadNodes=false,    -- monitor vehicle-pool enumeration
+ roadNodes=true,    -- monitor vehicle-pool enumeration
  debug=false
 }
 
