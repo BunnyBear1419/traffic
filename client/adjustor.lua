@@ -1,4 +1,4 @@
-TrafficAdjustor={state={mode=Config.Adjustor.mode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,parkedVehicleLevel=(Config.VehiclePopulation and Config.VehiclePopulation.parkedVehicleLevel) or 70,emergencyVehicles=Config.VehiclePopulation and Config.VehiclePopulation.emergencyVehicles~=false,militaryVehicles=Config.VehiclePopulation and Config.VehiclePopulation.militaryVehicles~=false,population=0,players=0,reason='Configured'},features={},baseTrafficLevel=Config.Adjustor.trafficLevel,baseNPCLevel=Config.Adjustor.npcLevel}
+TrafficAdjustor={state={mode=Config.Adjustor.mode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,parkedVehicleLevel=(Config.VehiclePopulation and Config.VehiclePopulation.parkedVehicleLevel) or 70,emergencyVehicles=Config.VehiclePopulation and Config.VehiclePopulation.emergencyVehicles~=false,militaryVehicles=Config.VehiclePopulation and Config.VehiclePopulation.militaryVehicles~=false,population=0,players=0,reason='Configured'},features={},baseTrafficLevel=Config.Adjustor.trafficLevel,baseNPCLevel=Config.Adjustor.npcLevel,baseTrafficMode=Config.DefaultMode}
 local defaults=Config.FeatureToggles or {}
 for k,v in pairs(defaults) do TrafficAdjustor.features[k]=v end
 
@@ -57,6 +57,7 @@ local function applySettings(settings)
  if type(settings.vehiclePolicy)=='table' then TrafficAdjustor.state.vehiclePolicy=settings.vehiclePolicy end
  TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel
  TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel
+ TrafficAdjustor.baseTrafficMode=TrafficClientMode or Config.DefaultMode
  TrafficAdjustor.state.reason=TrafficAdjustor.state.mode=='manual' and 'Manual control' or 'Configured'
  if type(settings.trafficMode)=='string' and Config.Modes[settings.trafficMode] then TrafficClientMode=settings.trafficMode end
  TrafficAdjustor.state.lastAppliedAt=GetGameTimer()
