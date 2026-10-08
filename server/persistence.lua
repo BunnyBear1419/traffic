@@ -2,6 +2,7 @@ TrafficRoutes={}
 TrafficZones={}
 TrafficObstacles={}
 TrafficRouteAvoidance={}
+TrafficMLOEvidence={}
 local resourceName=GetCurrentResourceName()
 local function loadJson(name,fallback)
  local raw=LoadResourceFile(resourceName,'data/'..name..'.json')
@@ -28,6 +29,8 @@ CreateThread(function()
  TrafficRoutes=loadJson('routes',{})
  TrafficZones=loadJson('zones',{})
  TrafficObstacles=loadJson('obstacles',{})
+ TrafficRouteAvoidance=loadJson('avoidance',{})
+ TrafficMLOEvidence=loadJson('mlo_evidence',{})
  TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles)
 end)
 local function decayRouteConfidence(now)
@@ -37,7 +40,8 @@ local function decayRouteConfidence(now)
  return changed
 end
 function TrafficPersistence_save()
- saveJson('routes',TrafficRoutes);saveJson('zones',TrafficZones);saveJson('obstacles',TrafficObstacles);saveJson('avoidance',TrafficRouteAvoidance)
+ saveJson('routes',TrafficRoutes);saveJson('zones',TrafficZones);saveJson('obstacles',TrafficObstacles)
+ saveJson('avoidance',TrafficRouteAvoidance);saveJson('mlo_evidence',TrafficMLOEvidence)
 end
 RegisterNetEvent('traffic:server:save',function(routes,zones)
  if not TrafficPermissions.isAdmin(source) then return end
@@ -47,5 +51,11 @@ RegisterNetEvent('traffic:server:save',function(routes,zones)
 end)
 RegisterNetEvent('traffic:server:requestData',function()
  TriggerClientEvent('traffic:client:data',source,TrafficRoutes,TrafficZones,TrafficObstacles,TrafficRouteAvoidance)
+end)
+CreateThread(function()
+ while Config.RouteLearning.enabled and Config.RouteLearning.decayHours>0 do
+  Wait(math.max(60000,math.floor(Config.RouteLearning.decayHours*3600000/2)))
+  if decayRouteConfidence(os.time()) then TrafficPersistence_save() end
+ end
 end)
 AddEventHandler('onResourceStop',function(res) if res==resourceName then TrafficPersistence_save() end end)
