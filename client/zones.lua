@@ -1,8 +1,9 @@
 TrafficClientZones={}
 TrafficClientObstacles={}
+TrafficClientAvoidance={}
 TrafficClientMode=Config.DefaultMode
-RegisterNetEvent('traffic:client:data',function(routes,zones,obstacles)
- TrafficRoutes=routes or {};TrafficClientZones=zones or {};TrafficClientObstacles=obstacles or {}
+RegisterNetEvent('traffic:client:data',function(routes,zones,obstacles,avoidance)
+ TrafficRoutes=routes or {};TrafficClientZones=zones or {};TrafficClientObstacles=obstacles or {};TrafficClientAvoidance=avoidance or {}
 end)
 function TrafficZones_getAt(coords)
  local best,bd
