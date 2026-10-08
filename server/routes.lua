@@ -147,8 +147,16 @@ RegisterNetEvent('traffic:server:reportObstacle',function(hit)
  if TrafficMLOAudit and TrafficMLOAudit.recordRuntimeHit then TrafficMLOAudit.recordRuntimeHit(hit) end
  TrafficPersistence_save();broadcast()
 end)
+local successRate={}
 RegisterNetEvent('traffic:server:routeSuccess',function(data)
  if not Config.RouteLearning.enabled or type(data)~='table' or type(data.routeId)~='string' or data.completed~=true then return end
+ local src=source
+ local now=os.time()
+ successRate[src]=successRate[src] or {at=now,count=0}
+ local bucket=successRate[src]
+ if now-(bucket.at or now)>=60 then bucket.at=now;bucket.count=0 end
+ bucket.count=(bucket.count or 0)+1
+ if bucket.count>30 then return end
  local r=TrafficRoutes[data.routeId];if not r then return end
  local distance=tonumber(data.distance) or 0
  local progressIndex=tonumber(data.progressIndex) or 0
