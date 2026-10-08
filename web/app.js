@@ -6,7 +6,7 @@ function post(n,d={}){fetch('https://'+resource+'/'+n,{method:'POST',headers:{'C
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function levelName(v){v=Number(v)||0;return v<20?'Minimal':v<40?'Low':v<60?'Moderate':v<80?'Balanced':v<95?'High':'Maximum'}
 function csv(v){return String(v||'').split(',').map(s=>s.trim()).filter(Boolean)}
-function renderRelease(){const a=state.adjustor||{};const enabled=a.masterEnabled!==false;$('#masterEnabled').checked=enabled;$('#masterLabel').textContent=enabled?'Enabled':'Disabled';$('#releaseStatus').textContent=enabled?'READY':'SAFE OFF';$('#setupStatus').textContent=a.configured?'Configuration is saved and active.':'First-run setup has not been completed.';const d=state.diagnostics||{};$('#diagnosticsSummary').textContent=d.trafficLevel!==undefined?('Traffic '+d.trafficLevel+'% • NPC '+d.npcLevel+'% • Parked '+d.parkedVehicleLevel+'% • Master '+(d.masterEnabled!==false?'ON':'OFF')):'Waiting for server diagnostics.';}
+function renderRelease(){const a=state.adjustor||{};const enabled=a.masterEnabled!==false;$('#masterEnabled').checked=enabled;$('#masterLabel').textContent=enabled?'Enabled':'Disabled';$('#releaseStatus').textContent=enabled?'READY':'SAFE OFF';$('#setupStatus').textContent=a.configured?'Configuration is saved and active.':'First-run setup has not been completed.';const d=state.diagnostics||{};$('#diagnosticsSummary').textContent=d.trafficLevel!==undefined?('Traffic '+d.trafficLevel+'% • NPC '+d.npcLevel+'% • Parked '+d.parkedVehicleLevel+'% • Master '+(d.masterEnabled!==false?'ON':'OFF')+' • Scale '+Number(d.trafficScale||0).toFixed(2)+' • Tasks '+Number(d.maxTasks||0)):'Waiting for server diagnostics.';}
 function renderAdvanced(){
  const a=state.adjustor||{},vp=a.vehiclePolicy||{};$('#policyReason').textContent=a.policyReason||a.reason||'Smart Traffic';
  $('#policyStatus').textContent=state.activeEvent?'EVENT':(state.jobRules.find(r=>r.active)?'JOB':'SMART');
@@ -84,7 +84,7 @@ window.addEventListener('message',e=>{if(e.data.action==='open'){document.body.c
 $('#scanMLOs').onclick=()=>post('scanMLOs');$('#teachToggle').onclick=()=>post('toggleLearning');
 $('#masterEnabled').onchange=e=>{post('setMasterEnabled',{enabled:e.target.checked});state.adjustor.masterEnabled=e.target.checked;renderRelease()};
 $('#completeSetup').onclick=()=>post('completeSetup');
-$('#refreshDiagnostics').onclick=()=>post('exportSettings');
+$('#refreshDiagnostics').onclick=()=>post('requestDiagnostics');
 $('#exportSettings').onclick=()=>post('exportSettings');
 $('#importSettings').onclick=()=>{try{const config=JSON.parse($('#configImport').value);post('importSettings',{config})}catch(e){alert('Invalid JSON configuration.')}};
 
