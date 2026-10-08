@@ -7,12 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Lua
-        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: Install validators
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.4
       - name: Validate Lua syntax
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
           find client server shared -name '*.lua' -print0 | while IFS= read -r -d '' file; do
             echo "Checking $file"
             luac5.4 -p "$file"
@@ -20,11 +22,18 @@ jobs:
       - name: Validate JSON
         run: |
           python - <<'PY'
-          import json
-          for p in ['data/routes.json','data/zones.json','data/obstacles.json']:
-              with open(p, encoding='utf-8') as f:
+          import json, pathlib
+          for p in pathlib.Path("data").glob("*.json"):
+              with p.open(encoding="utf-8") as f:
                   json.load(f)
-              print('OK', p)
+              print("OK", p)
           PY
       - name: Validate NUI JavaScript
         run: node --check web/app.js
+      - name: Validate manifest references
+        run: |
+          test -f fxmanifest.lua
+          for f in web/index.html web/style.css web/app.js; do test -f "$f"; done
+      - name: Validate required modules
+        run: |
+          for f in client/ownership.lua client/intelligence.lua client/discovery.lua client/npc_manager.lua client/monitor.lua; do test -f "$f"; done
