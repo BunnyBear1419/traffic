@@ -39,7 +39,6 @@ RegisterNUICallback('deleteAvoidance',function(d,cb) TriggerServerEvent('traffic
 RegisterNUICallback('scanMLOs',function(_,cb) TriggerServerEvent('traffic:server:mloScan');cb('ok') end)
 RegisterNUICallback('mloIgnore',function(d,cb) TriggerServerEvent('traffic:server:mloIgnore',d.key);cb('ok') end)
 RegisterNUICallback('mloFixPlan',function(d,cb) TriggerServerEvent('traffic:server:mloPrepareFix',d.id);cb('ok') end)
-RegisterNUICallback('mloStopResource',function(d,cb) TriggerServerEvent('traffic:server:mloStopResource',d.resource);cb('ok') end)
 RegisterNUICallback('createZone',function(d,cb)
  local p=GetEntityCoords(PlayerPedId())
  TriggerServerEvent('traffic:server:addZone',{name=d.name or 'Admin Zone',type=d.type or 'normal',radius=tonumber(d.radius) or 60.0,x=p.x,y=p.y,z=p.z,heading=GetEntityHeading(PlayerPedId()),routeId=d.routeId})
