@@ -1,0 +1,18 @@
+{
+  "mode": "auto",
+  "trafficLevel": 70,
+  "npcLevel": 70,
+  "features": {
+    "traffic": true,
+    "population": true,
+    "routing": true,
+    "recovery": true,
+    "learning": true,
+    "intelligence": true,
+    "discovery": true,
+    "npcManager": true,
+    "appearance": true,
+    "performance": true,
+    "oneSync": true
+  }
+}
