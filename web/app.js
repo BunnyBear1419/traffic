@@ -159,7 +159,7 @@ initDashboardTabs();
  $('#deployClose').addEventListener('click',close);
  root.addEventListener('click',e=>{if(e.target===root)close()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&root.classList.contains('visible'))close()});
- root.querySelectorAll('[data-deploy-kind]').forEach(b=>b.addEventListener('click',()=>postDeploy('deployPlace',{kind:b.dataset.deployKind})));
+ root.querySelectorAll('[data-deploy-kind]').forEach(b=>b.addEventListener('click',()=>{root.querySelectorAll('[data-deploy-kind]').forEach(x=>x.classList.toggle('selected',x===b));postDeploy('deployPlace',{kind:b.dataset.deployKind})}));
  root.querySelectorAll('[data-deploy-kit]').forEach(b=>b.addEventListener('click',()=>postDeploy('deployKit',{kit:b.dataset.deployKit})));
  $('#deployRotateLeft').onclick=()=>postDeploy('deployRotate',{delta:-15});
  $('#deployRotateRight').onclick=()=>postDeploy('deployRotate',{delta:15});
@@ -182,8 +182,8 @@ initDashboardTabs();
  }
  function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  window.addEventListener('message',e=>{
-  if(e.data.action==='deployMenuOpen'){root.classList.add('visible');root.setAttribute('aria-hidden','false');$('#deployRotation').textContent=(e.data.rotation||0)+'°';$('#deployDistance').textContent=Number(e.data.distance||3).toFixed(1)+'m'}
-  if(e.data.action==='deployMenuClose'){root.classList.remove('visible');root.setAttribute('aria-hidden','true')}
+  if(e.data.action==='deployMenuOpen'){root.classList.add('visible');root.setAttribute('aria-hidden','false');document.body.classList.add('deploy-open');$('#deployRotation').textContent=(e.data.rotation||0)+'°';$('#deployDistance').textContent=Number(e.data.distance||3).toFixed(1)+'m';root.querySelectorAll('[data-deploy-kind]').forEach(x=>x.classList.toggle('selected',x.dataset.deployKind===(e.data.selected||'cone')))}
+  if(e.data.action==='deployMenuClose'){root.classList.remove('visible');root.setAttribute('aria-hidden','true');document.body.classList.remove('deploy-open')}
   if(e.data.action==='deployRotation')$('#deployRotation').textContent=(e.data.rotation||0)+'°';
   if(e.data.action==='deployDistance')$('#deployDistance').textContent=Number(e.data.distance||3).toFixed(1)+'m';
   if(e.data.action==='deployables')renderItems(e.data.items||[]);
