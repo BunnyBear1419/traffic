@@ -1,14 +1,19 @@
 TrafficMonitor={stats={healthy=0,invisible=0,repairs=0,ownership=0,failures=0}}
+local function scanEnabled() return Config.NativeSafety and Config.NativeSafety.enabled and Config.NativeSafety.monitorScanning==true end
 function TrafficMonitor.snapshot()
- local pool={};local npc=0;local owned=0
- if Traffic.nativeSafetyEnabled('monitorScanning') then Traffic.nativeProbe('Monitor','GetGamePool(CVehicle)',true);pool=GetGamePool('CVehicle') end
- for i=1,#pool do
-  local v=pool[i];local d=GetPedInVehicleSeat(v,-1)
-  if d~=0 and DoesEntityExist(d) and not IsPedAPlayer(d) then
-   npc=npc+1;if TrafficOwnership.isLocal(v) then owned=owned+1 end
+ local npc,owned=0,0
+ if scanEnabled() then
+  local p=GetEntityCoords(PlayerPedId())
+  Traffic.nativeProbe('Monitor','GetClosestVehicle',true)
+  local v=GetClosestVehicle(p.x,p.y,p.z,60.0,0,70)
+  if v and v~=0 and DoesEntityExist(v) and IsEntityAVehicle(v) then
+   local d=GetPedInVehicleSeat(v,-1)
+   if d~=0 and DoesEntityExist(d) and not IsPedAPlayer(d) then npc=1 if TrafficOwnership.isLocal(v) then owned=1 end end
   end
  end
- local a={};local ok,v=pcall(function() return exports[GetCurrentResourceName()]:GetNPCAppearanceStats() end);if ok and type(v)=='table' then a=v end
+ local a={}
+ local ok,v=pcall(function() return exports[GetCurrentResourceName()]:GetNPCAppearanceStats() end)
+ if ok and type(v)=='table' then a=v end
  TrafficMonitor.stats.npcVehicles=npc
  TrafficMonitor.stats.ownedVehicles=owned
  TrafficMonitor.stats.managedNPCs=a.managed or 0
@@ -16,4 +21,4 @@ function TrafficMonitor.snapshot()
  TrafficMonitor.stats.lastUpdate=GetGameTimer()
  return TrafficMonitor.stats
 end
-CreateThread(function() while true do TrafficMonitor.snapshot();Wait(2000) end end)
+CreateThread(function() while true do if scanEnabled() then TrafficMonitor.snapshot() end Wait(2000) end end)
