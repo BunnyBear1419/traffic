@@ -1,6 +1,7 @@
 TrafficMonitor={stats={healthy=0,invisible=0,repairs=0,ownership=0,failures=0}}
 function TrafficMonitor.snapshot()
- local pool=GetGamePool('CVehicle');local npc=0;local owned=0
+ local pool={};local npc=0;local owned=0
+ if Traffic.nativeSafetyEnabled('monitorScanning') then Traffic.nativeProbe('Monitor','GetGamePool(CVehicle)',true);pool=GetGamePool('CVehicle') end
  for i=1,#pool do
   local v=pool[i];local d=GetPedInVehicleSeat(v,-1)
   if d~=0 and DoesEntityExist(d) and not IsPedAPlayer(d) then
