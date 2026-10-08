@@ -7,7 +7,7 @@ local function npcStats()
 end
 local function pushData()
  if not open then return end
- local stats={managed=0,repairs=0,invisible=0,mismatched=0,spawnPoints=0,spawned=0}
+ local stats=npcStats()
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,avoidance=TrafficClientAvoidance,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
