@@ -34,3 +34,5 @@
 @media(max-width:600px){.jobPermissionGrid{grid-template-columns:1fr}}
 
 .jobWorkspace{max-width:1100px;margin:0 auto;padding:0 32px 24px}.jobWorkspace .advBlock{width:100%}@media(max-width:760px){.jobWorkspace{padding:0 20px 20px}}
+
+.jobVisibility{margin-top:12px;padding:14px;border:1px solid var(--border,#ffffff18);border-radius:12px;background:var(--surface-soft,#ffffff04)}.jobVisibility>strong,.jobVisibility>small{display:block}.jobVisibility>small{margin:4px 0 12px;color:var(--muted,#9aa3b2)}
