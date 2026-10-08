@@ -11,7 +11,7 @@ local function pushData()
  SendNUIMessage({
   action='data',routes=TrafficRoutes,zones=TrafficClientZones,obstacles=TrafficClientObstacles,avoidance=TrafficClientAvoidance,
   mode=TrafficClientMode,npc=stats,intelligence=TrafficIntelligence and TrafficIntelligence.stats or {},
-  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor=(function() local ok,v=pcall(function() return TrafficMonitor and TrafficMonitor.snapshot() or {} end);return ok and v or {} end)(),adjustor=TrafficAdjustor.snapshot(),learning=(TrafficLearning and TrafficLearning.snapshot and TrafficLearning.snapshot() or {})
+  performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor={},adjustor=TrafficAdjustor.snapshot(),learning=(TrafficLearning and TrafficLearning.snapshot and TrafficLearning.snapshot() or {})
  })
 end
 RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(false,false);SetNuiFocus(true,true);SendNUIMessage({action='open'});TriggerServerEvent('traffic:server:requestSettings');TriggerServerEvent('traffic:server:requestData');pushData() end)
