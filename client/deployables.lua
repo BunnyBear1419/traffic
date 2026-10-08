@@ -2,6 +2,7 @@ TrafficClientDeployables={}
 local menuOpen=false
 local selected='cone'
 local rotation=0.0
+local placementDistance=Config.Deployables.placementDistance or 3.0
 local preview=true
 local lastPreview=nil
 local allowed={cone=true,barrier=true,police_barrier=true,spikes=true,flare=true}
@@ -10,13 +11,13 @@ local function notify(message)
  BeginTextCommandThefeedPost('STRING');AddTextComponentSubstringPlayerName('~b~Traffic Director~s~: '..tostring(message));EndTextCommandThefeedPostTicker(false,false)
 end
 local function coordsAhead(distance)
- local ped=PlayerPedId();local ahead=GetOffsetFromEntityInWorldCoords(ped,0.0,distance or Config.Deployables.placementDistance or 3.0,0.0)
+ local ped=PlayerPedId();local ahead=GetOffsetFromEntityInWorldCoords(ped,0.0,distance or placementDistance,0.0)
  local found,z=GetGroundZFor_3dCoord(ahead.x,ahead.y,ahead.z+3.0,false)
  if found then ahead=vector3(ahead.x,ahead.y,z+0.04) end
  return ahead
 end
 local function place(kind,scene)
- local ped=PlayerPedId();local ahead=coordsAhead(Config.Deployables.placementDistance or 3.0)
+ local ped=PlayerPedId();local ahead=coordsAhead(placementDistance)
  TriggerServerEvent('traffic:server:deployProp',kind,{x=ahead.x,y=ahead.y,z=ahead.z},(GetEntityHeading(ped)+rotation)%360,scene or '')
 end
 local function placeKit(kit)
@@ -41,7 +42,7 @@ RegisterCommand('trafficprop',function(_,args)
  place(kind)
 end,false)
 RegisterCommand('trafficprops',function()
- menuOpen=true;SetNuiFocus(true,true);SendNUIMessage({action='deployMenuOpen',selected=selected,rotation=rotation,kits=kits})
+ menuOpen=true;SetNuiFocus(true,true);SendNUIMessage({action='deployMenuOpen',selected=selected,rotation=rotation,distance=placementDistance,kits=kits})
 end,false)
 RegisterNUICallback('deployMenuClose',function(_,cb) closeMenu();cb({ok=true}) end)
 RegisterNUICallback('deployPlace',function(data,cb)
@@ -54,6 +55,7 @@ RegisterNUICallback('deployKit',function(data,cb)
  if kits[kit] then placeKit(kit) end
  cb({ok=true})
 end)
+RegisterNUICallback('deployDistance',function(data,cb) placementDistance=math.max(1.0,math.min(8.0,placementDistance+(type(data)=='table' and tonumber(data.delta) or 0)));SendNUIMessage({action='deployDistance',distance=placementDistance});cb({ok=true,distance=placementDistance}) end)
 RegisterNUICallback('deployRotate',function(data,cb)
  local delta=type(data)=='table' and tonumber(data.delta) or 15
  rotation=(rotation+(delta or 15))%360
