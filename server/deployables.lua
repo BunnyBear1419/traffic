@@ -40,7 +40,7 @@ local function createProp(src,kind,pos,heading,scene)
  if not Config.Deployables or not Config.Deployables.enabled then return false,'Deployables are disabled.' end
  local model=Config.Deployables.models[kind]; if not model or (Config.Deployables.enabledProps and Config.Deployables.enabledProps[kind]==false) then return false,'This prop is disabled or unavailable.' end
  local player=playerCoords(src); if not player then return false,'Player position unavailable.' end
- if not pos or not pos.x or not pos.y or not pos.z or distance(player,pos)>(Config.Deployables.placementDistance or 3.0)+8.0 then return false,'Placement is too far away.' end
+ if not pos or not pos.x or not pos.y or not pos.z or pos.x~=pos.x or pos.y~=pos.y or pos.z~=pos.z or math.abs(pos.x)>10000 or math.abs(pos.y)>10000 or math.abs(pos.z)>3000 or distance(player,pos)>(Config.Deployables.placementDistance or 3.0)+8.0 then return false,'Placement coordinates are invalid or too far away.' end
  local mine,total=counts(src)
  if mine>=(Config.Deployables.maxPerPlayer or 18) or total>=(Config.Deployables.maxTotal or 160) then return false,'Deployment limit reached. Remove props before placing more.' end
  local obj=CreateObjectNoOffset(GetHashKey(model),pos.x,pos.y,pos.z,true,true,false)
