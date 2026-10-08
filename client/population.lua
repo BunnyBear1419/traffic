@@ -23,4 +23,55 @@ CreateThread(function()
  end
 end)
 
--- Entity cleanup intentionally disabled while native pool scanning is isolated.
+local function cleanupAmbient()
+ if not Config.NativeSafety or not Config.NativeSafety.enabled or Config.NativeSafety.populationCleanup~=true then return end
+ local radius=Config.NativeSafety.cleanupRadius or 90.0
+ local batch=math.max(1,math.min(5,Config.NativeSafety.cleanupBatch or 3))
+ local p=GetEntityCoords(PlayerPedId())
+ local removed=0
+ if (TrafficAdjustor.state.trafficLevel or 0)<=0 then
+  for i=1,batch do
+   local v=GetClosestVehicle(p.x,p.y,p.z,radius,0,70)
+   if not v or v==0 or not DoesEntityExist(v) or not IsEntityAVehicle(v) then break end
+   local driver=GetPedInVehicleSeat(v,-1)
+   if driver~=0 and DoesEntityExist(driver) and not IsPedAPlayer(driver) then
+    if NetworkGetEntityIsNetworked(v) and not NetworkHasControlOfEntity(v) then
+     TrafficOwnership.ensure(v)
+    end
+    if not NetworkGetEntityIsNetworked(v) or NetworkHasControlOfEntity(v) then
+     SetEntityAsMissionEntity(v,true,true)
+     DeleteEntity(v)
+     removed=removed+1
+    else break end
+   else
+    break
+   end
+  end
+ end
+ if (TrafficAdjustor.state.npcLevel or 0)<=0 then
+  for i=1,batch do
+   local ped=GetClosestPed(p.x,p.y,p.z,radius,1,1,1,1,1,28,0)
+   if not ped or ped==0 or not DoesEntityExist(ped) or IsPedAPlayer(ped) then break end
+   if IsPedInAnyVehicle(ped,false) then break end
+   if NetworkGetEntityIsNetworked(ped) and not NetworkHasControlOfEntity(ped) then
+    TrafficOwnership.ensure(ped)
+   end
+   if not NetworkGetEntityIsNetworked(ped) or NetworkHasControlOfEntity(ped) then
+    SetEntityAsMissionEntity(ped,true,true)
+    DeleteEntity(ped)
+    removed=removed+1
+   else break end
+  end
+ end
+ return removed
+end
+
+CreateThread(function()
+ while true do
+  if TrafficAdjustor.isFeatureEnabled('population') and Config.NativeSafety and Config.NativeSafety.populationCleanup==true then
+   if (TrafficAdjustor.state.trafficLevel or 0)<=0 or (TrafficAdjustor.state.npcLevel or 0)<=0 then cleanupAmbient() end
+  end
+  Wait((Config.NativeSafety and Config.NativeSafety.cleanupInterval) or 750)
+ end
+end)
+
