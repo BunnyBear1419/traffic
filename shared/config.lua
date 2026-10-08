@@ -19,7 +19,9 @@ Config.Modes = {
  emergency={speed=1.35,density=0.75,behavior=2},
  race={speed=1.25,density=0.8,behavior=3}
 }
-Config.AppearanceGuard = {enabled=true,interval=2000,repairCooldown=5000,repairInvisible=true,maxManagedNPCs=500}\nConfig.ZoneTypes = {
+Config.AppearanceGuard = {enabled=true,interval=2000,repairCooldown=5000,repairInvisible=true,maxManagedNPCs=500}
+Config.AdaptiveRouting = {enabled=true,minHotspotHits=2,avoidRadius=16.0,obstacleReportCooldown=8000}
+Config.ZoneTypes = {
  normal={radius=80.0},light={radius=80.0},heavy={radius=80.0},stop={radius=50.0},
  oneway={radius=60.0},closure={radius=60.0},emergency={radius=80.0},race={radius=100.0}
 }
