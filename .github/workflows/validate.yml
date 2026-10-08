@@ -1,0 +1,30 @@
+name: Traffic Director validation
+on:
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua
+        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: Validate Lua syntax
+        shell: bash
+        run: |
+          set -e
+          find client server shared -name '*.lua' -print0 | while IFS= read -r -d '' file; do
+            echo "Checking $file"
+            luac5.4 -p "$file"
+          done
+      - name: Validate JSON
+        run: |
+          python - <<'PY'
+          import json
+          for p in ['data/routes.json','data/zones.json','data/obstacles.json']:
+              with open(p, encoding='utf-8') as f:
+                  json.load(f)
+              print('OK', p)
+          PY
+      - name: Validate NUI JavaScript
+        run: node --check web/app.js
