@@ -71,7 +71,7 @@ local function globalModeControl(v)
  local mode=TrafficClientMode or Config.DefaultMode
  local b=Config.ZoneBehavior or {}
  if mode=='stop' then
-  if not emergency(v) and TrafficOwnership.ensure(v) then ClearVehicleTasks(v);SetVehicleMaxSpeed(v,0.1);SetVehicleForwardSpeed(v,0.0) end
+  if not emergency(v) and TrafficOwnership.ensure(v) then ClearVehicleTasks(v);if Traffic.nativeSafetyEnabled('speedControl') then SetVehicleMaxSpeed(v,0.1);SetVehicleForwardSpeed(v,0.0) end end
   return true
  end
  if mode=='emergency' then setSpeed(v,emergency(v) and (b.emergencySpeed or 34.0) or (b.yieldSpeed or 7.0));return false end
