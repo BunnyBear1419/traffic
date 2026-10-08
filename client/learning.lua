@@ -2,7 +2,7 @@ TrafficLearning={active=false,points={},lastSample=0}
 local function hv(h) local r=math.rad(h); return math.sin(r),math.cos(r) end
 function TrafficLearning.toggle()
  TrafficLearning.active=not TrafficLearning.active
- if TrafficLearning.active then
+ if TrafficLearning.active and TrafficAdjustor.isFeatureEnabled('learning') then
   TrafficLearning.points={}
   TriggerEvent('chat:addMessage',{args={'Traffic Director','Teach Route enabled. Drive the intended path, then use /trafficteach again to save it.'}})
  else
