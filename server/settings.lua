@@ -1,10 +1,10 @@
 TrafficSettings={}
 local resourceName=GetCurrentResourceName()
 local BuiltInPresets={
- {id='performance_safe',name='Performance Safe',description='Lower traffic and NPC processing for busy servers.',mode='auto',trafficLevel=35,npcLevel=30},
- {id='normal_traffic',name='Normal Traffic',description='Balanced everyday traffic.',mode='auto',trafficLevel=70,npcLevel=70},
- {id='busy_city',name='Busy City',description='Denser city traffic with stronger NPC activity.',mode='auto',trafficLevel=88,npcLevel=82},
- {id='heavy_traffic',name='Heavy Traffic',description='Maximum road activity while retaining automatic performance control.',mode='auto',trafficLevel=96,npcLevel=90},
+ {id='performance_safe',name='Performance Safe',description='Lower traffic and NPC processing for busy servers.',mode='manual',trafficLevel=35,npcLevel=30},
+ {id='normal_traffic',name='Normal Traffic',description='Balanced everyday traffic.',mode='manual',trafficLevel=70,npcLevel=70},
+ {id='busy_city',name='Busy City',description='Denser city traffic with stronger NPC activity.',mode='manual',trafficLevel=88,npcLevel=82},
+ {id='heavy_traffic',name='Heavy Traffic',description='Maximum road activity while retaining automatic performance control.',mode='manual',trafficLevel=96,npcLevel=90},
  {id='npc_heavy',name='NPC Heavy',description='Prioritizes managed NPC activity.',mode='manual',trafficLevel=65,npcLevel=100},
  {id='race_event',name='Race / Event',description='High-performance event profile with race-friendly traffic.',mode='manual',trafficLevel=45,npcLevel=55},
  {id='emergency_response',name='Emergency Response',description='Reduced civilian density for emergency operations.',mode='manual',trafficLevel=25,npcLevel=35},
