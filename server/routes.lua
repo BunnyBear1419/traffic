@@ -60,14 +60,17 @@ local function sanitizeRoute(route)
 end
 local function classifyObstacle(hit)
  if not Config.MLOIntelligence.enabled then return 'unknown' end
- if hit.category and type(hit.category)=='string' then
-  for _,name in ipairs(Config.MLOIntelligence.categories) do if hit.category==name then return name end end
- end
  if hit.reason=='garage' then return 'garage' end
  if hit.reason=='tunnel' then return 'tunnel' end
  if hit.reason=='parking' then return 'parking' end
- if (hit.hits or 1)>=Config.MLOIntelligence.minimumHits then return 'building_entrance' end
- return 'blocked_road'
+ if hit.category and type(hit.category)=='string' then
+  for _,name in ipairs(Config.MLOIntelligence.categories) do if hit.category==name then return name end end
+ end
+ local hits=tonumber(hit.hits) or 0
+ local confidence=tonumber(hit.confidence) or 0
+ if hits>=Config.MLOIntelligence.minimumHits and confidence>=50 then return 'building_entrance' end
+ if hits>=Config.MLOIntelligence.minimumHits then return 'suspected_blocked_road' end
+ return 'unknown'
 end
 RegisterNetEvent('traffic:server:addRoute',function(route)
  if not TrafficPermissions.canLearn(source) then return end
