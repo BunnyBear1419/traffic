@@ -46,4 +46,14 @@ Config.JobTraffic = {enabled=true,pollInterval=3000,defaultMinimumGrade=0,rules=
 Config.RealismZones = {enabled=true,highwayTypes={'highway','race'},highwayTrafficBonus=15,highwayNPCBonus=5,cityTraffic=70,cityNPC=70,cityParked=75}
 Config.Diagnostics = {enabled=true,historySize=60,recoveryInterval=5000}
 
-Config.Deployables = {enabled=true,maxPerPlayer=12,maxTotal=120,placementDistance=3.0,removeDistance=8.0,spikeRadius=2.2,models={cone='prop_roadcone02a',barrier='prop_barrier_work05',police_barrier='prop_barrier_work06a',spikes='p_ld_stinger_s',flare='prop_flare_01'}}
+Config.Deployables = {
+ enabled=true, maxPerPlayer=18, maxTotal=160, placementDistance=3.0, removeDistance=8.0,
+ spikeRadius=2.2, spikeCooldown=10000, requireDuty=true, sceneCleanupRadius=45.0,
+ models={cone='prop_roadcone02a',barrier='prop_barrier_work05',police_barrier='prop_barrier_work06a',spikes='p_ld_stinger_s',flare='prop_flare_01'},
+ kits={
+  traffic_stop={{type='cone',x=-1.4,y=1.0},{type='cone',x=1.4,y=1.0},{type='cone',x=-2.0,y=3.0},{type='cone',x=2.0,y=3.0},{type='police_barrier',x=0,y=5.0}},
+  road_closure={{type='barrier',x=-3.0,y=2.0},{type='barrier',x=0,y=2.0},{type='barrier',x=3.0,y=2.0},{type='cone',x=-3.0,y=4.0},{type='cone',x=3.0,y=4.0}},
+  checkpoint={{type='cone',x=-3.0,y=1.0},{type='cone',x=3.0,y=1.0},{type='cone',x=-3.0,y=4.0},{type='cone',x=3.0,y=4.0},{type='police_barrier',x=0,y=6.0}},
+  accident_scene={{type='cone',x=-2.5,y=1.0},{type='cone',x=2.5,y=1.0},{type='cone',x=-3.5,y=3.5},{type='cone',x=3.5,y=3.5},{type='barrier',x=0,y=5.0},{type='flare',x=-2.0,y=6.0},{type='flare',x=2.0,y=6.0}}
+ }
+}
