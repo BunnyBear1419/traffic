@@ -3,9 +3,7 @@ local defaults=Config.FeatureToggles or {}
 for k,v in pairs(defaults) do TrafficAdjustor.features[k]=v end
 
 local function clamp(v,a,b) return math.max(a,math.min(b,v)) end
-local function feature(name)
- return TrafficAdjustor.features[name] ~= false
-end
+local function feature(name) return TrafficAdjustor.features[name] ~= false end
 function TrafficAdjustor.isFeatureEnabled(name) return feature(name) end
 function TrafficAdjustor.getTrafficScale()
  local a=Config.Adjustor or {}
@@ -45,27 +43,32 @@ local function applySettings(settings)
  TrafficAdjustor.state.npcLevel=clamp(tonumber(settings.npcLevel) or a.npcLevel,0,100)
  TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel
  TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel
+ TrafficAdjustor.state.reason=TrafficAdjustor.state.mode=='manual' and 'Manual control' or 'Configured'
 end
 RegisterNetEvent('traffic:client:settings',function(settings) applySettings(settings) end)
 
 CreateThread(function()
  while true do
   if feature('performance') and (Config.Adjustor.enabled ~= false) then
-   local pool=GetGamePool('CVehicle')
-   local population=#pool
-   local players=#GetActivePlayers()
-   TrafficAdjustor.state.population=population
-   TrafficAdjustor.state.players=players
+   -- Avoid GetGamePool here: it previously contributed to native instability.
+   -- Population is intentionally a bounded local-proximity signal, not a full pool count.
+   local player=PlayerPedId()
+   local p=GetEntityCoords(player)
+   local nearby=GetClosestVehicle(p.x,p.y,p.z,120.0,0,70)
+   TrafficAdjustor.state.population=(nearby and nearby~=0 and DoesEntityExist(nearby)) and 1 or 0
+   TrafficAdjustor.state.players=#GetActivePlayers()
    if TrafficAdjustor.state.mode=='auto' then
     local a=Config.Adjustor
     local traffic=TrafficAdjustor.baseTrafficLevel
     local npc=TrafficAdjustor.baseNPCLevel
-    if population>=a.criticalPopulation then traffic=traffic-35;npc=npc-30;TrafficAdjustor.state.reason='Critical traffic population'
-    elseif population>=a.highPopulation then traffic=traffic-18;npc=npc-15;TrafficAdjustor.state.reason='High traffic population'
-    elseif population<=a.lowPopulation then traffic=traffic+12;npc=npc+10;TrafficAdjustor.state.reason='Low traffic population'
-    else TrafficAdjustor.state.reason='Balanced server load' end
-    if players>=a.highPlayerCount then traffic=traffic-10;npc=npc-8
-    elseif players<=a.lowPlayerCount then traffic=traffic+5;npc=npc+4 end
+    -- Auto mode uses server/player load plus a bounded nearby-traffic signal.
+    if TrafficAdjustor.state.population>=1 and TrafficAdjustor.state.players>=a.highPlayerCount then
+     traffic=traffic-10;npc=npc-8;TrafficAdjustor.state.reason='High player load'
+    elseif TrafficAdjustor.state.population==0 and TrafficAdjustor.state.players<=a.lowPlayerCount then
+     traffic=traffic+5;npc=npc+4;TrafficAdjustor.state.reason='Low nearby traffic'
+    else
+     TrafficAdjustor.state.reason='Balanced server load'
+    end
     TrafficAdjustor.state.trafficLevel=clamp(traffic,0,100)
     TrafficAdjustor.state.npcLevel=clamp(npc,0,100)
    end
