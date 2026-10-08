@@ -1,5 +1,10 @@
-local function broadcast()
- TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles)
+local reportRate={}
+local function broadcast() TriggerClientEvent('traffic:client:data',-1,TrafficRoutes,TrafficZones,TrafficObstacles) end
+local function allowedReport(src)
+ local now=os.time();local last=reportRate[src] or 0
+ if now-last<2 then return false end
+ reportRate[src]=now
+ return true
 end
 RegisterNetEvent('traffic:server:addRoute',function(route)
  if not TrafficPermissions.canLearn(source) or type(route)~='table' then return end
@@ -9,8 +14,7 @@ RegisterNetEvent('traffic:server:addRoute',function(route)
  TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:updateRoute',function(route)
- if not TrafficPermissions.isAdmin(source) or type(route)~='table' or not route.id then return end
- if not TrafficRoutes[route.id] then return end
+ if not TrafficPermissions.isAdmin(source) or type(route)~='table' or not route.id or not TrafficRoutes[route.id] then return end
  route.updatedAt=os.time();route.updatedBy=GetPlayerName(source) or 'console';route.points=route.points or {}
  while #route.points>Config.Learning.maxPointsPerRoute do table.remove(route.points) end
  TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast()
@@ -22,6 +26,8 @@ end)
 RegisterNetEvent('traffic:server:addZone',function(zone)
  if not TrafficPermissions.isAdmin(source) or type(zone)~='table' then return end
  zone.id=zone.id or ('zone_%s_%s'):format(os.time(),math.random(1000,9999))
+ zone.type=Config.ZoneTypes[zone.type] and zone.type or 'normal'
+ zone.radius=tonumber(zone.radius) or Config.ZoneTypes[zone.type].radius
  TrafficZones[zone.id]=zone;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:deleteZone',function(id)
@@ -29,6 +35,7 @@ RegisterNetEvent('traffic:server:deleteZone',function(id)
  TrafficZones[id]=nil;TrafficPersistence_save();broadcast()
 end)
 RegisterNetEvent('traffic:server:reportObstacle',function(hit)
+ if not allowedReport(source) then return end
  if type(hit)~='table' or not hit.x or not hit.y or not hit.z then return end
  local best,dist
  for id,o in pairs(TrafficObstacles) do
