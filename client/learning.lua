@@ -12,7 +12,7 @@ function TrafficLearning.onSaved(data)
  TrafficLearning.pending=false
  TrafficLearning.active=false
  TrafficLearning.status=('Saved %d route points'):format(tonumber(data and data.points) or #TrafficLearning.points)
- TrafficLearning.lastSaved=os.date('%H:%M:%S')
+ TrafficLearning.lastSaved=('Saved at %.1fs'):format(GetGameTimer()/1000)
  TriggerEvent('chat:addMessage',{args={'Traffic Director',('Route saved: %s (%d points).'):format(tostring(data and data.name or 'Learned Route'),tonumber(data and data.points) or #TrafficLearning.points)}})
  TrafficLearning.points={}
  TrafficLearning.distance=0
@@ -30,7 +30,7 @@ function TrafficLearning.toggle()
   TrafficLearning.active=false
   if #TrafficLearning.points>=2 then
    TrafficLearning.pending=true;TrafficLearning.status='Saving';notify()
-   TriggerServerEvent('traffic:server:addRoute',{name='Learned Route '..os.date('%H:%M:%S'),loop=false,points=TrafficLearning.points})
+   TriggerServerEvent('traffic:server:addRoute',{name='Learned Route',loop=false,points=TrafficLearning.points})
   else
    TrafficLearning.status='Not enough route points';TrafficLearning.points={};TrafficLearning.distance=0;notify()
    TriggerEvent('chat:addMessage',{args={'Traffic Director','Not enough route points to save.'}})
