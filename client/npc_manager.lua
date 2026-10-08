@@ -91,7 +91,7 @@ exports('GetNPCManagerStats',TrafficNPCManager.stats)
 
 CreateThread(function()
  while true do
-  if TrafficAdjustor.isFeatureEnabled('npcManager') and isController() and Config.NPCManager.enabled then
+  if TrafficAdjustor.isFeatureEnabled('npcManager') and isController() and Config.NPCManager.enabled and TrafficAdjustor.getNPCScale()>0 then
    local me=GetEntityCoords(PlayerPedId())
    for id,def in pairs(points) do
     local existing=findManagedSpawn(def)
