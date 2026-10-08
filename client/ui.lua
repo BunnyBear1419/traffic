@@ -49,8 +49,7 @@ RegisterNUICallback('createZone',function(d,cb)
 end)
 CreateThread(function()
  while true do
-  if open then pushData() end
-  Wait(750)
+  Wait(1000)
  end
 end)
 CreateThread(function() TriggerServerEvent('traffic:server:requestData') end)
