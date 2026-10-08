@@ -1,7 +1,12 @@
 TrafficSettings={}
 local resourceName=GetCurrentResourceName()
 local BuiltInPresets={
- {id='performance_safe',name='Performance Safe',description='Lower traffic and NPC processing for busy servers.',mode='manual',trafficMode='light',trafficLevel=35,npcLevel=30,parkedVehicleLevel=45,emergencyVehicles=true,militaryVehicles=false},
+ {id='minimal',name='Minimal',description='Very light civilian traffic for low-load servers.',mode='manual',trafficMode='light',trafficLevel=15,npcLevel=20,parkedVehicleLevel=20,emergencyVehicles=true,militaryVehicles=false},
+ {id='city',name='City',description='Balanced dense urban traffic.',mode='manual',trafficMode='normal',trafficLevel=75,npcLevel=75,parkedVehicleLevel=80,emergencyVehicles=true,militaryVehicles=false},
+ {id='rush_hour',name='Rush Hour',description='Peak commuter traffic and parked vehicle activity.',mode='manual',trafficMode='heavy',trafficLevel=95,npcLevel=90,parkedVehicleLevel=100,emergencyVehicles=true,militaryVehicles=false},
+ {id='military_zone',name='Military Zone',description='Low civilian traffic with military traffic enabled.',mode='manual',trafficMode='emergency',trafficLevel=20,npcLevel=25,parkedVehicleLevel=20,emergencyVehicles=true,militaryVehicles=true},
+ {id='late_night',name='Late Night',description='Quiet overnight roads with sparse NPC activity.',mode='manual',trafficMode='light',trafficLevel=20,npcLevel=15,parkedVehicleLevel=25,emergencyVehicles=true,militaryVehicles=false},
+ {id='apocalypse',name='Apocalypse',description='Extremely low civilian traffic and NPC presence.',mode='manual',trafficMode='stop',trafficLevel=0,npcLevel=0,parkedVehicleLevel=5,emergencyVehicles=false,militaryVehicles=false}, {id='performance_safe',name='Performance Safe',description='Lower traffic and NPC processing for busy servers.',mode='manual',trafficMode='light',trafficLevel=35,npcLevel=30,parkedVehicleLevel=45,emergencyVehicles=true,militaryVehicles=false},
  {id='normal_traffic',name='Normal Traffic',description='Balanced everyday traffic.',mode='manual',trafficMode='normal',trafficLevel=70,npcLevel=70,parkedVehicleLevel=70,emergencyVehicles=true,militaryVehicles=true},
  {id='busy_city',name='Busy City',description='Denser city traffic with stronger NPC activity.',mode='manual',trafficMode='heavy',trafficLevel=88,npcLevel=82,parkedVehicleLevel=90,emergencyVehicles=true,militaryVehicles=true},
  {id='heavy_traffic',name='Heavy Traffic',description='Maximum road activity while retaining automatic performance control.',mode='manual',trafficMode='heavy',trafficLevel=96,npcLevel=90,parkedVehicleLevel=100,emergencyVehicles=true,militaryVehicles=true},
