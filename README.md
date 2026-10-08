@@ -11,15 +11,19 @@ Advanced **FiveM / GTA V traffic, NPC, route, population and server-control reso
 Admins can enable **Deploy/remove road props** in **Traffic Director → Jobs & Access** for the Police, FIB, Sheriff, or a custom job rule. Save the rule after checking the capability. Job names must match the names used by the configured ESX/QBCore adapter. Server admins can always deploy props.
 
 In game, use:
-- `/trafficprop cone` — place a road cone in front of you
+- `/trafficprops` — open the Field Deployment menu with props, rotation, scene kits, active deployments, cleanup and admin audit controls
+- `/trafficprop cone` — place a road cone
 - `/trafficprop barrier` — place a road barrier
 - `/trafficprop police_barrier` — place a police-style barrier
 - `/trafficprop spikes` — deploy a spike strip
-- `/trafficprop flare` — place a flare
+- `/trafficprop flare` — place a road flare
 - `/trafficprop remove` — remove the nearest Traffic Director prop
+- `/trafficprop clear` — remove your own props
+- `/trafficprop clearall` — admin-only clear-all command
 
-Props are networked, server-authorized, and capped per player and globally. Spike strips puncture tires when a moving vehicle gets close enough. Props deployed by a player are cleaned up when that player disconnects or when the resource stops. This feature requires OneSync/server entity creation support and should be tested with the server's current artifact and framework before public release.
+The menu includes traffic-stop, road-closure, checkpoint and accident-scene kits, a placement marker, rotation in 15-degree increments, active prop listing, per-scene cleanup, clear-own and admin clear-all controls. Each job rule's minimum grade applies to its granted capabilities; the prop capability must be checked. Server-side validation enforces job authorization, coordinates, enabled prop types, request cooldowns, per-player and global limits. Audit entries are retained in memory for the current resource session and printed to the server console; they are not a persistent database log.
 
+Spike-strip handling is client-side and attempts to request vehicle network control before bursting tires; behavior must be verified with your server artifact, OneSync and vehicle ownership. Configure `Config.Deployables.enabledProps` to disable individual prop types and `Config.Deployables.kits` to customize kits. OneSync/server entity creation support is required; perform multiplayer testing before public release.
 ## What Traffic Director does
 
 Traffic Director manages and intelligently adjusts the ambient GTA V world around players.
