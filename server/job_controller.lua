@@ -41,7 +41,7 @@ local function normalizeRule(r)
  if type(r)~='table' then return nil end
  local jobs={}
  for _,j in ipairs(r.jobs or {}) do jobs[#jobs+1]=tostring(j):lower() end
- return {id=tostring(r.id or ''),name=tostring(r.name or r.id or 'Job'),jobs=jobs,minimumGrade=tonumber(r.minimumGrade) or 0,priority=tonumber(r.priority) or 0,mode=Config.Modes[r.mode] and r.mode or Config.DefaultMode,trafficLevel=math.max(0,math.min(100,tonumber(r.trafficLevel) or 70)),npcLevel=math.max(0,math.min(100,tonumber(r.npcLevel) or 70)),parkedVehicleLevel=math.max(0,math.min(100,tonumber(r.parkedVehicleLevel) or 70)),emergencyVehicles=r.emergencyVehicles~=false,militaryVehicles=r.militaryVehicles~=false,actions=r.actions or {traffic=true,npc=true,parked=true,emergency=true,military=true,events=true,zones=true}}
+ return {id=tostring(r.id or ''),name=tostring(r.name or r.id or 'Job'),jobs=jobs,minimumGrade=tonumber(r.minimumGrade) or 0,priority=tonumber(r.priority) or 0,mode=Config.Modes[r.mode] and r.mode or Config.DefaultMode,trafficLevel=math.max(0,math.min(100,tonumber(r.trafficLevel) or 70)),npcLevel=math.max(0,math.min(100,tonumber(r.npcLevel) or 70)),parkedVehicleLevel=math.max(0,math.min(100,tonumber(r.parkedVehicleLevel) or 70)),emergencyVehicles=r.emergencyVehicles~=false,militaryVehicles=r.militaryVehicles~=false,actions=r.actions or {traffic=true,npc=true,parked=true,emergency=true,military=true,events=true,zones=true},views=r.views or {overview=true}}
 end
 
 function TrafficJobController.getRules()
@@ -84,7 +84,7 @@ RegisterNetEvent('traffic:server:saveJobRule',function(rule)
  TrafficSettings.jobRules=TrafficSettings.jobRules or {}
  TrafficSettings.jobRules[id]={
   id=id,name=tostring(rule.name or id):sub(1,60),jobs=jobs,minimumGrade=math.max(0,math.floor(tonumber(rule.minimumGrade) or 0)),priority=math.floor(tonumber(rule.priority) or 0),
-  mode=Config.Modes[rule.mode] and rule.mode or 'normal',trafficLevel=math.max(0,math.min(100,tonumber(rule.trafficLevel) or 70)),npcLevel=math.max(0,math.min(100,tonumber(rule.npcLevel) or 70)),parkedVehicleLevel=math.max(0,math.min(100,tonumber(rule.parkedVehicleLevel) or 70)),emergencyVehicles=rule.emergencyVehicles~=false,militaryVehicles=rule.militaryVehicles==true,actions=rule.actions or {}
+  mode=Config.Modes[rule.mode] and rule.mode or 'normal',trafficLevel=math.max(0,math.min(100,tonumber(rule.trafficLevel) or 70)),npcLevel=math.max(0,math.min(100,tonumber(rule.npcLevel) or 70)),parkedVehicleLevel=math.max(0,math.min(100,tonumber(rule.parkedVehicleLevel) or 70)),emergencyVehicles=rule.emergencyVehicles~=false,militaryVehicles=rule.militaryVehicles==true,actions=rule.actions or {},views=rule.views or {overview=true}
  }
  if TrafficSettings_save then TrafficSettings_save() end
  publish(source)
