@@ -1,6 +1,19 @@
 TrafficRouting={}
 local progress={}
 local lastTask={}
+local activeRoute={}
+local function avoidancePenalty(p,routeId)
+ if not Config.RouteAvoidance.enabled then return 0 end
+ local score=0
+ for _,a in pairs(TrafficClientAvoidance or {}) do
+  local d=Traffic.distance(p,a)
+  if d<=Config.RouteAvoidance.radius then
+   local routeMatch=routeId and a.routeIds and a.routeIds[routeId]
+   score=score+(a.hits or 1)*Config.RouteAvoidance.penalty*(routeMatch and 1.25 or 1.0)
+  end
+ end
+ return score
+end
 local function hotspotPenalty(p)
  if not Config.AdaptiveRouting.enabled then return 0 end
  local score=0
@@ -8,7 +21,7 @@ local function hotspotPenalty(p)
   local d=Traffic.distance(p,o)
   if d<=Config.AdaptiveRouting.avoidRadius then score=score+(o.hits or 1)*Config.AdaptiveRouting.failurePenalty end
  end
- return score
+ return score+avoidancePenalty(p)
 end
 local function routeScore(route,coords)
  local first=route.points and route.points[1]
@@ -17,7 +30,8 @@ local function routeScore(route,coords)
  local failures=tonumber(route.failures) or 0
  local successes=tonumber(route.successes) or 0
  local hotspot=hotspotPenalty(first or coords)
- return d+(failures*Config.AdaptiveRouting.failurePenalty)-(successes*Config.AdaptiveRouting.confidenceBonus)-confidence+hotspot
+ local avoid=avoidancePenalty(first or coords,route.id)
+ return d+(failures*Config.AdaptiveRouting.failurePenalty)-(successes*Config.AdaptiveRouting.confidenceBonus)-confidence+hotspot+avoid
 end
 local function nearestRoute(coords,radius)
  local candidates={}
@@ -40,18 +54,24 @@ end
 function TrafficRouting.getRouteForVehicle(vehicle)
  if not TrafficAdjustor.isFeatureEnabled('routing') then return nil end
  local z=TrafficZones_getAt(GetEntityCoords(vehicle))
- if z and z.routeId and TrafficRoutes[z.routeId] then return TrafficRoutes[z.routeId] end
+ if z and z.routeId and TrafficRoutes[z.routeId] then
+  activeRoute[vehicle]=TrafficRoutes[z.routeId]
+  return TrafficRoutes[z.routeId]
+ end
  local route,index=nearestRoute(GetEntityCoords(vehicle),Config.RouteSnapDistance)
  if route then
   progress[vehicle]=progress[vehicle] or index
+  activeRoute[vehicle]=route
  else
-  progress[vehicle]=nil
+  progress[vehicle]=nil;activeRoute[vehicle]=nil
  end
  return route
 end
+function TrafficRouting.getActiveRoute(vehicle) return activeRoute[vehicle] end
 function TrafficRouting.driveRoute(vehicle,route)
  if not TrafficAdjustor.isFeatureEnabled('routing') then return false end
  if not route or not route.points or #route.points<2 then return false end
+ activeRoute[vehicle]=route
  local idx=progress[vehicle] or 1
  local p=GetEntityCoords(vehicle)
  local bestDist=99999.0
@@ -87,4 +107,6 @@ function TrafficRouting.redirectToRoad(vehicle)
  if node then TaskVehicleDriveToCoordLongrange(vehicle,node.x,node.y,node.z,13.0,786603,5.0);return true end
  return false
 end
-function TrafficRouting.reset(vehicle) progress[vehicle]=nil;lastTask[vehicle]=nil end
+function TrafficRouting.reset(vehicle)
+ progress[vehicle]=nil;lastTask[vehicle]=nil;activeRoute[vehicle]=nil
+end
