@@ -38,6 +38,7 @@ RegisterNUICallback('deleteObstacle',function(d,cb) TriggerServerEvent('traffic:
 RegisterNUICallback('deleteAvoidance',function(d,cb) TriggerServerEvent('traffic:server:deleteAvoidance',d.id);cb('ok') end)
 RegisterNUICallback('scanMLOs',function(_,cb) TriggerServerEvent('traffic:server:mloScan');cb('ok') end)
 RegisterNUICallback('mloIgnore',function(d,cb) TriggerServerEvent('traffic:server:mloIgnore',d.key);cb('ok') end)
+RegisterNUICallback('mloFixPlan',function(d,cb) TriggerServerEvent('traffic:server:mloPrepareFix',d.id);cb('ok') end)
 RegisterNUICallback('mloStopResource',function(d,cb) TriggerServerEvent('traffic:server:mloStopResource',d.resource);cb('ok') end)
 RegisterNUICallback('createZone',function(d,cb)
  local p=GetEntityCoords(PlayerPedId())
