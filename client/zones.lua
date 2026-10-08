@@ -1,6 +1,9 @@
 TrafficClientZones={}
+TrafficClientObstacles={}
 TrafficClientMode=Config.DefaultMode
-RegisterNetEvent('traffic:client:data',function(routes,zones) TrafficRoutes=routes or {}; TrafficClientZones=zones or {} end)
+RegisterNetEvent('traffic:client:data',function(routes,zones,obstacles)
+ TrafficRoutes=routes or {};TrafficClientZones=zones or {};TrafficClientObstacles=obstacles or {}
+end)
 function TrafficZones_getAt(coords)
  local best,bd
  for _,z in pairs(TrafficClientZones) do
@@ -10,4 +13,4 @@ function TrafficZones_getAt(coords)
  end
  return best
 end
-CreateThread(function() while true do TrafficClientMode=GlobalState.trafficDirectorMode or Config.DefaultMode; Wait(1000) end end)
+CreateThread(function() while true do TrafficClientMode=GlobalState.trafficDirectorMode or Config.DefaultMode;Wait(1000) end end)
