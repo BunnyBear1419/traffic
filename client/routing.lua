@@ -73,18 +73,35 @@ end
 function TrafficRouting.getActiveRoute(vehicle) return activeRoute[vehicle] end
 function TrafficRouting.trackProgress(vehicle,route)
  if not Config.RouteLearning.enabled or not route or not route.id then return end
- activeRoute[vehicle]=route;routeStarted[vehicle]=routeStarted[vehicle] or GetGameTimer()
+ local previous=activeRoute[vehicle]
+ activeRoute[vehicle]=route
+ if previous and previous.id~=route.id then
+  routeStarted[vehicle]=GetGameTimer();routeDistance[vehicle]=nil;lastSuccessReport[vehicle]=nil
+ end
+ routeStarted[vehicle]=routeStarted[vehicle] or GetGameTimer()
  local p=GetEntityCoords(vehicle);local last=routeDistance[vehicle]
- if not last then routeDistance[vehicle]={x=p.x,y=p.y,z=p.z,total=0};return end
+ if not last then routeDistance[vehicle]={x=p.x,y=p.y,z=p.z,total=0,nearest=0};return end
  local d=Traffic.distance(p,last);if d>0 and d<100 then last.total=(last.total or 0)+d end
  last.x=p.x;last.y=p.y;last.z=p.z
+ local nearest,best=last.nearest or 0,99999.0
+ for i=1,#route.points do
+  local pd=Traffic.distance(p,route.points[i])
+  if pd<best then best=pd;nearest=i end
+ end
+ last.nearest=nearest
 end
 function TrafficRouting.successCandidate(vehicle,route)
- if not Config.RouteLearning.enabled or not route or not route.id then return false end
+ if not Config.RouteLearning.enabled or not route or not route.id or not route.points or #route.points<2 then return false end
  local s=routeDistance[vehicle];local started=routeStarted[vehicle]
  if not s or not started or (s.total or 0)<Config.RouteLearning.minProgressDistance or GetEntitySpeed(vehicle)<Config.RouteLearning.minSuccessSpeed then return false end
+ local nearest=s.nearest or 0
+ local completed=nearest>=math.max(2,#route.points-1)
+ if not completed and route.loop and nearest>=math.floor(#route.points*0.8) then completed=true end
+ if not completed then return false end
  local now=GetGameTimer();if lastSuccessReport[vehicle] and now-lastSuccessReport[vehicle]<Config.RouteLearning.successWindow then return false end
- lastSuccessReport[vehicle]=now;TriggerServerEvent('traffic:server:routeSuccess',{routeId=route.id,distance=s.total});return true
+ lastSuccessReport[vehicle]=now
+ TriggerServerEvent('traffic:server:routeSuccess',{routeId=route.id,distance=s.total,progressIndex=nearest,completed=true})
+ return true
 end
 function TrafficRouting.driveRoute(vehicle,route)
  if not TrafficAdjustor.isFeatureEnabled('routing') then return false end
