@@ -45,3 +45,72 @@
 .deployOverlay.visible{display:flex}.deployShell{width:min(1040px,100%);max-height:min(92vh,900px);overflow:auto;border:1px solid #ffffff20;border-radius:20px;background:linear-gradient(145deg,#171e29,#0e131b);box-shadow:0 28px 90px #0009;padding:24px}
 .deployHeader,.deployActiveHead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.deployEyebrow{font-size:10px;letter-spacing:.18em;color:#9daec3;font-weight:800}.deployHeader h2{margin:7px 0;font-size:26px}.deployHeader p,.deploySection>p,.deployActiveHead p{margin:0;color:#9aa8ba;font-size:12px;line-height:1.5}.deployHeader>button{font-size:25px;width:38px;height:38px;border:1px solid #ffffff20;border-radius:10px;background:#ffffff08;color:inherit}.deployGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.deploySection{min-width:0;border:1px solid #ffffff15;border-radius:14px;background:#ffffff04;padding:16px;margin-top:14px}.deployGrid .deploySection{margin:0}.deploySection h3{font-size:14px;margin:0 0 10px}.deployItems{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.deployItems button,.deployKits button{display:flex;align-items:center;gap:9px;text-align:left;padding:11px;border:1px solid #ffffff15;border-radius:10px;background:#ffffff06;color:inherit;min-width:0}.deployItems button{flex-direction:column;justify-content:center;min-height:82px;font-size:11px}.deployItems b{font-size:23px;color:#dbe4ef}.deployItems button:hover,.deployKits button:hover{border-color:#dbe4ef70;background:#ffffff0c}.deployControls,.deployActionRow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;flex-wrap:wrap}.deployControls button,.deployActionRow button,.deployActiveItem button{border:1px solid #ffffff18;border-radius:8px;background:#ffffff08;color:inherit;padding:8px 10px;font-size:11px}.deployControls strong{font-size:11px;color:#aab6c7}.deployControls strong span{color:#fff}.deployKits{display:grid;gap:8px;margin-top:12px}.deployKits button{display:grid;gap:4px}.deployKits strong{font-size:12px}.deployKits small{font-size:10px;color:#9aa8ba}.deployActionRow .danger{border-color:#b84e4e80;color:#ffb9b9}.deployActiveHead{align-items:center}.deployActiveHead h3{margin-bottom:5px}.deployActiveHead p{max-width:650px}.deployActiveHead>span{white-space:nowrap;border:1px solid #ffffff18;border-radius:999px;padding:7px 10px;font-size:10px;color:#dbe4ef}.deployActiveList,.deployAuditList{display:grid;gap:7px;margin-top:12px}.deployActiveItem{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid #ffffff10;border-radius:9px;background:#ffffff04}.deployActiveItem>div{display:grid;gap:3px;flex:1;min-width:0}.deployActiveItem strong,.deployAuditItem strong{font-size:11px;text-transform:capitalize}.deployActiveItem small,.deployAuditItem small{font-size:10px;color:#9aa8ba}.deployDot{width:8px;height:8px;border-radius:50%;background:#c5d3e5;flex:none}.deployAuditItem{display:grid;grid-template-columns:120px 1fr;gap:5px 10px;padding:8px 10px;border:1px solid #ffffff10;border-radius:8px;font-size:10px}.deployAuditItem span{color:#b6c1d0}.deployAuditItem small{grid-column:1/-1}.deployEmpty{font-size:11px;color:#9aa8ba;margin:4px 0}.deployFooter{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:15px;color:#7f8da0;font-size:10px}
 @media(max-width:720px){.deployOverlay{padding:8px}.deployShell{padding:14px;border-radius:14px}.deployGrid{grid-template-columns:1fr}.deployItems{grid-template-columns:repeat(2,minmax(0,1fr))}.deployHeader h2{font-size:21px}.deployActiveHead{align-items:flex-start;flex-direction:column}.deployControls{justify-content:flex-start}}
+
+
+/* Advanced field deployment console — self-contained neutral tactical theme */
+.deployOverlay{align-items:center;justify-content:center;padding:clamp(10px,2.5vw,30px);background:radial-gradient(ellipse at 12% 0%,rgba(167,190,207,.13),transparent 38%),rgba(3,6,10,.84);backdrop-filter:blur(16px) saturate(115%);opacity:0;transition:opacity .2s ease}
+.deployOverlay.visible{opacity:1}
+.deployShell{position:relative;width:min(1120px,100%);max-height:min(94vh,960px);padding:clamp(16px,2.5vw,30px);border:1px solid rgba(220,232,242,.15);border-radius:22px;background:linear-gradient(145deg,rgba(25,32,42,.985),rgba(10,14,21,.99) 72%);box-shadow:0 32px 100px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.055);scrollbar-color:#596675 #111720;scrollbar-width:thin}
+.deployShell:before{content:"";position:absolute;left:24px;right:24px;top:0;height:2px;background:linear-gradient(90deg,transparent,#d5e0e8 18%,#8e9caa 58%,transparent);opacity:.75}
+.deployHeader{position:relative;padding:5px 0 18px;border-bottom:1px solid rgba(222,232,240,.12);align-items:flex-start}
+.deployEyebrow{display:flex;align-items:center;gap:8px;color:#aab8c6;font-size:9px;letter-spacing:.19em}
+.deployEyebrowDot,.deployLiveDot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#a9d6bc;box-shadow:0 0 12px rgba(133,213,166,.48)}
+.deployHeader h2{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:9px 0 7px;font-size:clamp(23px,3vw,32px);font-weight:750;letter-spacing:-.035em;color:#f3f6f9}
+.deployTitleTag{font-size:8px;letter-spacing:.15em;border:1px solid rgba(210,222,232,.2);border-radius:5px;padding:5px 7px;color:#b4c1cd;background:rgba(255,255,255,.035)}
+.deployHeader p,.deploySection>p,.deployActiveHead p{color:#95a4b4;font-size:11px;line-height:1.6}
+.deployHeaderMeta{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.deployHeaderMeta span{display:flex;align-items:center;gap:7px;border:1px solid rgba(216,227,237,.11);border-radius:5px;padding:6px 8px;background:rgba(255,255,255,.025);color:#9eacba;font-size:8px;font-weight:750;letter-spacing:.1em}
+.deployHeader>button{display:grid;place-items:center;flex:none;width:36px;height:36px;border:1px solid rgba(225,235,243,.15);border-radius:10px;background:rgba(255,255,255,.035);color:#cbd5df;font-size:22px;transition:all .18s ease}
+.deployHeader>button:hover{background:rgba(255,255,255,.1);border-color:rgba(225,235,243,.32);transform:rotate(90deg)}
+.deployGrid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:14px;margin-top:15px}
+.deploySection{position:relative;min-width:0;margin-top:14px;padding:17px;border:1px solid rgba(222,232,240,.105);border-radius:15px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+.deployGrid>.deploySection{margin:0}
+.deploySectionTitle{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
+.deploySectionTitle h3,.deploySection h3{margin:4px 0 5px;font-size:14px;letter-spacing:-.015em;font-weight:720;color:#eaf0f5}
+.deploySectionTitle p{margin:0;color:#8999aa;font-size:10px;line-height:1.5}
+.deploySectionKicker{font-size:8px;letter-spacing:.16em;font-weight:800;color:#8494a5}
+.deploySectionGlyph{display:grid;place-items:center;width:33px;height:33px;border:1px solid rgba(220,232,240,.13);border-radius:10px;background:rgba(255,255,255,.035);color:#bac7d2;font-size:17px}
+.deployItems{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:0}
+.deployItems button{position:relative;overflow:hidden;min-height:83px;gap:8px;border:1px solid rgba(220,232,240,.105);border-radius:11px;background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.018));color:#cbd5df;font-size:10px;font-weight:650;transition:transform .17s ease,border-color .17s ease,background .17s ease}
+.deployItems button:before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,transparent,#c2d0dc,transparent);opacity:0;transition:opacity .17s ease}
+.deployItems button:hover{transform:translateY(-2px);border-color:rgba(218,230,240,.34);background:rgba(255,255,255,.075)}
+.deployItems button.selected{border-color:rgba(202,221,235,.52);background:linear-gradient(145deg,rgba(170,196,215,.16),rgba(255,255,255,.04));color:#fff;box-shadow:0 0 0 1px rgba(196,217,233,.07),0 7px 20px rgba(0,0,0,.13)}
+.deployItems button.selected:before{opacity:1}
+.deployItems b{display:grid;place-items:center;width:34px;height:34px;margin:0;border:1px solid rgba(218,230,240,.13);border-radius:10px;background:rgba(0,0,0,.13);color:#dce6ed;font-size:21px;font-weight:500}
+.deployControls{gap:8px;margin-top:12px;padding:9px;border:1px solid rgba(220,232,240,.075);border-radius:10px;background:rgba(0,0,0,.12)}
+.deployControls button,.deployActionRow button,.deployActiveItem button{border:1px solid rgba(220,232,240,.13);border-radius:8px;background:rgba(255,255,255,.045);color:#cbd5df;padding:8px 10px;font-size:10px;font-weight:650;transition:background .15s ease,border-color .15s ease}
+.deployControls button:hover,.deployActionRow button:hover,.deployActiveItem button:hover{background:rgba(255,255,255,.1);border-color:rgba(220,232,240,.28)}
+.deployControls strong{font-size:9px;letter-spacing:.04em;color:#9eacba}
+.deployControls strong span{color:#f4f7fa;font-variant-numeric:tabular-nums}
+.deployKits{grid-template-columns:repeat(2,minmax(0,1fr));display:grid;gap:8px;margin-top:0}
+.deployKits button{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;min-height:83px;padding:13px;border:1px solid rgba(220,232,240,.11);border-radius:11px;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015));color:#e4ebf1;transition:transform .17s ease,border-color .17s ease,background .17s ease}
+.deployKits button:after{content:"↗";position:absolute;right:11px;top:10px;color:#78899a;font-size:12px;transition:transform .17s ease}
+.deployKits button:hover{transform:translateY(-2px);border-color:rgba(220,232,240,.3);background:rgba(255,255,255,.07)}
+.deployKits button:hover:after{transform:translate(2px,-2px);color:#d8e2eb}
+.deployKits strong{font-size:11px;font-weight:720}
+.deployKits small{font-size:9px;color:#91a0b0;line-height:1.45}
+.deployActionRow{gap:8px;margin-top:13px}
+.deployActionRow button{flex:1}
+.deployActionRow .danger{border-color:rgba(219,142,142,.28);color:#e7b7b7;background:rgba(120,38,38,.1)}
+.deployActionRow .danger:hover{border-color:rgba(230,145,145,.55);background:rgba(120,38,38,.22)}
+.deployActiveHead{align-items:center;gap:15px}
+.deployActiveHead .deploySectionTitle{margin:0}
+.deployActiveHead>span{white-space:nowrap;border:1px solid rgba(220,232,240,.16);border-radius:6px;padding:7px 10px;background:rgba(255,255,255,.04);font-size:9px;font-weight:800;letter-spacing:.1em;color:#dce5ed;font-variant-numeric:tabular-nums}
+.deployActiveList{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.deployActiveItem{min-width:0;gap:10px;padding:10px;border:1px solid rgba(220,232,240,.085);border-radius:10px;background:rgba(0,0,0,.12);transition:border-color .15s ease}
+.deployActiveItem:hover{border-color:rgba(220,232,240,.22)}
+.deployActiveItem>div{gap:4px}
+.deployActiveItem strong{color:#dfe7ee;font-size:10px}
+.deployActiveItem small{color:#8999aa;font-size:9px;line-height:1.4}
+.deployDot{position:relative;width:7px;height:7px;background:#a9d6bc;box-shadow:0 0 10px rgba(133,213,166,.22)}
+.deployAuditList{gap:6px}
+.deployAuditItem{grid-template-columns:minmax(90px,.35fr) minmax(0,1fr);gap:5px 10px;padding:9px 10px;border:1px solid rgba(220,232,240,.075);border-radius:9px;background:rgba(0,0,0,.09)}
+.deployAuditItem strong{color:#dbe5ed;font-size:9px;letter-spacing:.02em}
+.deployAuditItem span{color:#9aa8b7;font-size:9px;overflow-wrap:anywhere}
+.deployAuditItem small{color:#78899a;font-size:8px}
+.deployEmpty{padding:12px;border:1px dashed rgba(220,232,240,.12);border-radius:9px;text-align:center;color:#8b9aaa;font-size:10px}
+.deployFooter{border-top:1px solid rgba(220,232,240,.09);margin-top:18px;padding-top:13px;color:#78899a;font-size:9px;letter-spacing:.025em}
+.deployFooter span:first-child{color:#bdc9d4}
+@media(max-width:760px){.deployOverlay{padding:8px}.deployShell{max-height:96vh;padding:15px;border-radius:15px}.deployGrid{grid-template-columns:1fr}.deployItems{grid-template-columns:repeat(3,minmax(0,1fr))}.deployActiveList{grid-template-columns:1fr}.deployHeader h2{font-size:22px}.deployHeaderMeta span{font-size:7px}.deployActiveHead{align-items:flex-start;flex-direction:column}.deployControls{justify-content:space-between}.deploySection{padding:13px}}
+@media(max-width:420px){.deployItems{grid-template-columns:repeat(2,minmax(0,1fr))}.deployKits{grid-template-columns:1fr 1fr}.deployControls{gap:6px}.deployControls button{padding:7px}.deployFooter{line-height:1.6}}
+@media(prefers-reduced-motion:reduce){.deployOverlay,.deployItems button,.deployKits button,.deployHeader>button{transition:none}}
