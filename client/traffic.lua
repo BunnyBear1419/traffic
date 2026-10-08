@@ -44,7 +44,7 @@ local function forceDirection(v,z)
  return true
 end
 local function zoneControl(v)
- local z=TrafficZones_getAt(GetEntityCoords(v))
+ local z=TrafficZones_getAt and TrafficZones_getAt(GetEntityCoords(v)) or nil
  if not z then resetVehicle(v);return false end
  zoneState[v]=z.id or z.type
  local behavior=Config.ZoneBehavior or {}
