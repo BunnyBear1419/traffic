@@ -114,7 +114,7 @@ RegisterNetEvent('traffic:server:applyPreset',function(id)
  save();publish();publishPresets()
 end)
 RegisterNetEvent('traffic:server:savePreset',function(payload)
- if not TrafficPermissions.isAdmin(source) or type(payload)~='table' then return end
+ if not TrafficPermissions.canControl(source) or type(payload)~='table' then return end
  local id=tostring(payload.id or ''):lower():gsub('[^%w_%-]','_')
  if id=='' or #id>48 then return end
  for _,p in ipairs(BuiltInPresets) do if p.id==id then return end end
