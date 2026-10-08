@@ -5,10 +5,11 @@ const $=s=>document.querySelector(s);
 function post(n,d={}){fetch('https://'+resource+'/'+n,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)})}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function levelName(v){v=Number(v)||0;return v<20?'Minimal':v<40?'Low':v<60?'Moderate':v<80?'Balanced':v<95?'High':'Maximum'}
+let adjustorEditing=false;
 function renderAdjustor(){
- const a=state.adjustor||{};const t=Number(a.trafficLevel||0),n=Number(a.npcLevel||0);
+ const a=state.adjustor||{};const t=Number(a.trafficLevel??0),n=Number(a.npcLevel??0);
  $('#trafficLevel').textContent=t+'%';$('#npcLevel').textContent=n+'%';$('#population').textContent=a.population||0;
- $('#trafficSlider').value=t;$('#npcSlider').value=n;$('#trafficValue').textContent=t+'%';$('#npcValue').textContent=n+'%';$('#adjustorMode').value=a.mode==='manual'?'manual':'auto';$('#adjustorStatus').textContent=(a.mode||'auto').toUpperCase();
+ if(!adjustorEditing){$('#trafficSlider').value=t;$('#npcSlider').value=n;$('#trafficValue').textContent=t+'%';$('#npcValue').textContent=n+'%';$('#adjustorMode').value=a.mode==='manual'?'manual':'auto';}$('#adjustorStatus').textContent=(a.mode||'auto').toUpperCase();
  $('#levelTitle').textContent=levelName(t)+' / '+levelName(n);$('#levelReason').textContent=a.reason||'Configured';
  $('#trafficBar').style.width=t+'%';$('#npcBar').style.width=n+'%';
 }
@@ -47,8 +48,10 @@ function renderPoints(){const pts=state.editing.points||[];$('#points').innerHTM
 function closeEditor(){state.editing=null;$('#editor').classList.remove('show')}
 $('#save').onclick=()=>{if(!state.editing)return;state.editing.name=$('#routeName').value.trim()||state.editing.id;state.editing.loop=$('#loop').checked;post('updateRoute',{route:state.editing});closeEditor()};$('#cancel').onclick=closeEditor;$('#addPoint').onclick=()=>{const pts=state.editing.points,p=pts[pts.length-1]||{x:0,y:0,z:0,heading:0};pts.push({x:p.x,y:p.y,z:p.z,heading:p.heading});renderPoints()};
 function settingsPayload(){const features={};document.querySelectorAll('[data-feature]').forEach(i=>features[i.dataset.feature]=i.checked);return {mode:$('#adjustorMode').value,trafficLevel:Number($('#trafficSlider').value),npcLevel:Number($('#npcSlider').value),features}}
-$('#applyAdjustor').onclick=()=>{const p=settingsPayload();state.adjustor={...state.adjustor,...p};post('updateSettings',p);renderAdjustor();renderFeatures()};
+$('#applyAdjustor').onclick=()=>{const p=settingsPayload();state.adjustor={...state.adjustor,...p};adjustorEditing=false;post('updateSettings',p);renderAdjustor();renderFeatures()};
 $('#resetAdjustor').onclick=()=>{post('applyPreset',{id:'normal_traffic'})};$('#savePreset').onclick=()=>{const name=$('#presetName').value.trim();if(!name)return;const p=settingsPayload();p.id=name;p.name=name;p.description='Custom admin preset';post('savePreset',p);$('#presetName').value=''};
+$('#adjustorMode').onfocus=()=>adjustorEditing=true;$('#adjustorMode').onchange=e=>{adjustorEditing=true;$('#adjustorStatus').textContent=e.target.value.toUpperCase()};
+$('#trafficSlider').onfocus=()=>adjustorEditing=true;$('#npcSlider').onfocus=()=>adjustorEditing=true;
 $('#trafficSlider').oninput=e=>{$('#trafficValue').textContent=e.target.value+'%';$('#trafficBar').style.width=e.target.value+'%'};
 $('#npcSlider').oninput=e=>{$('#npcValue').textContent=e.target.value+'%';$('#npcBar').style.width=e.target.value+'%'};
 $('#createZone').onclick=()=>post('createZone',{type:$('#zoneType').value,radius:Number($('#zoneRadius').value)||60});
