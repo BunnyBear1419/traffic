@@ -7,6 +7,14 @@ local function isEmergencyVehicle(v)
  return DoesEntityExist(v) and IsEntityAVehicle(v) and GetVehicleClass(v)==18
 end
 
+local function currentList(kind)
+ local vp=TrafficAdjustor.state and TrafficAdjustor.state.vehiclePolicy or {}
+ if kind=='emergency' and type(vp.emergencyModels)=='table' then return vp.emergencyModels end
+ if kind=='military' and type(vp.militaryModels)=='table' then return vp.militaryModels end
+ if kind=='protected' and type(vp.protectedModels)=='table' then return vp.protectedModels end
+ return nil
+end
+
 local function modelInList(v,list)
  if not DoesEntityExist(v) or not list then return false end
  local model=GetEntityModel(v)
@@ -15,11 +23,12 @@ local function modelInList(v,list)
 end
 
 local function isMilitaryVehicle(v)
- return modelInList(v,Config.VehiclePopulation and Config.VehiclePopulation.militaryModels)
+ return modelInList(v,currentList('military') or (Config.VehiclePopulation and Config.VehiclePopulation.militaryModels))
 end
 
 local function isProtectedVehicle(v)
  if not DoesEntityExist(v) or not IsEntityAVehicle(v) then return true end
+ if modelInList(v,currentList('protected')) then return true end
  local driver=GetPedInVehicleSeat(v,-1)
  return (driver~=0 and DoesEntityExist(driver) and IsPedAPlayer(driver)) or IsEntityAMissionEntity(v)
 end
@@ -28,9 +37,12 @@ local lastSuppressedEmergency=nil
 local lastSuppressedMilitary=nil
 local function applyModelSuppression(emergencyEnabled,militaryEnabled)
  local cfg=Config.VehiclePopulation or {}
+ local vp=TrafficAdjustor.state and TrafficAdjustor.state.vehiclePolicy or {}
+ local emergencyModels=type(vp.emergencyModels)=='table' and vp.emergencyModels or cfg.emergencyModels or {}
+ local militaryModels=type(vp.militaryModels)=='table' and vp.militaryModels or cfg.militaryModels or {}
  if cfg.modelSuppression==false then return end
- if emergencyEnabled~=lastSuppressedEmergency then for _,name in ipairs(cfg.emergencyModels or {}) do SetVehicleModelIsSuppressed(GetHashKey(name),not emergencyEnabled) end;lastSuppressedEmergency=emergencyEnabled end
- if militaryEnabled~=lastSuppressedMilitary then for _,name in ipairs(cfg.militaryModels or {}) do SetVehicleModelIsSuppressed(GetHashKey(name),not militaryEnabled) end;lastSuppressedMilitary=militaryEnabled end
+ if emergencyEnabled~=lastSuppressedEmergency then for _,name in ipairs(emergencyModels) do SetVehicleModelIsSuppressed(GetHashKey(name),not emergencyEnabled) end;lastSuppressedEmergency=emergencyEnabled end
+ if militaryEnabled~=lastSuppressedMilitary then for _,name in ipairs(militaryModels) do SetVehicleModelIsSuppressed(GetHashKey(name),not militaryEnabled) end;lastSuppressedMilitary=militaryEnabled end
 end
 
 CreateThread(function()
