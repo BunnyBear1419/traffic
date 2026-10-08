@@ -14,7 +14,7 @@ local function pushData()
   performance={scanInterval=Config.ScanInterval,maxTasks=Config.MaxTrafficTasks},monitor={},adjustor=TrafficAdjustor.snapshot(),learning=(TrafficLearning and TrafficLearning.snapshot and TrafficLearning.snapshot() or {})
  })
 end
-RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(false,false);SetNuiFocus(true,true);SendNUIMessage({action='open'});TriggerServerEvent('traffic:server:requestSettings'); end)
+RegisterNetEvent('traffic:client:open',function() open=true;SetNuiFocus(false,false);SetNuiFocus(true,true);SendNUIMessage({action='open'});TriggerServerEvent('traffic:server:requestSettings');TriggerServerEvent('traffic:server:requestData'); end)
 RegisterNetEvent('traffic:client:mode',function(mode) TrafficClientMode=mode or TrafficClientMode;SendNUIMessage({action='mode',mode=TrafficClientMode}) end)
 RegisterNetEvent('traffic:client:routeSaved',function(data) if TrafficLearning and TrafficLearning.onSaved then TrafficLearning.onSaved(data) end end)
 RegisterNetEvent('traffic:client:settings',function(settings) if type(settings)=='table' and settings.profile then TrafficClientMode=settings.profile end;TrafficAdjustor.state.mode=settings.mode or TrafficAdjustor.state.mode;TrafficAdjustor.state.trafficLevel=tonumber(settings.trafficLevel) or TrafficAdjustor.state.trafficLevel;TrafficAdjustor.state.npcLevel=tonumber(settings.npcLevel) or TrafficAdjustor.state.npcLevel;TrafficAdjustor.baseTrafficLevel=TrafficAdjustor.state.trafficLevel;TrafficAdjustor.baseNPCLevel=TrafficAdjustor.state.npcLevel;TrafficAdjustor.features=settings.features or TrafficAdjustor.features;pushData() end)
