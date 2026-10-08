@@ -5,6 +5,21 @@ Advanced **FiveM / GTA V traffic, NPC, route, population and server-control reso
 > **Status:** Release Candidate / server-owner testing
 > **Version:** 2.0.0
 
+
+## Police / FIB field deployment
+
+Admins can enable **Deploy/remove road props** in **Traffic Director → Jobs & Access** for the Police, FIB, Sheriff, or a custom job rule. Save the rule after checking the capability. Job names must match the names used by the configured ESX/QBCore adapter. Server admins can always deploy props.
+
+In game, use:
+- `/trafficprop cone` — place a road cone in front of you
+- `/trafficprop barrier` — place a road barrier
+- `/trafficprop police_barrier` — place a police-style barrier
+- `/trafficprop spikes` — deploy a spike strip
+- `/trafficprop flare` — place a flare
+- `/trafficprop remove` — remove the nearest Traffic Director prop
+
+Props are networked, server-authorized, and capped per player and globally. Spike strips puncture tires when a moving vehicle gets close enough. Props deployed by a player are cleaned up when that player disconnects or when the resource stops. This feature requires OneSync/server entity creation support and should be tested with the server's current artifact and framework before public release.
+
 ## What Traffic Director does
 
 Traffic Director manages and intelligently adjusts the ambient GTA V world around players.
