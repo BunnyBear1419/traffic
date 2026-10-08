@@ -90,3 +90,34 @@ $('#importSettings').onclick=()=>{try{const config=JSON.parse($('#configImport')
 
 window.addEventListener('message',e=>{if(e.data.action==='mode'){state.mode=e.data.mode||state.mode;render()}if(e.data.action==='learning'){state.learning=e.data.learning||state.learning;renderLearning()}});
 function closeUI(){document.body.classList.remove('ui-open');post('close')}$('#close').onclick=closeUI;document.addEventListener('keydown',e=>{if(e.key==='Escape')closeUI()});
+
+
+// Compact tabbed workspace: preserve existing controls and event handlers.
+function initDashboardTabs(){
+ const root=$('.panel'),content=$('.content'),advanced=$('.advancedDirector'),safety=$('.releasePanel');
+ if(!root||!content||!advanced||!safety||$('#dashboardTabs'))return;
+ const children=[...content.children];
+ const makePanel=id=>{const p=document.createElement('section');p.className='tabPanel';p.dataset.tabPanel=id;return p};
+ const overview=makePanel('overview'),intel=makePanel('intelligence'),advancedTab=makePanel('advanced'),safetyTab=makePanel('safety');
+ overview.classList.add('isActive');
+ const overviewGrid=document.createElement('div');overviewGrid.className='content';
+ const intelGrid=document.createElement('div');intelGrid.className='content';
+ children.forEach((node,index)=>{if(index<3)overviewGrid.appendChild(node);else intelGrid.appendChild(node)});
+ overview.appendChild(overviewGrid);intel.appendChild(intelGrid);
+ advancedTab.appendChild(advanced);safetyTab.appendChild(safety);
+ const nav=document.createElement('nav');nav.id='dashboardTabs';nav.className='dashboardTabs';nav.setAttribute('aria-label','Traffic Director sections');
+ const tabs=[['overview','Overview','Core controls & presets'],['intelligence','Intelligence','Routes, zones & diagnostics'],['advanced','Advanced','Events, jobs & vehicle policy'],['safety','Safety & Setup','Backups and system safety']];
+ tabs.forEach(([id,label,description],index)=>{
+  const button=document.createElement('button');button.type='button';button.className='dashboardTab'+(index===0?' active':'');button.dataset.tab=id;button.setAttribute('aria-selected',index===0?'true':'false');
+  button.innerHTML='<strong>'+label+'</strong><small>'+description+'</small>';
+  button.addEventListener('click',()=>activateDashboardTab(id));nav.appendChild(button);
+ });
+ content.replaceWith(nav);nav.after(overview,intel,advancedTab,safetyTab);
+ function activateDashboardTab(id){
+  document.querySelectorAll('.tabPanel').forEach(panel=>panel.classList.toggle('isActive',panel.dataset.tabPanel===id));
+  document.querySelectorAll('.dashboardTab').forEach(button=>{const active=button.dataset.tab===id;button.classList.toggle('active',active);button.setAttribute('aria-selected',active?'true':'false')});
+  if(id==='intelligence')drawHeatmap();
+ }
+ window.activateDashboardTab=activateDashboardTab;
+}
+initDashboardTabs();
