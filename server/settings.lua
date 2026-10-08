@@ -22,7 +22,7 @@ local function presetPayload(preset)
  return {mode=preset.mode,trafficMode=preset.trafficMode or Config.DefaultMode,trafficLevel=preset.trafficLevel,npcLevel=preset.npcLevel,parkedVehicleLevel=preset.parkedVehicleLevel or 70,emergencyVehicles=preset.emergencyVehicles~=false,militaryVehicles=preset.militaryVehicles~=false,features=features}
 end
 local function defaults()
- return {mode=Config.Adjustor.mode,profile='normal_traffic',trafficMode=Config.DefaultMode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,parkedVehicleLevel=(Config.VehiclePopulation and Config.VehiclePopulation.parkedVehicleLevel) or 70,emergencyVehicles=Config.VehiclePopulation and Config.VehiclePopulation.emergencyVehicles~=false,militaryVehicles=Config.VehiclePopulation and Config.VehiclePopulation.militaryVehicles~=false,features=defaultFeatures(),presets={},jobRules={}}
+ return {mode=Config.Adjustor.mode,profile='normal_traffic',trafficMode=Config.DefaultMode,trafficLevel=Config.Adjustor.trafficLevel,npcLevel=Config.Adjustor.npcLevel,parkedVehicleLevel=(Config.VehiclePopulation and Config.VehiclePopulation.parkedVehicleLevel) or 70,emergencyVehicles=Config.VehiclePopulation and Config.VehiclePopulation.emergencyVehicles~=false,militaryVehicles=Config.VehiclePopulation and Config.VehiclePopulation.militaryVehicles~=false,features=defaultFeatures(),presets={},jobRules={},vehiclePolicy={emergencyModels=Config.VehiclePopulation.emergencyModels,militaryModels=Config.VehiclePopulation.militaryModels,protectedModels=(Config.ProtectedVehicles and Config.ProtectedVehicles.models) or {},categoryLevels={taxi=100,bus=100,truck=100,commercial=100,motorcycle=100,sports=100}}}
 end
 local function load()
  local raw=LoadResourceFile(resourceName,'data/settings.json')
@@ -31,7 +31,7 @@ local function load()
  if not ok or type(value)~='table' then return defaults() end
  local d=defaults()
  value.features=type(value.features)=='table' and value.features or d.features
- value.presets=type(value.presets)=='table' and value.presets or {};value.jobRules=type(value.jobRules)=='table' and value.jobRules or {}
+ value.presets=type(value.presets)=='table' and value.presets or {};value.jobRules=type(value.jobRules)=='table' and value.jobRules or {};value.vehiclePolicy=type(value.vehiclePolicy)=='table' and value.vehiclePolicy or d.vehiclePolicy
  value.mode=value.mode=='manual' and 'manual' or 'auto';value.profile=type(value.profile)=='string' and value.profile or d.profile;value.trafficMode=type(value.trafficMode)=='string' and Config.Modes[value.trafficMode] and value.trafficMode or d.trafficMode
  value.trafficLevel=math.max(0,math.min(100,tonumber(value.trafficLevel) or d.trafficLevel))
  value.npcLevel=math.max(0,math.min(100,tonumber(value.npcLevel) or d.npcLevel));value.parkedVehicleLevel=math.max(0,math.min(100,tonumber(value.parkedVehicleLevel) or d.parkedVehicleLevel));if value.emergencyVehicles==nil then value.emergencyVehicles=d.emergencyVehicles end;if value.militaryVehicles==nil then value.militaryVehicles=d.militaryVehicles end
@@ -99,6 +99,14 @@ RegisterNetEvent('traffic:server:updateSettings',function(payload)
  if payload.emergencyVehicles~=nil then TrafficSettings.emergencyVehicles=payload.emergencyVehicles==true end
  if payload.militaryVehicles~=nil then TrafficSettings.militaryVehicles=payload.militaryVehicles==true end
  if type(payload.features)=='table' then for k,v in pairs(d.features) do if payload.features[k]~=nil then TrafficSettings.features[k]=payload.features[k]==true end end end
+ if type(payload.vehiclePolicy)=='table' then
+  local vp=TrafficSettings.vehiclePolicy or d.vehiclePolicy
+  vp.emergencyModels=type(payload.vehiclePolicy.emergencyModels)=='table' and payload.vehiclePolicy.emergencyModels or vp.emergencyModels
+  vp.militaryModels=type(payload.vehiclePolicy.militaryModels)=='table' and payload.vehiclePolicy.militaryModels or vp.militaryModels
+  vp.protectedModels=type(payload.vehiclePolicy.protectedModels)=='table' and payload.vehiclePolicy.protectedModels or vp.protectedModels
+  vp.categoryLevels=type(payload.vehiclePolicy.categoryLevels)=='table' and payload.vehiclePolicy.categoryLevels or vp.categoryLevels
+  TrafficSettings.vehiclePolicy=vp
+ end
  save();publish()
 end)
 AddEventHandler('onResourceStart',function(res) if res==resourceName then CreateThread(function() Wait(0);TrafficSettings_init() end) end end)
