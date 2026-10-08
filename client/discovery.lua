@@ -17,10 +17,11 @@ end
 CreateThread(function()
  while true do
   if TrafficAdjustor.isFeatureEnabled('discovery') and Config.AutoDiscovery.enabled then
-   local pool=GetGamePool('CVehicle')
-   for i=1,#pool do
-    local v=pool[i]
-    if npc(v) and TrafficOwnership.isLocal(v) and GetEntitySpeed(v)>=Config.AutoDiscovery.minSpeed then
+   local player=PlayerPedId()
+   local pp=GetEntityCoords(player)
+   local radius=math.min(140.0,math.max(60.0,(Config.AutoDiscovery.sampleInterval or 1200)/10.0))
+   local v=GetClosestVehicle(pp.x,pp.y,pp.z,radius,0,70)
+   if v and v~=0 and npc(v) and TrafficOwnership.isLocal(v) and GetEntitySpeed(v)>=Config.AutoDiscovery.minSpeed then
      local s=TrafficDiscovery.active[v]
      if not s then s={points={},started=GetGameTimer(),last=GetGameTimer()};TrafficDiscovery.active[v]=s end
      push(v,s);s.last=GetGameTimer()
