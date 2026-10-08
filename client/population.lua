@@ -23,13 +23,20 @@ CreateThread(function()
  end
 end)
 
+local cleanupActive=false
+local cleanupBoostUntil=0
+local lastTrafficLevel=70
+local lastNPCLevel=70
+
 local function cleanupAmbient()
  if not Config.NativeSafety or not Config.NativeSafety.enabled or Config.NativeSafety.populationCleanup~=true then return end
- local radius=Config.NativeSafety.cleanupRadius or 90.0
- local batch=math.max(1,math.min(5,Config.NativeSafety.cleanupBatch or 3))
+ local radius=Config.NativeSafety.cleanupRadius or 110.0
+ local batch=math.max(1,math.min(8,Config.NativeSafety.cleanupBatch or 5))
  local p=GetEntityCoords(PlayerPedId())
+ local trafficLevel=TrafficAdjustor.state.trafficLevel or 0
+ local npcLevel=TrafficAdjustor.state.npcLevel or 0
  local removed=0
- if (TrafficAdjustor.state.trafficLevel or 0)<=0 then
+ if trafficLevel<=0 then
   for i=1,batch do
    local v=GetClosestVehicle(p.x,p.y,p.z,radius,0,70)
    if not v or v==0 or not DoesEntityExist(v) or not IsEntityAVehicle(v) then break end
@@ -48,7 +55,7 @@ local function cleanupAmbient()
    end
   end
  end
- if (TrafficAdjustor.state.npcLevel or 0)<=0 then
+ if npcLevel<=0 then
   for i=1,batch do
    local ped=GetClosestPed(p.x,p.y,p.z,radius,1,1,1,1,1,28,0)
    if not ped or ped==0 or not DoesEntityExist(ped) or IsPedAPlayer(ped) then break end
@@ -69,9 +76,21 @@ end
 CreateThread(function()
  while true do
   if TrafficAdjustor.isFeatureEnabled('population') and Config.NativeSafety and Config.NativeSafety.populationCleanup==true then
-   if (TrafficAdjustor.state.trafficLevel or 0)<=0 or (TrafficAdjustor.state.npcLevel or 0)<=0 then cleanupAmbient() end
+   local trafficLevel=TrafficAdjustor.state.trafficLevel or 0
+   local npcLevel=TrafficAdjustor.state.npcLevel or 0
+   if trafficLevel<=0 or npcLevel<=0 then
+    if lastTrafficLevel>0 and trafficLevel<=0 or lastNPCLevel>0 and npcLevel<=0 then cleanupBoostUntil=GetGameTimer()+5000 end
+    cleanupActive=true
+    cleanupAmbient()
+   else
+    cleanupActive=false
+   end
+   lastTrafficLevel=trafficLevel
+   lastNPCLevel=npcLevel
   end
-  Wait((Config.NativeSafety and Config.NativeSafety.cleanupInterval) or 750)
+  local interval=(Config.NativeSafety and Config.NativeSafety.cleanupInterval) or 250
+  if cleanupActive and GetGameTimer()<cleanupBoostUntil then interval=100 end
+  Wait(interval)
  end
 end)
 
