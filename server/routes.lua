@@ -74,7 +74,7 @@ RegisterNetEvent('traffic:server:addRoute',function(route)
  route=sanitizeRoute(route);if not route then return end
  route.id=route.id or ('route_%s_%s'):format(os.time(),math.random(1000,9999))
  route.createdBy=GetPlayerName(source) or 'console';route.createdAt=os.time()
- TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast()
+ TrafficRoutes[route.id]=route;TrafficPersistence_save();broadcast();TriggerClientEvent('traffic:client:routeSaved',source,{id=route.id,name=route.name,points=#route.points})
 end)
 RegisterNetEvent('traffic:server:discoverRoute',function(route)
  if not Config.AutoDiscovery.enabled or type(route)~='table' then return end
