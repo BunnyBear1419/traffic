@@ -1,5 +1,17 @@
 TrafficSettings={}
 local resourceName=GetCurrentResourceName()
+local settingsAudit={}
+local function recordSettingAction(src,action,detail)
+ local entry={time=os.time(),name=(src and tonumber(src) and GetPlayerName(src)) or 'Console',action=tostring(action or 'settings'),detail=tostring(detail or ''):sub(1,140)}
+ settingsAudit[#settingsAudit+1]=entry
+ while #settingsAudit>100 do table.remove(settingsAudit,1) end
+ print(('[Traffic Director] audit: %s | %s | %s'):format(entry.name,entry.action,entry.detail))
+end
+local function recentSettingsAudit(limit)
+ local out={};local first=math.max(1,#settingsAudit-(limit or 20)+1)
+ for i=first,#settingsAudit do out[#out+1]=settingsAudit[i] end
+ return out
+end
 local BuiltInPresets={
  {id='minimal',name='Minimal',description='Very light civilian traffic for low-load servers.',mode='manual',trafficMode='light',trafficLevel=15,npcLevel=20,parkedVehicleLevel=20,emergencyVehicles=true,militaryVehicles=false},
  {id='city',name='City',description='Balanced dense urban traffic.',mode='manual',trafficMode='normal',trafficLevel=75,npcLevel=75,parkedVehicleLevel=80,emergencyVehicles=true,militaryVehicles=false},
@@ -67,17 +79,17 @@ RegisterNetEvent('traffic:server:requestSettings',function() publish(source);pub
 RegisterNetEvent('traffic:server:requestDiagnostics',function()
  if not TrafficPermissions.canDiagnostics(source) then return end
  local players=#GetPlayers()
- local snapshot={resource=resourceName,state=GetResourceState(resourceName),framework=Config.Framework or 'standalone',oneSync=GetConvar('onesync','off'),oneSyncPopulation=GetConvar('onesync_population','true'),players=players,masterEnabled=TrafficSettings and TrafficSettings.masterEnabled~=false,configured=TrafficSettings and TrafficSettings.configured==true,activeEvent=TrafficEventController and TrafficEventController.active or nil,jobRules=TrafficJobController and #TrafficJobController.getRules() or 0,serverTime=os.time()}
+ local snapshot={resource=resourceName,state=GetResourceState(resourceName),framework=Config.Framework or 'standalone',oneSync=GetConvar('onesync','off'),oneSyncPopulation=GetConvar('onesync_population','true'),players=players,masterEnabled=TrafficSettings and TrafficSettings.masterEnabled~=false,configured=TrafficSettings and TrafficSettings.configured==true,activeEvent=TrafficEventController and TrafficEventController.active or nil,jobRules=TrafficJobController and #TrafficJobController.getRules() or 0,recentActions=recentSettingsAudit(20),serverTime=os.time()}
  TriggerClientEvent('traffic:client:diagnosticsServer',source,snapshot)
  TriggerClientEvent('traffic:client:diagnosticsRequest',source)
 end)
 RegisterNetEvent('traffic:server:completeSetup',function()
  if not TrafficPermissions.canControl(source) then return end
- TrafficSettings=TrafficSettings or load();TrafficSettings.configured=true;TrafficSettings.masterEnabled=true;save();publish()
+ TrafficSettings=TrafficSettings or load();TrafficSettings.configured=true;TrafficSettings.masterEnabled=true;save();recordSettingAction(source,'complete_setup','Initial setup completed');publish()
 end)
 RegisterNetEvent('traffic:server:setMasterEnabled',function(enabled)
  if not TrafficPermissions.canControl(source) then return end
- TrafficSettings=TrafficSettings or load();TrafficSettings.masterEnabled=enabled==true;save();publish()
+ TrafficSettings=TrafficSettings or load();TrafficSettings.masterEnabled=enabled==true;save();recordSettingAction(source,'master_toggle',TrafficSettings.masterEnabled and 'enabled' or 'disabled');publish()
 end)
 RegisterNetEvent('traffic:server:exportSettings',function()
  if not TrafficPermissions.canDiagnostics(source) then return end
@@ -104,7 +116,7 @@ RegisterNetEvent('traffic:server:importSettings',function(payload)
  if type(payload.presets)=='table' then TrafficSettings.presets=payload.presets end
  if type(payload.jobRules)=='table' then TrafficSettings.jobRules=payload.jobRules end
  if type(payload.vehiclePolicy)=='table' then TrafficSettings.vehiclePolicy=payload.vehiclePolicy end
- save();publish();publishPresets();TriggerClientEvent('traffic:client:importResult',source,true,'Configuration imported successfully.')
+ save();recordSettingAction(source,'configuration_import','Imported settings with pre-import backup');publish();publishPresets();TriggerClientEvent('traffic:client:importResult',source,true,'Configuration imported successfully.')
 end)
 RegisterNetEvent('traffic:server:requestPresets',function() publishPresets(source) end)
 RegisterNetEvent('traffic:server:applyPreset',function(id)
@@ -135,7 +147,7 @@ RegisterNetEvent('traffic:server:savePreset',function(payload)
 end)
 RegisterNetEvent('traffic:server:deletePreset',function(id)
  if not TrafficPermissions.canControl(source) or type(id)~='string' then return end
- TrafficSettings=TrafficSettings or load();if TrafficSettings.presets then TrafficSettings.presets[id]=nil end;save();publishPresets(source)
+ TrafficSettings=TrafficSettings or load();if TrafficSettings.presets then TrafficSettings.presets[id]=nil end;save();recordSettingAction(source,'preset_delete',id);publishPresets(source)
 end)
 RegisterNetEvent('traffic:server:updateSettings',function(payload)
  if not TrafficPermissions.canControl(source) or type(payload)~='table' then return end
