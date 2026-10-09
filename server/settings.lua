@@ -2,6 +2,7 @@ TrafficSettings={}
 local resourceName=GetCurrentResourceName()
 local settingsAudit={}
 local function recordSettingAction(src,action,detail)
+ if action=='settings_update' and settingsAudit[#settingsAudit] and os.time()-(settingsAudit[#settingsAudit].time or 0)<5 then return end
  local entry={time=os.time(),name=(src and tonumber(src) and GetPlayerName(src)) or 'Console',action=tostring(action or 'settings'),detail=tostring(detail or ''):sub(1,140)}
  settingsAudit[#settingsAudit+1]=entry
  while #settingsAudit>100 do table.remove(settingsAudit,1) end
@@ -132,7 +133,7 @@ RegisterNetEvent('traffic:server:applyPreset',function(id)
  TrafficSettings.trafficLevel=math.max(0,math.min(100,tonumber(chosen.trafficLevel) or 70))
  TrafficSettings.npcLevel=math.max(0,math.min(100,tonumber(chosen.npcLevel) or 70));TrafficSettings.parkedVehicleLevel=math.max(0,math.min(100,tonumber(chosen.parkedVehicleLevel) or 70));TrafficSettings.emergencyVehicles=chosen.emergencyVehicles~=false;TrafficSettings.militaryVehicles=chosen.militaryVehicles~=false
  TrafficSettings.features=chosen.features or defaultFeatures()
- save();publish();publishPresets()
+ save();recordSettingAction(source,'preset_apply',id);publish();publishPresets()
 end)
 RegisterNetEvent('traffic:server:savePreset',function(payload)
  if not TrafficPermissions.canControl(source) or type(payload)~='table' then return end
@@ -143,7 +144,7 @@ RegisterNetEvent('traffic:server:savePreset',function(payload)
  if type(payload.features)=='table' then for k in pairs(features) do if payload.features[k]~=nil then features[k]=payload.features[k]==true end end end
  TrafficSettings=TrafficSettings or load();TrafficSettings.presets=TrafficSettings.presets or {}
  TrafficSettings.presets[id]={name=tostring(payload.name or id):sub(1,60),description=tostring(payload.description or 'Custom preset'):sub(1,160),mode=payload.mode=='manual' and 'manual' or 'auto',trafficMode=(type(payload.trafficMode)=='string' and Config.Modes[payload.trafficMode] and payload.trafficMode or TrafficSettings.trafficMode or Config.DefaultMode),trafficLevel=math.max(0,math.min(100,tonumber(payload.trafficLevel) or 70)),npcLevel=math.max(0,math.min(100,tonumber(payload.npcLevel) or 70)),parkedVehicleLevel=math.max(0,math.min(100,tonumber(payload.parkedVehicleLevel) or 70)),emergencyVehicles=payload.emergencyVehicles~=false,militaryVehicles=payload.militaryVehicles~=false,features=features}
- save();publishPresets(source)
+ save();recordSettingAction(source,'preset_save',id);publishPresets(source)
 end)
 RegisterNetEvent('traffic:server:deletePreset',function(id)
  if not TrafficPermissions.canControl(source) or type(id)~='string' then return end
@@ -169,7 +170,7 @@ RegisterNetEvent('traffic:server:updateSettings',function(payload)
   vp.categoryLevels=type(payload.vehiclePolicy.categoryLevels)=='table' and payload.vehiclePolicy.categoryLevels or vp.categoryLevels
   TrafficSettings.vehiclePolicy=vp
  end
- save();publish()
+ save();recordSettingAction(source,'settings_update','Profile='..tostring(TrafficSettings.profile)..', traffic='..tostring(TrafficSettings.trafficLevel)..'%, npc='..tostring(TrafficSettings.npcLevel)..'%, parked='..tostring(TrafficSettings.parkedVehicleLevel)..'%');publish()
 end)
 AddEventHandler('onResourceStart',function(res) if res==resourceName then CreateThread(function() Wait(0);TrafficSettings_init() end) end end)
 AddEventHandler('onResourceStop',function(res) if res==resourceName then save() end end)
