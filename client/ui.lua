@@ -25,7 +25,7 @@ RegisterNetEvent('traffic:client:diagnostics',function(snapshot) SendNUIMessage(
 RegisterNetEvent('traffic:client:diagnosticsServer',function(snapshot) TrafficUIDiagnosticsServer=snapshot or {} end)
 RegisterNetEvent('traffic:client:diagnosticsRequest',function()
  local d=TrafficAdjustor and TrafficAdjustor.snapshot and TrafficAdjustor.snapshot() or {}
- d.clientResource=GetCurrentResourceName();d.clientPed=DoesEntityExist(PlayerPedId());d.clientCoords=GetEntityCoords(PlayerPedId());d.server=TrafficUIDiagnosticsServer or {}
+ d.clientResource=GetCurrentResourceName();d.clientPed=DoesEntityExist(PlayerPedId());d.clientCoords=GetEntityCoords(PlayerPedId());d.server=TrafficUIDiagnosticsServer or {};d.health={masterEnabled=d.masterEnabled~=false,populationFeature=d.features and d.features.population~=false,trafficFeature=d.features and d.features.traffic~=false,zeroTraffic=d.trafficScale==0,zeroNPC=d.npcScale==0,zeroParked=d.parkedVehicleScale==0,featureCount=d.enabledFeatureCount or 0,disabledFeatureCount=d.disabledFeatureCount or 0}
  SendNUIMessage({action='diagnostics',snapshot=d})
 end)
 RegisterNetEvent('traffic:client:configExport',function(snapshot) SendNUIMessage({action='configExport',snapshot=snapshot or {}}) end)
