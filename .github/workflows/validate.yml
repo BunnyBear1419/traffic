@@ -41,6 +41,28 @@ jobs:
               raise SystemExit("Missing NUI elements: " + ", ".join(missing))
           print("OK required NUI elements")
           PY
+      - name: Validate traffic control invariants
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          adjustor = Path("client/adjustor.lua").read_text(encoding="utf-8")
+          population = Path("client/population.lua").read_text(encoding="utf-8")
+          settings = Path("server/settings.lua").read_text(encoding="utf-8")
+          app = Path("web/app.js").read_text(encoding="utf-8")
+          html = Path("web/index.html").read_text(encoding="utf-8")
+          assert "TrafficAdjustor.features[k]=settings.features[k]==true" in adjustor, "Explicit disabled feature state must be preserved"
+          for native in ("SetVehicleDensityMultiplierThisFrame", "SetRandomVehicleDensityMultiplierThisFrame", "SetParkedVehicleDensityMultiplierThisFrame", "SetPedDensityMultiplierThisFrame", "SetScenarioPedDensityMultiplierThisFrame"):
+              assert native in population, f"Missing density control: {native}"
+          assert "recentActions=recentSettingsAudit(20)" in settings, "Diagnostics must expose recent configuration audit entries"
+          assert "Recent configuration audit" in app, "Control Center must render the audit panel"
+          assert 'id="zoneName"' in html, "Named patrol/traffic zones must be supported"
+          ids = re.findall(r'\\bid=["\\']([^"\\']+)["\\']', html)
+          duplicates = sorted({item for item in ids if ids.count(item) > 1})
+          if duplicates:
+              raise SystemExit("Duplicate NUI IDs: " + ", ".join(duplicates))
+          print("OK traffic controls, audit diagnostics, named zones, and unique NUI IDs")
+          PY
       - name: Validate manifest file references
         run: |
           python - <<'PY'
