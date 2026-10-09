@@ -62,18 +62,19 @@ CreateThread(function()
  while true do
   if TrafficAdjustor.isFeatureEnabled('population') then
    local mode=Config.Modes[TrafficClientMode] or Config.Modes.normal
-   local density=TrafficAdjustor.getPopulationDensity(mode.density or 1.0)
+   local trafficEnabled=TrafficAdjustor.isFeatureEnabled('traffic')
+   local density=trafficEnabled and TrafficAdjustor.getPopulationDensity(mode.density or 1.0) or 1.0
    local npcDensity=math.max(0,math.min(1.5,TrafficAdjustor.getNPCScale()))
    local parkedScale=TrafficAdjustor.getParkedVehicleScale and TrafficAdjustor.getParkedVehicleScale() or 0.7
    local _,emergencyEnabled,militaryEnabled=vehicleSettings()
-   local trafficZero=(TrafficAdjustor.getTrafficScale and TrafficAdjustor.getTrafficScale() or 0)<=0
+   local trafficZero=trafficEnabled and (TrafficAdjustor.getTrafficScale and TrafficAdjustor.getTrafficScale() or 0)<=0
    local npcZero=(TrafficAdjustor.getNPCScale and TrafficAdjustor.getNPCScale() or 0)<=0
    SetVehicleDensityMultiplierThisFrame(trafficZero and 0.0 or density)
    SetRandomVehicleDensityMultiplierThisFrame(trafficZero and 0.0 or density)
-   SetParkedVehicleDensityMultiplierThisFrame(trafficZero and 0.0 or parkedScale)
+   SetParkedVehicleDensityMultiplierThisFrame(parkedScale<=0 and 0.0 or parkedScale)
    SetPedDensityMultiplierThisFrame(npcZero and 0.0 or math.min(npcDensity,1.0))
    SetScenarioPedDensityMultiplierThisFrame(npcZero and 0.0 or math.min(npcDensity,1.0),npcZero and 0.0 or math.min(npcDensity,1.0))
-   if density<=0 and npcDensity<=0 and parkedScale<=0 then SetVehiclePopulationBudget(0);SetPedPopulationBudget(0) else SetVehiclePopulationBudget(3);SetPedPopulationBudget(3) end
+   if trafficZero and npcZero and parkedScale<=0 then SetVehiclePopulationBudget(0);SetPedPopulationBudget(0) else SetVehiclePopulationBudget(3);SetPedPopulationBudget(3) end
    applyModelSuppression(emergencyEnabled,militaryEnabled)
   else
    applyModelSuppression(true,true)
