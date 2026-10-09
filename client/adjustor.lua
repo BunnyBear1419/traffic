@@ -43,11 +43,19 @@ function TrafficAdjustor.getScanInterval()
  return math.floor(a.maxTrafficScale>0 and clamp(Config.ScanInterval/(0.45+scale*0.55),a.minScanInterval or 350,a.maxScanInterval or 2000) or Config.ScanInterval)
 end
 function TrafficAdjustor.snapshot()
- return {mode=TrafficAdjustor.state.mode,trafficMode=TrafficClientMode or Config.DefaultMode,trafficLevel=TrafficAdjustor.state.trafficLevel,npcLevel=TrafficAdjustor.state.npcLevel,parkedVehicleLevel=TrafficAdjustor.state.parkedVehicleLevel,emergencyVehicles=TrafficAdjustor.state.emergencyVehicles,militaryVehicles=TrafficAdjustor.state.militaryVehicles,population=TrafficAdjustor.state.population,players=TrafficAdjustor.state.players,reason=TrafficAdjustor.state.reason,features=TrafficAdjustor.features,vehiclePolicy=TrafficAdjustor.state.vehiclePolicy,policyReason=TrafficAdjustor.state.policyReason,trafficScale=TrafficAdjustor.getTrafficScale(),npcScale=TrafficAdjustor.getNPCScale(),maxTasks=TrafficAdjustor.getMaxTasks(),scanInterval=TrafficAdjustor.getScanInterval()}
+ local enabledCount,disabledCount=0,0
+ for _,v in pairs(TrafficAdjustor.features or {}) do if v==false then disabledCount=disabledCount+1 else enabledCount=enabledCount+1 end end
+ return {mode=TrafficAdjustor.state.mode,trafficMode=TrafficClientMode or Config.DefaultMode,trafficLevel=TrafficAdjustor.state.trafficLevel,npcLevel=TrafficAdjustor.state.npcLevel,parkedVehicleLevel=TrafficAdjustor.state.parkedVehicleLevel,emergencyVehicles=TrafficAdjustor.state.emergencyVehicles,militaryVehicles=TrafficAdjustor.state.militaryVehicles,population=TrafficAdjustor.state.population,players=TrafficAdjustor.state.players,reason=TrafficAdjustor.state.reason,features=TrafficAdjustor.features,vehiclePolicy=TrafficAdjustor.state.vehiclePolicy,policyReason=TrafficAdjustor.state.policyReason,masterEnabled=TrafficAdjustor.state.masterEnabled~=false,configured=TrafficAdjustor.state.configured==true,enabledFeatureCount=enabledCount,disabledFeatureCount=disabledCount,trafficScale=TrafficAdjustor.getTrafficScale(),npcScale=TrafficAdjustor.getNPCScale(),parkedVehicleScale=TrafficAdjustor.getParkedVehicleScale(),maxTasks=TrafficAdjustor.getMaxTasks(),scanInterval=TrafficAdjustor.getScanInterval(),lastAppliedAt=TrafficAdjustor.state.lastAppliedAt}
 end
 local function applySettings(settings)
  if type(settings)~='table' then return end
- for k,v in pairs(defaults) do TrafficAdjustor.features[k]=settings.features and settings.features[k] ~= false or v end
+ for k,v in pairs(defaults) do
+  if type(settings.features)=='table' and settings.features[k]~=nil then
+   TrafficAdjustor.features[k]=settings.features[k]==true
+  else
+   TrafficAdjustor.features[k]=v
+  end
+ end
  local a=Config.Adjustor or {}
  TrafficAdjustor.state.masterEnabled=settings.masterEnabled~=false
  TrafficAdjustor.state.configured=settings.configured==true
