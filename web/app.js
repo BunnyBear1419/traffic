@@ -85,6 +85,7 @@ $('#scanMLOs').onclick=()=>post('scanMLOs');$('#teachToggle').onclick=()=>post('
 $('#masterEnabled').onchange=e=>{post('setMasterEnabled',{enabled:e.target.checked});state.adjustor.masterEnabled=e.target.checked;renderRelease()};
 $('#completeSetup').onclick=()=>post('completeSetup');
 $('#refreshDiagnostics').onclick=()=>post('requestDiagnostics');
+$('#copyDiagnostics').onclick=async()=>{const report={resource:'Traffic Director',createdAt:new Date().toISOString(),client:state.adjustor||{},server:(state.diagnostics||{}).server||{},diagnostics:state.diagnostics||{}};const payload=JSON.stringify(report,null,2);try{await navigator.clipboard.writeText(payload);alert('Diagnostic report copied. Share it when reporting a problem.');return}catch(_){}const area=document.createElement('textarea');area.value=payload;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();let copied=false;try{copied=document.execCommand('copy')}catch(_){}area.remove();if(copied)alert('Diagnostic report copied. Share it when reporting a problem.');else window.prompt('Copy this diagnostic report:',payload)};
 $('#exportSettings').onclick=()=>post('exportSettings');
 $('#importSettings').onclick=()=>{try{const config=JSON.parse($('#configImport').value);post('importSettings',{config})}catch(e){alert('Invalid JSON configuration.')}};
 
